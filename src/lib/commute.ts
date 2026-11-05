@@ -1,29 +1,21 @@
 import { classesOn } from './classes'
 import { addDays, startOfDay } from './date'
-import type { AgendaItem, Course } from '@/types'
+import type { AgendaItem, Commute, CommuteMode, Course, School } from '@/types'
 
-/**
- * Home (Argyroupoli) to campus (Sorou 74, Marousi): walk 10–12 min, metro Line 2 to Syntagma,
- * Line 3 to Doukissis Plakentias, suburban one stop to Pentelis, walk ~8 min. About 80 minutes,
- * most of the spread being the wait for the suburban train.
- */
-export const DEFAULT_COMMUTE = 80
-/** Both ends of the trip, for the weather hint. */
-export const HOME_PLACE = { name: 'Argyroupoli', latitude: 37.906, longitude: 23.752 }
-export const CAMPUS_PLACE = { name: 'Marousi', latitude: 38.045, longitude: 23.809 }
+/** Minutes at school before class starts. */
+const SPARE = 5
+/** A departure more than this long before class isn't the plan; the door-to-door estimate is closer. */
+const MAX_EARLY = 60
 
-export const COMMUTE_ROUTE = 'Walk to Argyroupoli · metro to Doukissis Plakentias · suburban to Pentelis · walk'
-
-/** The suburban trains the user takes from Doukissis Plakentias to Pentelis (Hellenic Train, Nov 2026). */
-export const DEFAULT_TRAINS = ['17:11', '17:32', '17:50']
-/** Home to the suburban platform at Doukissis Plakentias: walk 11, red line to Syntagma, change, blue line, walk to the platform. */
-export const TO_TRAIN = 60
-const TRAIN_RIDE = 1 // Doukissis Plakentias → Pentelis
-const FROM_STATION = 8 // Pentelis → Sorou 74 on foot
-const SPARE = 5 // at campus before class
+export const modeWords: Record<CommuteMode, { label: string; ride: string }> = {
+  transit: { label: 'Public transport', ride: 'bus or train' },
+  car: { label: 'Car', ride: 'drive' },
+  walk: { label: 'Walking', ride: 'walk' },
+  bike: { label: 'Bike', ride: 'ride' },
+}
 
 /** "17:11, 17:32 17.50" → ["17:11", "17:32", "17:50"]. */
-export function parseTrainTimes(text: string): string[] {
+export function parseTimes(text: string): string[] {
   const times = [...text.matchAll(/\b(\d{1,2})[:.](\d{2})\b/g)]
     .map((m) => [Number(m[1]), Number(m[2])])
     .filter(([h, m]) => h < 24 && m < 60)
@@ -32,52 +24,58 @@ export function parseTrainTimes(text: string): string[] {
 }
 
 /**
- * When to leave for a class at `classAt`: aim for the latest listed suburban train that still gets you there
- * with a few minutes to spare (no waiting around on the platform or at campus). If none of the trains fits,
- * fall back to the door-to-door estimate.
+ * When to leave for a class at `classAt`. With fixed departures (a bus or train you always take), aim for the
+ * latest one that still gets you there a few minutes early; otherwise leave `minutes` before class.
  */
-export function planTrip(classAt: Date, commuteMinutes: number, trains: string[] = DEFAULT_TRAINS): { leaveAt: Date; train?: Date } {
-  const latestArrival = classAt.getTime() - (SPARE + FROM_STATION + TRAIN_RIDE) * 60_000
-  const train = trains
+export function planTrip(classAt: Date, commute: Commute & { minutes: number }): { leaveAt: Date; departure?: Date } {
+  const toStop = Math.min(commute.toStop ?? 0, commute.minutes)
+  const ride = commute.minutes - toStop
+  const latest = classAt.getTime() - (SPARE + ride) * 60_000
+  const departure = (commute.departures ?? [])
     .map((t) => {
       const [h, m] = t.split(':').map(Number)
       return new Date(classAt.getFullYear(), classAt.getMonth(), classAt.getDate(), h, m)
     })
-    .filter((d) => d.getTime() <= latestArrival)
+    .filter((d) => d.getTime() <= latest)
     .sort((a, b) => b.getTime() - a.getTime())[0]
-  // A train hours before the class isn't the plan; then the general estimate is closer.
-  if (train && classAt.getTime() - train.getTime() <= 60 * 60_000) return { leaveAt: new Date(train.getTime() - TO_TRAIN * 60_000), train }
-  return { leaveAt: new Date(classAt.getTime() - commuteMinutes * 60_000) }
+  if (departure && latest - departure.getTime() <= MAX_EARLY * 60_000)
+    return { leaveAt: new Date(departure.getTime() - toStop * 60_000), departure }
+  return { leaveAt: new Date(classAt.getTime() - commute.minutes * 60_000) }
 }
 
 export interface Departure {
   title: string
   classAt: Date
-  leaveAt: Date
-  /** The suburban train to catch, when one of the known trains fits. */
-  train?: Date
+  /** Missing until the travel time is set. */
+  leaveAt?: Date
+  /** The bus or train to catch, when one of the saved departures fits. */
+  departure?: Date
   tomorrow: boolean
 }
 
 // From this hour the evening before, tomorrow's first class is shown.
 const EVENING = 17
 
-/** First class of a day. */
+/** First class of a day that needs the trip (online lessons are taken from home). */
 function firstClass(day: Date, agenda: AgendaItem[], courses: Course[]): { title: string; at: Date } | undefined {
-  // Online lessons are taken from home, so only classes on campus need the trip.
   const first = classesOn(day, agenda, courses).find((c) => !c.online)
   return first && { title: first.title, at: first.start }
 }
 
 /**
- * When to leave home for the first class of the day. Once that class has started you're on campus,
+ * When to leave home for the first class of the day. Once that class has started you're at school,
  * so later classes don't count; in the evening it looks ahead to tomorrow's first class.
  */
-export function nextDeparture(agenda: AgendaItem[], courses: Course[], now: Date, minutes: number, trains?: string[]): Departure | undefined {
+export function nextDeparture(agenda: AgendaItem[], courses: Course[], now: Date, commute: Commute | undefined): Departure | undefined {
   const today = firstClass(startOfDay(now), agenda, courses)
   const pick = today && today.at > now ? { ...today, tomorrow: false } : undefined
   const next = pick ?? (now.getHours() >= EVENING ? firstClass(addDays(startOfDay(now), 1), agenda, courses) : undefined)
   if (!next) return undefined
-  const { leaveAt, train } = planTrip(next.at, minutes, trains)
-  return { title: next.title, classAt: next.at, leaveAt, train, tomorrow: !pick }
+  if (!commute?.minutes) return { title: next.title, classAt: next.at, tomorrow: !pick }
+  const { leaveAt, departure } = planTrip(next.at, { ...commute, minutes: commute.minutes })
+  return { title: next.title, classAt: next.at, leaveAt, departure, tomorrow: !pick }
 }
+
+/** Whether a Leave card makes sense yet: a school or courses with weekly times to know when classes are. */
+export const knowsClasses = (school: School | undefined, courses: Course[]) =>
+  Boolean(school?.address || school?.name) || courses.some((c) => c.meetings?.length)

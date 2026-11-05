@@ -7,7 +7,7 @@ export type WeatherState =
   | { status: 'ready'; data: Weather }
   | { status: 'unavailable'; reason: string }
 
-const CACHE_KEY = 'dash.weather.v1'
+const CACHE_KEY = 'unidash.weather.v1'
 const MAX_AGE = 30 * 60_000
 
 interface Cached {

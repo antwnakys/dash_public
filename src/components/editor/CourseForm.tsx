@@ -139,8 +139,8 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
       <Field label="Course portal link">
         <TextInput type="url" inputMode="url" value={portal} onChange={(e) => setPortal(e.target.value)} placeholder="https://" />
       </Field>
-      <Field label="Teams link" hint="For online lessons. A link in the calendar event is used first.">
-        <TextInput type="url" inputMode="url" value={meeting} onChange={(e) => setMeeting(e.target.value)} placeholder="https://teams.microsoft.com/…" />
+      <Field label="Online lesson link" hint="Teams, Zoom or Meet, for online lessons. A link in the calendar event is used first.">
+        <TextInput type="url" inputMode="url" value={meeting} onChange={(e) => setMeeting(e.target.value)} placeholder="https://" />
       </Field>
       <Field label="Materials link">
         <TextInput type="url" inputMode="url" value={materials} onChange={(e) => setMaterials(e.target.value)} placeholder="https://" />

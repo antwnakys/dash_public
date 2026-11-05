@@ -2,9 +2,9 @@ import { CreditCard } from 'lucide-react'
 import { useState } from 'react'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
-import { cardStatus } from '@/lib/metroCard'
+import { passStatus } from '@/lib/pass'
 
-const dismissKey = (d: Date) => `dash.metrocard.dismissed.${d.getFullYear()}-${d.getMonth() + 1}`
+const dismissKey = (d: Date) => `unidash.pass.dismissed.${d.getFullYear()}-${d.getMonth() + 1}`
 
 const isDismissed = (d: Date) => {
   try {
@@ -14,13 +14,14 @@ const isDismissed = (d: Date) => {
   }
 }
 
-/** On the 2nd and 3rd of the month: renew the monthly transport card. */
-export function MetroCardCard() {
+/** The day before and the day the monthly transport pass renews (only when a pass is set up). */
+export function PassCard() {
   const { profile } = useDashboard()
   const now = useNow(60_000)
   const [hidden, setHidden] = useState(() => isDismissed(now))
-  const status = cardStatus(now)
-  if (!status || hidden || profile.reminders?.metroCard === false) return null
+  const day = profile.pass?.renewDay
+  const status = day ? passStatus(day, now) : undefined
+  if (!status || hidden) return null
 
   const dismiss = () => {
     setHidden(true)
@@ -37,7 +38,7 @@ export function MetroCardCard() {
         <CreditCard className="size-5" strokeWidth={2} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-headline text-ink">{status === 'tomorrow' ? 'Metro card expires tomorrow' : 'Metro card expires today'}</span>
+        <span className="block text-headline text-ink">{status === 'tomorrow' ? 'Your travel pass runs out tomorrow' : 'Your travel pass runs out today'}</span>
         <span className="block text-subhead text-muted">{status === 'tomorrow' ? 'Renew it today so you can travel tomorrow.' : 'Renew it before your next trip.'}</span>
       </span>
       <button

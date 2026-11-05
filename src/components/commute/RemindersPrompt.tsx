@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 
-const DISMISSED = 'dash.reminders.prompt.dismissed'
+const DISMISSED = 'unidash.reminders.prompt.dismissed'
 
 const wasDismissed = () => {
   try {

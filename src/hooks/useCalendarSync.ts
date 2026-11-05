@@ -50,7 +50,7 @@ async function fetchFeed(url: string, index: number): Promise<CalendarEvent[]> {
 
 const feedError = (e: unknown) =>
   e instanceof TypeError && !isNative
-    ? 'Browsers can’t read iCal links directly. Use Connect with Google, or the dash iPhone app.'
+    ? 'Browsers can’t read iCal links directly. Use Connect with Google, or import an .ics file.'
     : e instanceof Error
       ? e.message
       : String(e)
@@ -60,8 +60,8 @@ const feedError = (e: unknown) =>
  * refreshed on launch, every 15 minutes and on return to the app.
  */
 export function useCalendarSync(urls: string[] = []): CalendarSync {
-  const [snapshot, setSnapshot] = useLocalStorage<Snapshot>('dash.calendar.v1')
-  const [account, setAccount] = useLocalStorage<GoogleAccount | null>('dash.google.v1')
+  const [snapshot, setSnapshot] = useLocalStorage<Snapshot>('unidash.calendar.v1')
+  const [account, setAccount] = useLocalStorage<GoogleAccount | null>('unidash.google.v1')
   const [status, setStatus] = useState<CalendarSync['status']>('ok')
   const [error, setError] = useState<string>()
   const [connecting, setConnecting] = useState(false)

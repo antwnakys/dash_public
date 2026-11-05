@@ -28,7 +28,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # The iPhone app updates itself from these two files (src/lib/liveUpdate.ts).
+      # A future iPhone app updates itself from these two files (src/lib/liveUpdate.ts).
       - name: Publish the app bundle for live updates
         run: |
           (cd dist && zip -qr ../app-bundle.zip .)

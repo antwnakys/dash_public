@@ -1,9 +1,9 @@
 /**
- * Phone reminders, scheduled with iOS as local notifications so they arrive even when dash is closed.
- * Every time the data changes the whole plan is rebuilt: everything dash scheduled is cancelled and
- * the next two weeks are scheduled again (iOS keeps at most 64 pending, dash uses up to 60).
+ * Phone reminders, scheduled with iOS as local notifications so they arrive even when unidash is closed.
+ * Every time the data changes the whole plan is rebuilt: everything unidash scheduled is cancelled and
+ * the next two weeks are scheduled again (iOS keeps at most 64 pending, unidash uses up to 60).
  * Mac app: the plan goes to the app (src-tauri/src/main.rs), which shows each reminder on time while
- * dash is running; it stays in the menu bar when the window is closed and starts at login.
+ * unidash is running; it stays in the menu bar when the window is closed and starts at login.
  */
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { isMacApp } from './macApp'
@@ -37,16 +37,16 @@ const TEST_ID = 9999
 export async function sendTestReminder(): Promise<void> {
   if (isMacApp) {
     const { invoke } = await mac()
-    setTimeout(() => invoke('notify', { title: 'dash reminders work', body: 'This is what a reminder looks like.' }).catch(() => {}), 5000)
+    setTimeout(() => invoke('notify', { title: 'unidash reminders work', body: 'This is what a reminder looks like.' }).catch(() => {}), 5000)
     return
   }
   if (!isNative) return
   await LocalNotifications.schedule({
-    notifications: [{ id: TEST_ID, title: 'dash reminders work', body: 'This is what a reminder looks like.', schedule: { at: new Date(Date.now() + 5000) } }],
+    notifications: [{ id: TEST_ID, title: 'unidash reminders work', body: 'This is what a reminder looks like.', schedule: { at: new Date(Date.now() + 5000) } }],
   })
 }
 
-/** Replaces everything dash has scheduled with `plan`. */
+/** Replaces everything unidash has scheduled with `plan`. */
 export async function applyReminders(plan: Reminder[]): Promise<void> {
   if (isMacApp) {
     const { invoke } = await mac()

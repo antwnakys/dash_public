@@ -20,7 +20,7 @@ export default defineConfig({
     __BUILD__: JSON.stringify(buildId()),
     __BUILT_AT__: JSON.stringify(new Date().toISOString()),
   },
-  // Relative asset paths work on GitHub Pages (/dash/) and inside the iOS app alike.
+  // Relative asset paths work on GitHub Pages (/dash_public/) and inside a future iOS app alike.
   base: './',
   plugins: [react(), tailwindcss()],
   resolve: {

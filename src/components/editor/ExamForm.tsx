@@ -49,7 +49,7 @@ export function ExamForm({ id, onDone }: { id?: string; onDone: () => void }) {
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
       <Field label="What's the exam?">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ΣΗΜΑΤΑ, Databases final…" required autoFocus={!existing} />
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Physics final, Driving theory…" required autoFocus={!existing} />
       </Field>
       <div className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
         <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-1.5">

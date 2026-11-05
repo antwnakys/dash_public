@@ -9,12 +9,13 @@ import { useNow } from '@/hooks/useNow'
 import { classesOn } from '@/lib/classes'
 import { cn } from '@/lib/cn'
 import { addDays, fmt, isSameDay, weekOf } from '@/lib/date'
+import { schoolLabel } from '@/lib/school'
 
 const dayRange = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 
 /** The week's classes, Monday to Sunday, from the calendar and the courses' weekly times. */
 export function Timetable() {
-  const { agenda, courses, openEditor } = useDashboard()
+  const { agenda, courses, openEditor, profile } = useDashboard()
   const now = useNow(60_000)
   const [offset, setOffset] = useState(0)
   const days = useMemo(() => weekOf(addDays(now, offset * 7)), [now, offset])
@@ -41,7 +42,7 @@ export function Timetable() {
       <Card>
         {total === 0 ? (
           <p className="px-4 py-6 text-center text-subhead text-muted">
-            No classes this week. Add class times to a course, or connect the calendar with your classes at Sorou 74.
+            No classes this week. Add class times to a course{profile.school?.address ? `, or connect a calendar with your classes at ${schoolLabel(profile.school)}` : ', or add your school’s address in Settings so classes in your calendar show here'}.
           </p>
         ) : (
           <ol className="separated">

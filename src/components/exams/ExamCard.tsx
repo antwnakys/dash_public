@@ -39,7 +39,7 @@ function SessionRow({ s, now, onToggle }: { s: SessionView; now: Date; onToggle:
 
 /** One exam: countdown, progress, and its study sessions to tick off (or a button to plan them). */
 export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; now: Date; open?: boolean }) {
-  const { study, agenda, notify, openEditor } = useDashboard()
+  const { study, agenda, notify, openEditor, profile } = useDashboard()
   const editTarget =
     exam.source === 'event' ? ({ type: 'exam', id: exam.id } as const) : exam.source === 'assignment' ? ({ type: 'deadline', id: exam.id } as const) : null
   const [open, setOpen] = useState(Boolean(startOpen))
@@ -68,7 +68,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
       .split(/[\n,;]+/)
       .map((t) => t.trim())
       .filter(Boolean)
-    const plan = planStudy(exam, agenda, now, list)
+    const plan = planStudy(exam, agenda, now, list, profile.commute?.minutes)
     if (!plan.length) return notify('No free time left before this exam to plan sessions.', 'error')
     study.set((items) => [...items.filter((i) => !(i.examId === exam.id && !i.fromCalendar)), ...plan])
     notify(`${plan.length} study ${plan.length === 1 ? 'session' : 'sessions'} planned`)
@@ -137,7 +137,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             {total > 0 ? (
               <>
                 <p className="px-5 pt-3 pb-1 text-caption text-faint">
-                  {planned ? 'Planned by dash on your free time.' : 'Study sessions from your calendar.'}
+                  {planned ? 'Planned by unidash on your free time.' : 'Study sessions from your calendar.'}
                 </p>
                 <ul className="separated">
                   {exam.sessions.map((s) => (
@@ -165,7 +165,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             ) : (
               <div className="flex flex-col gap-3 px-5 py-4">
                 <p className="text-subhead text-muted">
-                  No study sessions yet. dash can plan up to six on your free time before the exam, keeping work, classes and your trips clear.
+                  No study sessions yet. unidash can plan up to six on your free time before the exam, keeping work, classes and your trips clear.
                 </p>
                 <textarea
                   value={topics}

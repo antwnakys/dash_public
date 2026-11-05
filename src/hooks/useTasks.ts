@@ -15,7 +15,7 @@ export interface TasksApi {
 }
 
 export function useTasks(): TasksApi {
-  const { items, set, remove } = useCollection<Task>('dash.tasks.v1')
+  const { items, set, remove } = useCollection<Task>('unidash.tasks.v1')
 
   const add = useCallback(
     (title: string, category: TaskCategory, due?: Pick<Task, 'due' | 'dueAllDay'>) =>

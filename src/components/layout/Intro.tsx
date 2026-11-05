@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Logo } from '@/components/brand/Logo'
 
-const SEEN = 'dash.intro.seen'
+const SEEN = 'unidash.intro.seen'
 
 function seenThisSession() {
   try {

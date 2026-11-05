@@ -20,7 +20,7 @@ export function Sidebar() {
     >
       <div className="flex items-center gap-2 px-2 pt-1 pb-5">
         <Logo className="size-7" />
-        <span className="text-headline tracking-tight text-ink">dash</span>
+        <span className="text-headline tracking-tight text-ink">unidash</span>
       </div>
 
       <Button variant="primary" onClick={() => openEditor({ type: 'new' })} className="mb-4 w-full" title="New (N)">

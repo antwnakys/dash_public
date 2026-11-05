@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import { CampusClasses } from '@/components/courses/CampusClasses'
+import { SchoolClasses } from '@/components/courses/SchoolClasses'
 import { CourseCard } from '@/components/courses/CourseCard'
 import { Timetable } from '@/components/courses/Timetable'
 import { usePendingByCourse } from '@/components/courses/usePendingByCourse'
@@ -38,7 +38,7 @@ export function CoursesView() {
           </Button>
         }
       />
-      <CampusClasses />
+      <SchoolClasses />
       {courses.items.length > 0 && (
         <RevealItem className="mb-8">
           <Timetable />

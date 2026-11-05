@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/Button'
 import { Segmented } from '@/components/ui/Segmented'
 import { useDashboard } from '@/context/DashboardContext'
 import { searchPlace } from '@/data/weather'
+import { dayLabel, lookUp, minuteOptions, minutesLabel, modes, passDays } from '@/lib/setup'
 import { countdown } from '@/lib/date'
 import { parseIcs } from '@/lib/ics'
-import { COMMUTE_ROUTE, DEFAULT_COMMUTE, DEFAULT_TRAINS, parseTrainTimes } from '@/lib/commute'
+import { parseTimes } from '@/lib/commute'
 import { BUILD, BUILT_AT } from '@/lib/liveUpdate'
 import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
@@ -21,10 +22,13 @@ const themes: Array<{ value: ThemePreference; label: string }> = [
 ]
 
 export function SettingsForm({ onDone, section }: { onDone: () => void; section?: 'calendar' | 'commute' }) {
-  const { profile, setProfile, events, courses, calendar, cloud, reminders, location, appExpires, loadSample, clearAll, theme, notify } = useDashboard()
+  const { profile, setProfile, events, courses, calendar, cloud, reminders, location, loadSample, clearAll, theme, notify } = useDashboard()
   const [calendarText, setCalendarText] = useState((profile.calendarUrls ?? []).join('\n'))
   const [name, setName] = useState(profile.name)
   const [city, setCity] = useState(profile.place?.name ?? '')
+  const [schoolName, setSchoolName] = useState(profile.school?.name ?? '')
+  const [address, setAddress] = useState(profile.school?.address ?? '')
+  const [home, setHome] = useState(profile.home?.name ?? '')
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const calendarSection = useRef<HTMLDivElement>(null)
@@ -70,16 +74,20 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         }
         place = found
       }
-      setProfile({ name: name.trim(), place })
-      notify('Settings saved')
-      onDone()
+      const schoolPlace = await lookUp(address, { text: profile.school?.address, place: profile.school?.place })
+      const homePlace = home.trim() === profile.home?.name ? { place: profile.home, found: true } : await lookUp(home)
+      const school = schoolName.trim() || address.trim() ? { name: schoolName.trim() || undefined, address: address.trim() || undefined, place: schoolPlace.place } : undefined
+      setProfile({ name: name.trim(), place, school, home: homePlace.place })
+      if (!homePlace.found) notify(`Couldn’t find “${home.trim()}” on the map. Try a neighbourhood and city.`, 'error')
+      else if (!schoolPlace.found) notify('Saved. The school address wasn’t found on the map, so there’s no weather for it, but classes there still count.')
+      else notify('Settings saved')
+      if (homePlace.found) onDone()
     } catch {
       notify('Couldn’t reach the location service. Check your connection.', 'error')
     } finally {
       setBusy(false)
     }
   }
-
 
   const importIcs = async (file: File) => {
     const imported = parseIcs(await file.text())
@@ -103,21 +111,30 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           <Field label="Name" hint="Used in the greeting.">
             <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" />
           </Field>
+          <Field label="School" hint="Optional, e.g. University of Piraeus.">
+            <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="School name" autoComplete="organization" />
+          </Field>
+          <Field label="School address" hint="Street and number. Events in your calendar at this address count as classes.">
+            <TextInput value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street 12, Area" autoComplete="off" />
+          </Field>
+          <Field label="Where you live" hint="A neighbourhood is enough. Used for the weather on your way and when location is off.">
+            <TextInput value={home} onChange={(e) => setHome(e.target.value)} placeholder="Neighbourhood, City" autoComplete="off" />
+          </Field>
           <Toggle
-            label="Update my location when I open dash"
-            checked={profile.autoLocation !== false}
+            label="Use this device’s location for the weather"
+            checked={profile.autoLocation === true}
             onChange={(v) => setProfile({ autoLocation: v })}
           />
-          {profile.autoLocation !== false && (
+          {profile.autoLocation === true && (
             <p className="-mt-1 px-1 text-subhead text-muted">
               {location.denied
-                ? 'Location is off for dash, so the weather uses the city below. Allow location for dash to follow where you are.'
+                ? 'Location is off for unidash in this browser, so the weather uses where you live.'
                 : location.here
                   ? `Weather for where you are: ${location.here.name}. This device only.`
                   : 'Finding where you are…'}
             </p>
           )}
-          <Field label={profile.autoLocation !== false ? 'City when your location isn’t available' : 'Weather location'}>
+          <Field label="Weather city (optional)" hint="Leave empty to use where you live.">
             <TextInput value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" autoComplete="address-level2" />
           </Field>
           <div className="flex items-center justify-end gap-2">
@@ -130,53 +147,94 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
       <div ref={commuteSection} className="scroll-mt-4">
         <FormGroup
-          title="Getting to campus"
-          footer={`${COMMUTE_ROUTE}. Today shows when to leave for your first class; in the evening, for tomorrow's.`}
+          title="Getting to school"
+          footer="Today shows when to leave for your first class at school; in the evening, for tomorrow’s. Online lessons don’t count."
         >
-          <Field
-            label="Suburban trains you take"
-            hint="From Doukissis Plakentias to Pentelis. dash picks the latest one that gets you to class on time."
-          >
-            <TextInput
-              defaultValue={(profile.suburbanTrains ?? DEFAULT_TRAINS).join(', ')}
-              inputMode="numeric"
-              placeholder="17:11, 17:32, 17:50"
-              onBlur={(e) => {
-                const times = parseTrainTimes(e.target.value)
-                e.target.value = times.join(', ')
-                if (times.join() !== (profile.suburbanTrains ?? DEFAULT_TRAINS).join()) {
-                  setProfile({ suburbanTrains: times })
-                  notify('Train times saved')
-                }
-              }}
-            />
-          </Field>
-          <Field label="Door to door, when no train fits">
+          <Segmented
+            label="How you get there"
+            options={modes}
+            value={profile.commute?.mode ?? 'transit'}
+            onChange={(mode) => setProfile({ commute: { ...profile.commute, mode } })}
+            block
+          />
+          <Field label="Door to door">
             <Select
-              value={profile.commuteMinutes ?? DEFAULT_COMMUTE}
+              value={profile.commute?.minutes ?? ''}
               onChange={(e) => {
-                setProfile({ commuteMinutes: +e.target.value })
+                setProfile({ commute: { ...profile.commute, minutes: e.target.value ? +e.target.value : undefined } })
                 notify('Travel time saved')
               }}
             >
-              {Array.from({ length: 27 }, (_, i) => 20 + i * 5).map((m) => (
+              <option value="">Not set</option>
+              {minuteOptions.map((m) => (
                 <option key={m} value={m}>
-                  {m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`}
+                  {minutesLabel(m)}
                 </option>
               ))}
             </Select>
           </Field>
+          {(profile.commute?.mode ?? 'transit') === 'transit' && (
+            <>
+              <Field
+                label="Bus or train times (optional)"
+                hint="If you always catch one of a few departures, list them. unidash picks the latest one that gets you there on time."
+              >
+                <TextInput
+                  defaultValue={(profile.commute?.departures ?? []).join(', ')}
+                  inputMode="numeric"
+                  placeholder="08:05, 08:35, 09:05"
+                  onBlur={(e) => {
+                    const times = parseTimes(e.target.value)
+                    e.target.value = times.join(', ')
+                    if (times.join() !== (profile.commute?.departures ?? []).join()) {
+                      setProfile({ commute: { ...profile.commute, departures: times.length ? times : undefined } })
+                      notify(times.length ? 'Departure times saved' : 'Departure times removed')
+                    }
+                  }}
+                />
+              </Field>
+              {Boolean(profile.commute?.departures?.length) && (
+                <Field label="From home to that stop">
+                  <Select
+                    value={profile.commute?.toStop ?? 0}
+                    onChange={(e) => setProfile({ commute: { ...profile.commute, toStop: +e.target.value } })}
+                  >
+                    {[0, 2, 5, 8, 10, 12, 15, 20, 25, 30, 40, 45, 60].map((m) => (
+                      <option key={m} value={m}>
+                        {m ? minutesLabel(m) : 'Right outside'}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+              )}
+            </>
+          )}
+          <Toggle
+            label="Monthly travel pass"
+            checked={Boolean(profile.pass?.renewDay)}
+            onChange={(v) => setProfile({ pass: v ? { renewDay: profile.pass?.renewDay ?? 1 } : undefined })}
+          />
+          {profile.pass?.renewDay && (
+            <Field label="It runs out on" hint="Today shows a reminder the day before.">
+              <Select value={profile.pass.renewDay} onChange={(e) => setProfile({ pass: { renewDay: +e.target.value } })}>
+                {passDays.map((d) => (
+                  <option key={d} value={d}>
+                    {dayLabel(d)} of each month
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          )}
         </FormGroup>
       </div>
 
+      {reminders.permission !== 'unavailable' && (
       <FormGroup
         title="Reminders"
         footer={
           reminders.permission === 'granted'
-            ? `${reminders.scheduled} ${reminders.scheduled === 1 ? 'reminder' : 'reminders'} lined up for the next two weeks. ${isMacApp ? 'They arrive while dash is in the menu bar (closing the window keeps it there).' : 'They arrive even when dash is closed.'}`
-            : reminders.permission === 'unavailable'
-              ? 'Reminders work in the dash iPhone and Mac apps.'
-              : undefined
+            ? `${reminders.scheduled} ${reminders.scheduled === 1 ? 'reminder' : 'reminders'} lined up for the next two weeks. ${isMacApp ? 'They arrive while unidash is in the menu bar (closing the window keeps it there).' : 'They arrive even when unidash is closed.'}`
+            : undefined
         }
       >
         {reminders.permission === 'granted' && (
@@ -191,18 +249,13 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               checked={profile.reminders?.deadlines !== false}
               onChange={(v) => setProfile({ reminders: { ...profile.reminders, deadlines: v } })}
             />
-            {appExpires && (
+            {profile.pass?.renewDay && (
               <Toggle
-                label="Before the app stops opening"
-                checked={profile.reminders?.appExpiry !== false}
-                onChange={(v) => setProfile({ reminders: { ...profile.reminders, appExpiry: v } })}
+                label="Travel pass (the day before)"
+                checked={profile.reminders?.pass !== false}
+                onChange={(v) => setProfile({ reminders: { ...profile.reminders, pass: v } })}
               />
             )}
-            <Toggle
-              label="Metro card (2nd of each month)"
-              checked={profile.reminders?.metroCard !== false}
-              onChange={(v) => setProfile({ reminders: { ...profile.reminders, metroCard: v } })}
-            />
           </div>
         )}
         {reminders.permission === 'prompt' && (
@@ -223,17 +276,18 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           </Button>
         )}
         {reminders.permission === 'denied' && (
-          <p className="px-1 text-subhead text-muted">Notifications are switched off for dash in the iPhone's Settings app, under dash.</p>
+          <p className="px-1 text-subhead text-muted">Notifications are switched off for unidash in the iPhone's Settings app, under unidash.</p>
         )}
         <p className="px-1 text-subhead text-muted">
-          Ten minutes before it's time to leave for your first class, the evening before and three hours before anything is due, and at 10:00 on the 2nd of each month for your metro card.
+          Ten minutes before it's time to leave for your first class, the evening before and three hours before anything is due{profile.pass?.renewDay ? ', and at 10:00 the day before your travel pass runs out' : ''}.
         </p>
       </FormGroup>
+      )}
 
       <div ref={calendarSection} className="scroll-mt-4">
         <FormGroup
           title="Google account"
-          footer="Signing in on every device keeps your courses, deadlines, events and tasks the same everywhere. dash stores them in a private folder in your Google Drive that only dash can see, and only reads your calendar."
+          footer="Signing in on every device keeps your courses, deadlines, events and tasks the same everywhere. unidash stores them in a private folder in your own Google Drive that only unidash can see, and only reads your calendar. There is no unidash server."
         >
           {calendar.google.account ? (
             <div className="surface flex items-center gap-3 px-4 py-3">
@@ -272,7 +326,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               {calendar.google.connecting ? 'Waiting for Google…' : 'Connect with Google'}
             </Button>
           ) : (
-            <p className="px-1 text-subhead text-muted">Google sign-in isn’t set up in this build yet. Use an iCal link below.</p>
+            <p className="px-1 text-subhead text-muted">Google sign-in isn’t switched on yet. For now, import an .ics file below.</p>
           )}
           {calendar.google.account && (
             <div className="surface flex items-center justify-between gap-3 px-4 py-3">
@@ -320,6 +374,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           )}
           {calendar.status === 'error' && <p className="px-1 text-subhead text-danger">{calendar.error}</p>}
 
+          {isNative && (
           <details className="group">
             <summary className="cursor-pointer list-none px-1 text-subhead font-medium text-accent [&::-webkit-details-marker]:hidden">
               Use an iCal link instead
@@ -330,7 +385,6 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 <li>Pick a calendar, then “Integrate calendar”.</li>
                 <li>Copy “Secret address in iCal format”, then tap below.</li>
               </ol>
-              <p className="px-1 text-caption text-faint">iCal links sync in the iPhone app; browsers block them.</p>
               <Button onClick={pasteAndConnect} className="w-full">
                 Paste link and connect
               </Button>
@@ -350,6 +404,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               </Button>
             </div>
           </details>
+          )}
         </FormGroup>
       </div>
 
@@ -371,7 +426,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         </Button>
       </FormGroup>
 
-      <FormGroup title="Data" footer="Everything is stored on this device only.">
+      <FormGroup title="Data" footer={calendar.google.account ? 'Stored on this device and in your own Google Drive. Nothing goes to a unidash server.' : 'Stored on this device only. Nothing goes to a unidash server.'}>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
@@ -407,13 +462,16 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           Version <span className="font-medium text-ink tabular-nums">{BUILD}</span> · built{' '}
           {BUILT_AT.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
-        {appExpires && (
-          <p className="px-1 text-subhead text-muted">
-            App signed until{' '}
-            <span className="font-medium text-ink">{appExpires.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-            . Reinstall from the Mac before then.
-          </p>
-        )}
+        <Button
+          size="sm"
+          className="self-start"
+          onClick={() => {
+            setProfile({ onboarded: false })
+            onDone()
+          }}
+        >
+          Run setup again
+        </Button>
       </FormGroup>
     </div>
   )

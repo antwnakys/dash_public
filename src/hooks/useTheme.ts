@@ -12,7 +12,7 @@ const media = () => window.matchMedia('(prefers-color-scheme: dark)')
 
 /** Light/dark preference: applied to <html data-theme> and the iOS status bar. */
 export function useTheme() {
-  const [stored, setStored] = useLocalStorage<ThemePreference>('dash.theme.v1')
+  const [stored, setStored] = useLocalStorage<ThemePreference>('unidash.theme.v1')
   const preference = stored ?? 'system'
   const [systemDark, setSystemDark] = useState(() => media().matches)
 

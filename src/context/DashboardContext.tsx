@@ -3,19 +3,18 @@ import { sampleData } from '@/data/sample'
 import { useCalendarSync, type CalendarSync } from '@/hooks/useCalendarSync'
 import { useCloudSync, type CloudSync } from '@/hooks/useCloudSync'
 import { useCollection, type Collection } from '@/hooks/useCollection'
-import { useAppExpiry } from '@/hooks/useAppExpiry'
 import { useHereLocation } from '@/hooks/useHereLocation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useReminders, type RemindersState } from '@/hooks/useReminders'
 import { useTasks, type TasksApi } from '@/hooks/useTasks'
 import { useTheme } from '@/hooks/useTheme'
 import { useWeather, type WeatherState } from '@/hooks/useWeather'
-import { isClass, isExamTitle, matchCourse } from '@/lib/campus'
+import { isClass, isExamTitle, matchCourse } from '@/lib/school'
 import { looksOnline } from '@/lib/meeting'
 import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import type { ViewId } from '@/views'
-import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, Place, Profile, StudySession, Task, ThemePreference } from '@/types'
+import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
 
 export interface Toast {
@@ -30,7 +29,7 @@ interface DashboardValue {
   courses: Collection<Course>
   assignments: Collection<Assignment>
   events: Collection<CalendarEvent>
-  /** Study sessions planned by dash, and ticks on study events from the calendar. */
+  /** Study sessions planned by unidash, and ticks on study events from the calendar. */
   study: Collection<StudySession>
   tasks: TasksApi
   calendar: CalendarSync
@@ -39,8 +38,6 @@ interface DashboardValue {
   weather: WeatherState
   /** This device's current location (when following it) and whether location was refused. */
   location: { here?: Place; denied: boolean }
-  /** When the installed iPhone app stops opening (free Apple ID signing), if known. */
-  appExpires?: Date
   /** Phone reminders for leaving and for deadlines (iPhone app). */
   reminders: RemindersState
   /** Open assignments and events in one chronological list. */
@@ -69,17 +66,18 @@ function buildAgenda(
   events: CalendarEvent[],
   synced: CalendarEvent[],
   tasks: Task[],
+  school: School | undefined,
 ): AgendaItem[] {
   const courseCode = new Map(courses.map((c) => [c.id, c.code]))
-  // Events at campus (Sorou 74, Marousi) are classes: marked as a course and linked to one when the title matches.
+  // Events at the saved school address are classes: marked as a course and linked to one when the title matches.
   const asClass = (e: CalendarEvent): Partial<AgendaItem> | null => {
-    if (!isClass(e)) return null
+    if (!isClass(e, school)) return null
     const course = matchCourse(e.title, courses)
     const link = e.link ?? course?.links.find((l) => l.kind === 'meeting')?.url
     const online = e.online || looksOnline(e.link, e.title) || undefined
     return {
       kind: 'class',
-      // "ACADEMIC SKILLS/ONLINE" reads as the course it belongs to: "Academic Skills".
+      // "STATISTICS/ONLINE" reads as the course it belongs to: "Statistics".
       title: online ? (course?.name ?? e.title.replace(/\s*[/(–-]?\s*online\s*\)?\s*$/i, '')) : e.title,
       courseId: course?.id,
       link: online ? link : e.link,
@@ -116,7 +114,7 @@ function buildAgenda(
       title: e.title,
       date: new Date(e.start),
       end: e.end ? new Date(e.end) : undefined,
-      // Events added in dash count as exams by their title too ("ΕΞΕΤΑΣΗ ΣΗΜΑΤΑ").
+      // Events added here count as exams by their title too ("Physics final", "ΕΞΕΤΑΣΗ ΦΥΣΙΚΗΣ").
       kind: e.kind === 'event' && isExamTitle(e.title) ? 'exam' : e.kind,
       context: e.location,
       allDay: e.allDay,
@@ -139,15 +137,15 @@ function buildAgenda(
 }
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [storedProfile, setStoredProfile] = useLocalStorage<Profile>('dash.profile.v1')
+  const [storedProfile, setStoredProfile] = useLocalStorage<Profile>('unidash.profile.v1')
   const profile = storedProfile ?? { name: '' }
-  const courses = useCollection<Course>('dash.courses.v1')
-  const assignments = useCollection<Assignment>('dash.assignments.v1')
-  const events = useCollection<CalendarEvent>('dash.events.v1')
-  const study = useCollection<StudySession>('dash.study.v1')
+  const courses = useCollection<Course>('unidash.courses.v1')
+  const assignments = useCollection<Assignment>('unidash.assignments.v1')
+  const events = useCollection<CalendarEvent>('unidash.events.v1')
+  const study = useCollection<StudySession>('unidash.study.v1')
   const tasks = useTasks()
-  const location = useHereLocation(profile.autoLocation !== false)
-  const weather = useWeather(location.here ?? profile.place)
+  const location = useHereLocation(profile.autoLocation === true)
+  const weather = useWeather(location.here ?? profile.place ?? profile.home)
   const calendar = useCalendarSync(profile.calendarUrls)
   const cloud = useCloudSync(Boolean(calendar.google.account))
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
@@ -159,7 +157,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string, tone: Toast['tone'] = 'default') => setToast({ id: Date.now(), message, tone }), [])
 
   // iPhone app: follow the website's version; tell the user once a newer one is downloaded.
-  useEffect(() => startLiveUpdates(() => notify('Update downloaded. It applies when you next open dash.')), [notify])
+  useEffect(() => startLiveUpdates(() => notify('Update downloaded. It applies when you next open unidash.')), [notify])
 
   const setProfile = useCallback(
     (patch: Partial<Profile>) => setStoredProfile((p) => ({ name: '', ...p, ...patch, updatedAt: Date.now() })),
@@ -167,12 +165,11 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   )
 
   const agenda = useMemo(
-    () => buildAgenda(courses.items, assignments.items, events.items, calendar.events, tasks.tasks),
-    [courses.items, assignments.items, events.items, calendar.events, tasks.tasks],
+    () => buildAgenda(courses.items, assignments.items, events.items, calendar.events, tasks.tasks, profile.school),
+    [courses.items, assignments.items, events.items, calendar.events, tasks.tasks, profile.school],
   )
 
-  const appExpires = useAppExpiry()
-  const reminders = useReminders(agenda, courses.items, profile, appExpires)
+  const reminders = useReminders(agenda, courses.items, profile)
 
   const loadSample = useCallback(() => {
     const s = sampleData()
@@ -200,7 +197,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     calendar,
     cloud,
     weather,
-    appExpires,
     location,
     reminders,
     agenda,

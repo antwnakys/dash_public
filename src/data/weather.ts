@@ -2,6 +2,7 @@
  * Live weather from Open-Meteo (free, no API key).
  * https://open-meteo.com/en/docs
  */
+import { TIME_ZONE } from '@/lib/tripWeather'
 import type { Place, Weather } from '@/types'
 
 const conditionFor = (code: number): Pick<Weather, 'condition' | 'summary'> => {
@@ -39,7 +40,7 @@ export async function fetchWeather(place: Place): Promise<Weather> {
 }
 
 export interface HourlyPoint {
-  /** Local hour, e.g. "2026-11-06T17:00" (Europe/Athens). */
+  /** Local hour in the device's time zone, e.g. "2026-11-06T17:00". */
   time: string
   tempC: number
   rainChance: number
@@ -54,7 +55,7 @@ export async function fetchHourly(places: Array<{ latitude: number; longitude: n
     latitude: places.map((p) => p.latitude).join(','),
     longitude: places.map((p) => p.longitude).join(','),
     hourly: 'temperature_2m,precipitation_probability,precipitation,weather_code',
-    timezone: 'Europe/Athens',
+    timezone: TIME_ZONE,
     forecast_days: '2',
   }).toString()
   const res = await fetch(url)
@@ -80,4 +81,34 @@ export async function searchPlace(query: string): Promise<Place | null> {
   if (!res.ok) throw new Error(`Location search returned ${res.status}`)
   const hit = (await res.json()).results?.[0]
   return hit ? { name: hit.name, latitude: hit.latitude, longitude: hit.longitude } : null
+}
+
+/**
+ * Look up a street address or neighbourhood (OpenStreetMap's free Nominatim service, one request per save),
+ * falling back to the city search with the last part of the address. The name is the area, for the weather.
+ */
+export async function searchAddress(query: string): Promise<Place | null> {
+  try {
+    const url = new URL('https://nominatim.openstreetmap.org/search')
+    url.search = new URLSearchParams({ q: query, format: 'jsonv2', limit: '1', addressdetails: '1', 'accept-language': navigator.language || 'en' }).toString()
+    const res = await fetch(url)
+    if (res.ok) {
+      const hit = (await res.json())[0] as
+        | { lat: string; lon: string; name?: string; address?: Record<string, string | undefined> }
+        | undefined
+      if (hit) {
+        const a = hit.address ?? {}
+        const name = a.suburb ?? a.neighbourhood ?? a.quarter ?? a.town ?? a.city_district ?? a.village ?? a.city ?? a.municipality ?? hit.name ?? query
+        return { name, latitude: Number(hit.lat), longitude: Number(hit.lon) }
+      }
+    }
+  } catch {
+    // Try the city search below.
+  }
+  const parts = query.split(',').map((p) => p.replace(/\d+/g, '').trim()).filter(Boolean)
+  for (const part of [...parts].reverse()) {
+    const found = await searchPlace(part).catch(() => null)
+    if (found) return found
+  }
+  return null
 }

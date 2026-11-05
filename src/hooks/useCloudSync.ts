@@ -4,7 +4,7 @@ import { download, fileMeta, findFile, upload } from '@/sync/drive'
 import { mergeDocs, sameDoc } from '@/sync/merge'
 import { LOCAL_EVENT, readLocalDoc, writeLocalDoc } from '@/sync/store'
 
-const META_KEY = 'dash.sync.meta.v1'
+const META_KEY = 'unidash.sync.meta.v1'
 const POLL = 30_000
 const DEBOUNCE = 1_200
 

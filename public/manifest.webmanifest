@@ -1,7 +1,7 @@
 {
-  "name": "dash",
-  "short_name": "dash",
-  "description": "Your courses, tasks and calendar at a glance.",
+  "name": "unidash",
+  "short_name": "unidash",
+  "description": "Your classes, deadlines, exams and calendar at a glance.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

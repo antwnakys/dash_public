@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { locate } from '@/lib/location'
 import type { Place } from '@/types'
 
-const KEY = 'dash.here.v1' // this device only: phone and laptop each keep their own
+const KEY = 'unidash.here.v1' // this device only: phone and laptop each keep their own
 const EVERY = 2 * 60_000 // at most this often when coming back to the app
 
 function stored(): Place | undefined {

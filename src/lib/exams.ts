@@ -1,10 +1,10 @@
 /**
  * Exams and their study plans.
- * Exams are agenda items of kind "exam" (calendar entries titled like an exam, and exams added in dash).
+ * Exams are agenda items of kind "exam" (calendar entries titled like an exam, and exams added in unidash).
  * Study sessions either come from the calendar (events named after the exam's subject in the weeks before it,
- * like "🚨 ΣΗΜΑΤΑ – Απαγορευτικές" for "🚨🚨 ΕΞΕΤΑΣΗ ΣΗΜΑΤΑ") or are planned by dash on free evenings.
+ * like "Physics – Optics" for "Physics final") or are planned by unidash on free evenings.
  */
-import { isExamTitle, normalize } from './campus'
+import { isExamTitle, normalize } from './school'
 import { addDays, isSameDay, startOfDay } from './date'
 import type { AgendaItem, CalendarEvent, StudySession } from '@/types'
 
@@ -13,13 +13,13 @@ const LOOKBACK_DAYS = 60
 
 export interface Exam {
   id: string
-  /** What the exam is about, without emoji or the word "exam": "ΣΗΜΑΤΑ", "Databases". */
+  /** What the exam is about, without emoji or the word "exam": "Physics", "ΦΥΣΙΚΗ". */
   subject: string
   date: Date
   allDay?: boolean
   context?: string
   courseId?: string
-  /** Where it was added: the calendar, a course deadline, or + → Exam in dash. */
+  /** Where it was added: the calendar, a course deadline, or + → Exam. */
   source: AgendaItem['source']
   /** A web link from the exam (practice site…). */
   url?: string
@@ -31,7 +31,7 @@ export const cleanTitle = (t: string) =>
 
 const EXAM_WORD = /\b(final exams?|exams?|midterms?|finals?|exam)\b|εξ[εέ]ταση|εξ[εέ]τασεις|εξετάσεις/giu
 
-/** "🚨🚨 ΕΞΕΤΑΣΗ ΣΗΜΑΤΑ" → "ΣΗΜΑΤΑ"; "Databases exam" → "Databases". */
+/** "🚨 ΕΞΕΤΑΣΗ ΦΥΣΙΚΗ" → "ΦΥΣΙΚΗ"; "Databases exam" → "Databases". */
 export function examSubject(title: string): string {
   const s = cleanTitle(title).replace(EXAM_WORD, '').replace(/^[\s:–—-]+|[\s:–—-]+$/g, '').replace(/\s+/g, ' ').trim()
   return s || cleanTitle(title)
@@ -46,7 +46,7 @@ export function upcomingExams(agenda: AgendaItem[], now: Date): Exam[] {
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 }
 
-/** "🚨 ΣΗΜΑΤΑ – Απαγορευτικές" → "Απαγορευτικές" (the part after the dash), else the clean title. */
+/** "Physics – Optics" → "Optics" (the part after the dash), else the clean title. */
 function topicOf(title: string, subject: string): string {
   const clean = cleanTitle(title)
   const parts = clean.split(/\s[–—-]\s|:\s/)
@@ -88,7 +88,7 @@ export function calendarSessions(exam: Exam, events: CalendarEvent[], marks: Map
     .sort((a, b) => a.start.getTime() - b.start.getTime())
 }
 
-/** Sessions dash planned for this exam. */
+/** Sessions unidash planned for this exam. */
 export function plannedSessions(exam: Exam, study: StudySession[]): SessionView[] {
   return study
     .filter((s) => s.examId === exam.id && !s.fromCalendar)
@@ -99,7 +99,7 @@ export function plannedSessions(exam: Exam, study: StudySession[]): SessionView[
     .sort((a, b) => a.start.getTime() - b.start.getTime())
 }
 
-/** Everything to study for an exam: the calendar's own plan if there is one, else dash's. */
+/** Everything to study for an exam: the calendar's own plan if there is one, else unidash's. */
 export function sessionsFor(exam: Exam, events: CalendarEvent[], study: StudySession[]): SessionView[] {
   const marks = new Map(study.filter((s) => s.fromCalendar).map((s) => [s.id, s]))
   const fromCalendar = calendarSessions(exam, events, marks)
@@ -113,7 +113,8 @@ const SLOTS = [
   [11, 0],
 ] as const
 const SESSION_MINUTES = 90
-const TRAVEL_MINUTES = 100
+/** Travel to a class when the trip time isn't set. */
+const TRAVEL_MINUTES = 60
 const MAX_SESSIONS = 6
 
 /**
@@ -121,17 +122,17 @@ const MAX_SESSIONS = 6
  * late morning), avoiding anything in the agenda, spread evenly over the days left, at most six.
  * Topics are shared out in order; the last session is a full practice test.
  */
-export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: string[]): StudySession[] {
+export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: string[], travelMinutes = TRAVEL_MINUTES): StudySession[] {
   const first = startOfDay(now)
   const days: Date[] = []
   for (let d = first; d < startOfDay(exam.date); d = addDays(d, 1)) days.push(d)
 
-  // Classes on campus also block the trip there (about an hour and a half before they start).
+  // Classes at school also block the trip there.
   const busy = (day: Date) =>
     agenda
       .filter((i) => !i.allDay && isSameDay(i.date, day))
       .map((i) => {
-        const travel = i.kind === 'class' && !i.online ? TRAVEL_MINUTES * 60_000 : 0
+        const travel = i.kind === 'class' && !i.online ? (travelMinutes + 10) * 60_000 : 0
         return [i.date.getTime() - travel, (i.end ?? new Date(i.date.getTime() + 60 * 60_000)).getTime()] as const
       })
 

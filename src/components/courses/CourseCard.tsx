@@ -8,7 +8,7 @@ import { average, formatGrade, SCALE } from '@/lib/grades'
 import { nextMeeting } from '@/lib/schedule'
 import type { Assignment, Course } from '@/types'
 
-const linkName = { portal: 'Portal', materials: 'Materials', video: 'Lectures', meeting: 'Teams' } as const
+const linkName = { portal: 'Portal', materials: 'Materials', video: 'Lectures', meeting: 'Online' } as const
 
 interface CourseCardProps {
   course: Course

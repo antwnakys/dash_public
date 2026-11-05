@@ -4,22 +4,22 @@ import { Button } from '@/components/ui/Button'
 import { RevealItem } from '@/components/ui/Reveal'
 import { Card, Section } from '@/components/ui/Section'
 import { useDashboard } from '@/context/DashboardContext'
-import { CAMPUS, isClass, matchCourse, normalize } from '@/lib/campus'
+import { isClass, matchCourse, normalize, schoolLabel } from '@/lib/school'
 import { formatMeetings, meetingsFromEvents } from '@/lib/schedule'
 import type { CalendarEvent, Course } from '@/types'
 
 type Draft = Omit<Course, 'id'>
 
 /**
- * Classes in the calendar at campus (Sorou 74, Marousi) that aren't courses yet,
+ * Classes in the calendar at your school (the saved address) that aren't courses yet,
  * each ready to add with its weekly times worked out from the calendar.
  */
-function useCampusClasses(): Draft[] {
-  const { calendar, events, courses } = useDashboard()
+function useSchoolClasses(): Draft[] {
+  const { calendar, events, courses, profile } = useDashboard()
   return useMemo(() => {
     const byTitle = new Map<string, CalendarEvent[]>()
     for (const e of [...calendar.events, ...events.items]) {
-      if (!isClass(e) || matchCourse(e.title, courses.items)) continue
+      if (!isClass(e, profile.school) || matchCourse(e.title, courses.items)) continue
       const key = normalize(e.title)
       byTitle.set(key, [...(byTitle.get(key) ?? []), e])
     }
@@ -37,12 +37,12 @@ function useCampusClasses(): Draft[] {
         }
       })
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [calendar.events, events.items, courses.items])
+  }, [calendar.events, events.items, courses.items, profile.school])
 }
 
-export function CampusClasses() {
-  const { courses, notify } = useDashboard()
-  const found = useCampusClasses()
+export function SchoolClasses() {
+  const { courses, notify, profile } = useDashboard()
+  const found = useSchoolClasses()
   if (!found.length) return null
 
   const add = (list: Draft[]) => {
@@ -81,7 +81,7 @@ export function CampusClasses() {
           ))}
         </ul>
       </Card>
-      <p className="px-1 text-caption text-faint">Classes at {CAMPUS} that aren’t in your courses yet.</p>
+      <p className="px-1 text-caption text-faint">Classes at {schoolLabel(profile.school)} that aren’t in your courses yet.</p>
     </Section>
     </RevealItem>
   )

@@ -1,4 +1,4 @@
-import { normalize } from './campus'
+import { normalize } from './school'
 import { isSameDay } from './date'
 import type { AgendaItem, Course } from '@/types'
 
@@ -31,7 +31,7 @@ function fromCourse(course: Course, day: Date): ClassSlot[] {
 }
 
 /**
- * Every class on `day`, soonest first: calendar events at campus plus courses' weekly times.
+ * Every class on `day`, soonest first: calendar events at school plus courses' weekly times.
  * When both describe the same class (same start, same course or title), the calendar one wins.
  */
 export function classesOn(day: Date, agenda: AgendaItem[], courses: Course[]): ClassSlot[] {

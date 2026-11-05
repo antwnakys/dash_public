@@ -101,6 +101,8 @@ export function Agenda({ title = 'Up next', limit }: { title?: string; limit?: n
   }, [agenda, selectedDate, now, limit])
 
   const loading = calendar.status === 'syncing' && !calendar.syncedAt
+  // Only offer Google when sign-in is set up for this site.
+  const offerGoogle = (calendar.status === 'off' && calendar.google.available) || calendar.status === 'reconnect'
 
   const connectGoogle = async () => {
     if (!calendar.google.available) return openEditor({ type: 'settings', section: 'calendar' })
@@ -135,7 +137,7 @@ export function Agenda({ title = 'Up next', limit }: { title?: string; limit?: n
       }
     >
       <Card>
-        {(calendar.status === 'off' || calendar.status === 'reconnect') && (
+        {offerGoogle && (
           <button
             onClick={connectGoogle}
             disabled={calendar.google.connecting}
@@ -184,7 +186,7 @@ export function Agenda({ title = 'Up next', limit }: { title?: string; limit?: n
               </div>
             )}
             {!loading && groups.length === 0 && (
-              <div className={cn((calendar.status === 'off' || calendar.status === 'reconnect') && 'border-t border-line')}>
+              <div className={cn(offerGoogle && 'border-t border-line')}>
                 <EmptyState message={viewingToday ? 'Nothing coming up. Enjoy the free time.' : 'Nothing scheduled from this day on.'}>
                   <Button variant="plain" size="sm" onClick={() => openEditor({ type: 'event' })}>
                     Add an event

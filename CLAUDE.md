@@ -72,7 +72,7 @@ Everything below is hard-coded for Antonis in `antwnakys/dash`. Each needs a set
 Also: start with **empty data** (no sample courses with his subjects), English UI first with Greek as the second language
 later (the original is English-only with Greek data).
 
-## Suggested first steps
+## Suggested first steps (1–3 done Nov 5)
 
 1. **Bootstrap**: copy the source tree from `antwnakys/dash@1c497a7` (without `.git`, `ios/`, `src-tauri/` and personal
    assets for now), rename the app in `package.json`, `index.html`, `public/manifest.webmanifest`, and set Vite `base`
@@ -113,10 +113,48 @@ iPhone viewport (`vite preview`).
 - GitHub sometimes cancels macOS builds for lack of runners; re-run them.
 - Open-Meteo and some sites are blocked from Claude's cloud sandbox; mock them in tests.
 
+## What's built (code map of the public changes)
+
+The public app is called **unidash** (picked by Antonis on Nov 5). Copied from `antwnakys/dash@1c497a7`; everything
+not listed here works as described in the original's `CLAUDE.md`.
+
+- **Storage keys** are `unidash.*` (not `dash.*`): both apps live on `antwnakys.github.io`, so browsers would otherwise
+  share their saved data. Drive sync file: `unidash-data.json`.
+- `src/types/index.ts` `Profile`: `school` {name, address, place}, `home` (Place), `commute` {minutes, mode, departures,
+  toStop}, `pass` {renewDay}, `onboarded`, `reminders` {leave, deadlines, pass}. All optional. `autoLocation` now means
+  off when missing (no location prompt on first open); weather uses device location → `place` → `home`.
+- `src/lib/school.ts` (was campus.ts): `atSchool(location, school)` matches the saved address: Greek is written in
+  Latin letters (`placeKey`), then the street words + house number must appear (or street + area when there's no
+  number), or the school's name. `isClass(e, school)`, `schoolLabel`, `isExamTitle` (English + Greek), `matchCourse`.
+- `src/lib/commute.ts`: `planTrip` = door-to-door minutes, or the latest saved departure (bus/train time) that arrives
+  5 min early (`toStop` = home → stop). `nextDeparture` returns a class even with no travel time, so `LeaveCard` can say
+  "Add how long it takes to get to …".
+- `src/lib/pass.ts` + `components/commute/PassCard.tsx`: optional monthly pass; Today card on the day before and the
+  day itself, reminder at 10:00 the day before (apps only).
+- `src/lib/tripWeather.ts`, `data/weather.ts`: device time zone (`TIME_ZONE`), saved home/school place names.
+  `searchAddress` uses OpenStreetMap Nominatim (falls back to Open-Meteo city search) when an address is saved.
+- `src/components/onboarding/Onboarding.tsx`: full-screen setup shown by `AppShell` while `!profile.onboarded`:
+  welcome (optional "sign in with Google" when configured) → name → school → home → how (transit/car/walk/bike) →
+  minutes → pass (transit only) → done. Every step skippable. Settings → About → "Run setup again".
+- Settings: "You" (name, school, school address, where you live, location toggle, weather city) and "Getting to
+  school" (mode, door to door, bus/train times, time to the stop, travel pass). Reminders section hidden on the web;
+  iCal-link section only in a native app.
+- `src/config.ts`: `SITE_URL` and the Google client IDs, **empty** until the new Cloud project exists (the app then
+  hides Google buttons and says sign-in isn't switched on yet).
+- Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac/iPhone build files.
+  The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
+- `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
+
 ## History
 
-- **Nov 5, 2026**: repo planned; this file written from `antwnakys/dash` at `1c497a7`. No code yet.
+- **Nov 5, 2026**: repo planned; this file written from `antwnakys/dash` at `1c497a7`.
+- **Nov 5, 2026**: bootstrap done: source copied, renamed to unidash, personal parts replaced by settings, first-open
+  setup added. Tested in an iPhone-sized browser (setup flow, Leave card with Greek/English address match, pass card,
+  Settings). Google sign-in not set up yet (needs Antonis's new Cloud project).
 
 ## Next up
 
-- Step 1 above (bootstrap), then ask Antonis one question at a time about the app's public name and the setup questions.
+- Antonis: switch on GitHub Pages (repo Settings → Pages → Source: GitHub Actions), then re-run the deploy.
+- Google: Antonis creates the new Cloud project (steps given in chat on Nov 5); paste the Web client ID into
+  `GOOGLE_WEB_CLIENT_ID` in `src/config.ts`.
+- Share with classmates, collect feedback. Later: Greek UI, privacy policy page, Google verification, apps.

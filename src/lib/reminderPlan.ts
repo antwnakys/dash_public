@@ -1,9 +1,10 @@
-/** What dash reminds you about, worked out from your data. No phone APIs here, so it can be tested anywhere. */
-import type { AgendaItem, Course, Profile } from '@/types'
+/** What unidash reminds you about, worked out from your data. No phone APIs here, so it can be tested anywhere. */
+import type { AgendaItem, Commute, Course, Profile } from '@/types'
 import { classesOn } from './classes'
 import { addDays, fmt, startOfDay } from './date'
 import { planTrip } from './commute'
-import { cardReminders } from './metroCard'
+import { meetingName } from './meeting'
+import { passReminders } from './pass'
 
 export interface Reminder {
   id: number
@@ -24,14 +25,13 @@ const kindName = { assignment: 'Due', task: 'Due', exam: 'Exam', quiz: 'Quiz' } 
 export function planReminders(input: {
   agenda: AgendaItem[]
   courses: Course[]
-  commuteMinutes: number
-  trains?: string[]
-  /** When the installed app stops opening (iPhone app signed with a free Apple ID). */
-  appExpires?: Date
+  commute?: Commute
+  /** Day of the month the travel pass runs out, if there is one. */
+  passDay?: number
   prefs: NonNullable<Profile['reminders']>
   now: Date
 }): Reminder[] {
-  const { agenda, courses, commuteMinutes, trains, appExpires, prefs, now } = input
+  const { agenda, courses, commute, passDay, prefs, now } = input
   const out: Omit<Reminder, 'id'>[] = []
   const until = addDays(startOfDay(now), DAYS)
 
@@ -42,35 +42,25 @@ export function planReminders(input: {
       for (const c of day.filter((c) => c.online)) {
         const join = new Date(c.start.getTime() - LEAVE_HEADS_UP * 60_000)
         if (join > now)
-          out.push({ at: join, title: `${c.title} online in ${LEAVE_HEADS_UP} min`, body: c.link ? 'Open dash to join on Teams' : 'Online lesson' })
+          out.push({ at: join, title: `${c.title} online in ${LEAVE_HEADS_UP} min`, body: c.link ? `Open unidash to join on ${meetingName(c.link)}` : 'Online lesson' })
       }
       const first = day.find((c) => !c.online)
-      if (!first) continue
-      const trip = planTrip(first.start, commuteMinutes, trains)
+      if (!first || !commute?.minutes) continue
+      const trip = planTrip(first.start, { ...commute, minutes: commute.minutes })
       const at = new Date(trip.leaveAt.getTime() - LEAVE_HEADS_UP * 60_000)
       if (at > now)
         out.push({
           at,
           title: `Leave in ${LEAVE_HEADS_UP} min`,
-          body: `${trip.train ? `Take the ${fmt.time.format(trip.train)} suburban · ` : ''}${first.title} at ${fmt.time.format(first.start)}`,
+          body: `${trip.departure ? `Take the ${fmt.time.format(trip.departure)} · ` : ''}${first.title} at ${fmt.time.format(first.start)}`,
         })
     }
   }
 
-  if (appExpires && prefs.appExpiry !== false) {
-    // The evening before at 20:00 (like deadlines), and three hours before as a last call.
-    const dayBefore = addDays(startOfDay(appExpires), -1)
-    dayBefore.setHours(EVENING_BEFORE, 0, 0, 0)
-    const lastCall = new Date(appExpires.getTime() - 3 * 3_600_000)
-    const body = 'Reinstall it from your Mac to keep it working. It takes about a minute.'
-    if (dayBefore > now && dayBefore < lastCall) out.push({ at: dayBefore, title: 'dash stops opening tomorrow', body })
-    if (lastCall > now) out.push({ at: lastCall, title: `dash stops opening at ${fmt.time.format(appExpires)}`, body })
-  }
-
-  if (prefs.metroCard !== false) {
-    // Monthly, so these are scheduled beyond the two-week window: the next two, in case dash isn't opened for a while.
-    for (const at of cardReminders(now))
-      out.push({ at, title: 'Your metro card expires tomorrow', body: 'Renew it today so you can travel tomorrow.' })
+  if (passDay && prefs.pass !== false) {
+    // Monthly, so these are scheduled beyond the two-week window: the next two, in case unidash isn't opened for a while.
+    for (const at of passReminders(passDay, now))
+      out.push({ at, title: 'Your travel pass runs out tomorrow', body: 'Renew it today so you can travel tomorrow.' })
   }
 
   if (prefs.deadlines !== false) {

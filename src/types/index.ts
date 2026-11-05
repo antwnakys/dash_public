@@ -54,7 +54,7 @@ export interface Assignment {
   outOf?: number
 }
 
-/** One study session for an exam: planned by dash, or a tick on a study event from the calendar. */
+/** One study session for an exam: planned by unidash, or a tick on a study event from the calendar. */
 export interface StudySession {
   /** `<examId>@<start>` for planned sessions, the calendar event id for calendar ones. */
   id: string
@@ -80,13 +80,13 @@ export interface CalendarEvent {
   link?: string
   /** Any other web link in the event's notes (a practice site, slides…). */
   url?: string
-  /** Taken online (says so, or has a meeting link): no trip to campus. */
+  /** Taken online (says so, or has a meeting link): no trip to school. */
   online?: boolean
-  /** `exam`: an exam added in dash from + → Exam. */
+  /** `exam`: an exam added from + → Exam. */
   kind: 'event' | 'reminder' | 'exam'
 }
 
-/** `class`: a lesson on campus (Sorou 74, Marousi), marked as a course. */
+/** `class`: a lesson at your school (event at the saved address), marked as a course. */
 export type AgendaKind = 'assignment' | 'exam' | 'quiz' | 'event' | 'reminder' | 'class' | 'task'
 
 /** Assignments and events merged into one chronological stream. */
@@ -124,18 +124,44 @@ export interface Place {
   longitude: number
 }
 
+/** Where you study. `address` is matched against calendar event locations to tell classes apart. */
+export interface School {
+  /** "University of Piraeus" (optional). */
+  name?: string
+  /** "Karaoli & Dimitriou 80, Piraeus" */
+  address?: string
+  /** Found from the address, for the weather on the way. */
+  place?: Place
+}
+
+export type CommuteMode = 'transit' | 'car' | 'walk' | 'bike'
+
+export interface Commute {
+  /** Door to door, home to school. */
+  minutes?: number
+  mode?: CommuteMode
+  /** Optional fixed departures ("08:05") of the bus or train you take; the latest one that gets you there on time is picked. */
+  departures?: string[]
+  /** Minutes from home to where that bus or train leaves. */
+  toStop?: number
+}
+
 export interface Profile {
   name: string
-  /** Weather location; when unset the device location is used. */
+  school?: School
+  /** Where you live (a neighbourhood is enough): the start of the trip and the weather when the device location is off. */
+  home?: Place
+  commute?: Commute
+  /** Monthly transport pass that renews on day `renewDay` (1–28). Missing means no pass. */
+  pass?: { renewDay?: number }
+  /** First-open setup finished or skipped. */
+  onboarded?: boolean
+  /** Weather location; when unset, home is used. */
   place?: Place
-  /** Follow this device's location for the weather, refreshed each time dash opens. Missing means on. */
+  /** Follow this device's location for the weather, refreshed each time unidash opens. Missing means off. */
   autoLocation?: boolean
-  /** Door-to-door minutes from home to campus; unset means the default in lib/commute.ts. */
-  commuteMinutes?: number
-  /** Suburban departures from Doukissis Plakentias toward Pentelis ("17:11"); unset means the defaults in lib/commute.ts. */
-  suburbanTrains?: string[]
-  /** Phone reminders (iPhone app). Missing flags count as on. */
-  reminders?: { leave?: boolean; deadlines?: boolean; metroCard?: boolean; appExpiry?: boolean }
+  /** Phone reminders (apps only). Missing flags count as on. */
+  reminders?: { leave?: boolean; deadlines?: boolean; pass?: boolean }
   /** Google Calendar secret iCal addresses (or any iCal feed) to sync. */
   calendarUrls?: string[]
   /** When the profile last changed, for sync. */

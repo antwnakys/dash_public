@@ -1,19 +1,19 @@
-import { CloudLightning, Snowflake, ThermometerSun, TrainFront, Umbrella, Video } from 'lucide-react'
+import { Bike, Car, CloudLightning, Footprints, Snowflake, ThermometerSun, TrainFront, Umbrella, Video } from 'lucide-react'
 import { useMemo } from 'react'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { useTripForecast } from '@/hooks/useTripForecast'
-import { CAMPUS } from '@/lib/campus'
+import { schoolLabel } from '@/lib/school'
 import { cn } from '@/lib/cn'
 import { JoinButton } from '@/components/ui/JoinButton'
 import { classesOn } from '@/lib/classes'
-import { COMMUTE_ROUTE, DEFAULT_COMMUTE, nextDeparture, TO_TRAIN } from '@/lib/commute'
+import { modeWords, nextDeparture } from '@/lib/commute'
 import { fmt, startOfDay } from '@/lib/date'
 import { tripHint, type TripHint } from '@/lib/tripWeather'
 
 const hintIcon = { rain: Umbrella, storm: CloudLightning, cold: Snowflake, hot: ThermometerSun } as const
 
-/** "Rain likely from 14:00 in Marousi. Take an umbrella." */
+/** "Rain likely from 14:00 near school. Take an umbrella." */
 function WeatherHint({ hint }: { hint: TripHint }) {
   const Icon = hintIcon[hint.kind]
   return (
@@ -28,7 +28,7 @@ const inWords = (mins: number) => (mins < 60 ? `${mins} min` : `${Math.floor(min
 
 const SHOW_ONLINE_FROM = 3 * 3_600_000 // an online lesson's card appears 3 hours before it starts
 
-/** "Academic Skills online at 17:00 · Join on Teams": today's next online lesson, until it ends. */
+/** "Statistics online at 17:00 · Join": today's next online lesson, until it ends. */
 export function OnlineCard() {
   const { agenda, courses } = useDashboard()
   const now = useNow(30_000)
@@ -49,7 +49,7 @@ export function OnlineCard() {
       <span className="min-w-0 flex-1">
         <span className="block text-headline text-ink">{started ? `${lesson.title} is on now` : `${lesson.title} online at ${fmt.time.format(lesson.start)}`}</span>
         <span className="block text-subhead text-muted">
-          {lesson.link ? 'From home, no need to travel.' : 'From home. The Teams link will appear here once it arrives.'}
+          {lesson.link ? 'From home, no need to travel.' : 'From home. The meeting link will show here once it’s in the event.'}
         </span>
         {lesson.link && <JoinButton url={lesson.link} className="mt-2.5" />}
       </span>
@@ -57,41 +57,71 @@ export function OnlineCard() {
   )
 }
 
+const modeIcon = { transit: TrainFront, car: Car, walk: Footprints, bike: Bike } as const
+
 /** "Leave by 08:10 for Databases": when to set off for the first class of the day. */
 export function LeaveCard() {
   const { agenda, courses, profile, openEditor } = useDashboard()
   const now = useNow(30_000)
-  const minutes = profile.commuteMinutes ?? DEFAULT_COMMUTE
-  const trains = profile.suburbanTrains
-  const trip = useMemo(() => nextDeparture(agenda, courses.items, now, minutes, trains), [agenda, courses.items, now, minutes, trains])
-  const forecast = useTripForecast(Boolean(trip))
+  const commute = profile.commute
+  const minutes = commute?.minutes
+  const trip = useMemo(() => nextDeparture(agenda, courses.items, now, commute), [agenda, courses.items, now, commute])
+  const forecast = useTripForecast(Boolean(trip?.leaveAt), profile.home, profile.school?.place)
   const hint = useMemo(() => {
-    if (!trip || !forecast) return undefined
-    // On campus until the last class of that day ends, then the trip home.
-    const onCampus = classesOn(startOfDay(trip.classAt), agenda, courses.items).filter((c) => !c.online)
-    const doneAt = new Date(Math.max(...onCampus.map((c) => (c.end ?? new Date(c.start.getTime() + 90 * 60_000)).getTime()), trip.classAt.getTime()))
+    if (!trip?.leaveAt || !forecast || !minutes) return undefined
+    // At school until the last class of that day ends, then the trip home.
+    const atSchool = classesOn(startOfDay(trip.classAt), agenda, courses.items).filter((c) => !c.online)
+    const doneAt = new Date(Math.max(...atSchool.map((c) => (c.end ?? new Date(c.start.getTime() + 90 * 60_000)).getTime()), trip.classAt.getTime()))
     const backAt = new Date(doneAt.getTime() + minutes * 60_000)
-    return tripHint(forecast.home, forecast.campus, { leaveAt: trip.leaveAt, arriveAt: trip.classAt, doneAt, backAt })
+    return tripHint(forecast.home, forecast.school, { leaveAt: trip.leaveAt, arriveAt: trip.classAt, doneAt, backAt })
   }, [trip, forecast, agenda, courses.items, minutes])
   if (!trip) return null
 
-  const left = Math.ceil((trip.leaveAt.getTime() - now.getTime()) / 60_000)
+  const Icon = modeIcon[commute?.mode ?? 'transit']
+  const open = () => openEditor({ type: 'settings', section: 'commute' })
+
+  // No travel time yet: one tap to add it.
+  if (!trip.leaveAt || !minutes) {
+    return (
+      <button onClick={open} className="surface flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-fill/60">
+        <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
+          <Icon className="size-5" strokeWidth={2} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-headline text-ink">
+            {trip.tomorrow ? 'Tomorrow' : 'Next'}: {trip.title} at {fmt.time.format(trip.classAt)}
+          </span>
+          <span className="block text-subhead text-accent">Add how long it takes to get to {schoolLabel(profile.school)} to see when to leave.</span>
+        </span>
+      </button>
+    )
+  }
+
+  const leaveAt = trip.leaveAt
+  const left = Math.ceil((leaveAt.getTime() - now.getTime()) / 60_000)
   const late = left <= 0
   const soon = !late && left <= 60 && !trip.tomorrow
   const headline = trip.tomorrow
-    ? `Tomorrow, leave by ${fmt.time.format(trip.leaveAt)}`
+    ? `Tomorrow, leave by ${fmt.time.format(leaveAt)}`
     : late
       ? 'Leave now'
       : soon
         ? `Leave in ${inWords(left)}`
-        : `Leave by ${fmt.time.format(trip.leaveAt)}`
+        : `Leave by ${fmt.time.format(leaveAt)}`
   const detail = late
     ? `${inWords(-left)} later than usual. ${trip.title} starts at ${fmt.time.format(trip.classAt)}.`
-    : `${trip.train ? `Take the ${fmt.time.format(trip.train)} suburban · ` : ''}${trip.title} at ${fmt.time.format(trip.classAt)}`
+    : `${trip.departure ? `Take the ${fmt.time.format(trip.departure)} · ` : ''}${trip.title} at ${fmt.time.format(trip.classAt)}`
+  const route = [
+    `About ${inWords(minutes)} door to door`,
+    commute?.mode ? modeWords[commute.mode].label.toLowerCase() : undefined,
+    profile.home && profile.school ? `${profile.home.name} → ${schoolLabel(profile.school)}` : undefined,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 
   return (
     <button
-      onClick={() => openEditor({ type: 'settings', section: 'commute' })}
+      onClick={open}
       aria-label={`${headline}. ${detail} Change travel time`}
       className="surface flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-fill/60"
     >
@@ -102,17 +132,13 @@ export function LeaveCard() {
           late ? 'bg-danger/14 text-danger' : soon ? 'bg-accent/12 text-accent' : 'bg-course/14 text-course',
         )}
       >
-        <TrainFront className="size-5" strokeWidth={2} />
+        <Icon className="size-5" strokeWidth={2} />
       </span>
       <span className="min-w-0 flex-1">
         <span className={cn('block text-headline tabular-nums', late ? 'text-danger' : 'text-ink')}>{headline}</span>
         <span className="block text-subhead text-muted">{detail}</span>
         {hint && <WeatherHint hint={hint} />}
-        <span className="mt-0.5 block truncate text-caption text-faint">
-          {trip.train
-            ? `Metro to Doukissis Plakentias (about ${inWords(TO_TRAIN)}) · suburban to Pentelis · ${CAMPUS.split(',')[0]}`
-            : `About ${inWords(minutes)} · ${COMMUTE_ROUTE}`}
-        </span>
+        <span className="mt-0.5 block truncate text-caption text-faint">{route}</span>
       </span>
     </button>
   )

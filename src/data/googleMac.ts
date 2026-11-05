@@ -3,7 +3,7 @@
  * so the Mac app opens Google in the default browser, the way Google's own Mac sign-in works:
  * OAuth with PKCE on dash's iOS client ID (Google uses the iOS client type for Mac apps too), and
  * Google sends the browser back to the app through its reversed-client-ID URL scheme, which
- * `src-tauri/tauri.conf.json` registers. The refresh token stays on this Mac (`dash.mac.google.v1`),
+ * `src-tauri/tauri.conf.json` registers. The refresh token stays on this Mac (`unidash.mac.google.v1`),
  * so the app stays signed in like the iPhone app does.
  */
 import { GOOGLE_IOS_CLIENT_ID } from '@/config'
@@ -12,7 +12,7 @@ import { nextDeepLink, openInBrowser } from '@/lib/macApp'
 const AUTH = 'https://accounts.google.com/o/oauth2/v2/auth'
 const TOKEN = 'https://oauth2.googleapis.com/token'
 const REVOKE = 'https://oauth2.googleapis.com/revoke'
-const KEY = 'dash.mac.google.v1'
+const KEY = 'unidash.mac.google.v1'
 const SCHEME = GOOGLE_IOS_CLIENT_ID.split('.apps.googleusercontent.com')[0]
 export const MAC_REDIRECT = `com.googleusercontent.apps.${SCHEME}:/oauth2redirect`
 

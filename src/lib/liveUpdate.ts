@@ -8,9 +8,9 @@
  * If a new bundle fails to start, the updater rolls back to the previous one on its own.
  */
 import { CapacitorUpdater } from '@capgo/capacitor-updater'
+import { SITE_URL as SITE } from '@/config'
 import { isNative } from './native'
 
-const SITE = 'https://antwnakys.github.io/dash/'
 const EVERY = 10 * 60_000
 
 export const BUILD = __BUILD__

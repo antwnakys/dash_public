@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { DEFAULT_COMMUTE } from '@/lib/commute'
 import { applyReminders, askForReminders, planReminders, reminderPermission, sendTestReminder, type ReminderPermission } from '@/lib/reminders'
 import type { AgendaItem, Course, Profile } from '@/types'
 
@@ -12,8 +11,8 @@ export interface RemindersState {
   test: () => Promise<void>
 }
 
-/** Keeps the phone's scheduled reminders in step with dash's data (iPhone app only). */
-export function useReminders(agenda: AgendaItem[], courses: Course[], profile: Profile, appExpires?: Date): RemindersState {
+/** Keeps the phone's scheduled reminders in step with unidash's data (apps only). */
+export function useReminders(agenda: AgendaItem[], courses: Course[], profile: Profile): RemindersState {
   const [permission, setPermission] = useState<ReminderPermission>('unavailable')
   const [scheduled, setScheduled] = useState(0)
   const timer = useRef<number | undefined>(undefined)
@@ -22,24 +21,22 @@ export function useReminders(agenda: AgendaItem[], courses: Course[], profile: P
     reminderPermission().then(setPermission, () => setPermission('unavailable'))
   }, [])
 
-  const commute = profile.commuteMinutes ?? DEFAULT_COMMUTE
+  const commute = profile.commute
+  const passDay = profile.pass?.renewDay
   const leave = profile.reminders?.leave
   const deadlines = profile.reminders?.deadlines
-  const metroCard = profile.reminders?.metroCard
-  const appExpiry = profile.reminders?.appExpiry
-  const expiresAt = appExpires?.getTime()
-  const trains = profile.suburbanTrains?.join(',')
+  const pass = profile.reminders?.pass
 
   // Rebuild shortly after the data settles (sync can change several things in a row).
   useEffect(() => {
     if (permission !== 'granted') return
     window.clearTimeout(timer.current)
     timer.current = window.setTimeout(() => {
-      const plan = planReminders({ agenda, courses, commuteMinutes: commute, trains: trains ? trains.split(',') : undefined, appExpires: expiresAt ? new Date(expiresAt) : undefined, prefs: { leave, deadlines, metroCard, appExpiry }, now: new Date() })
+      const plan = planReminders({ agenda, courses, commute, passDay, prefs: { leave, deadlines, pass }, now: new Date() })
       applyReminders(plan).then(() => setScheduled(plan.length), () => {})
     }, 1500)
     return () => window.clearTimeout(timer.current)
-  }, [permission, agenda, courses, commute, trains, expiresAt, leave, deadlines, metroCard, appExpiry])
+  }, [permission, agenda, courses, commute, passDay, leave, deadlines, pass])
 
   const enable = useCallback(async () => {
     setPermission(await askForReminders())

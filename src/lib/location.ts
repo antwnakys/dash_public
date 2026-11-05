@@ -29,7 +29,7 @@ async function fromNative(): Promise<{ latitude: number; longitude: number }> {
   return { latitude: p.coords.latitude, longitude: p.coords.longitude }
 }
 
-/** A short place name ("Marousi") for coordinates, rounded to about a kilometre before they leave the device. */
+/** A short place name ("Kifisia") for coordinates, rounded to about a kilometre before they leave the device. */
 async function placeName(latitude: number, longitude: number): Promise<string> {
   try {
     const url = new URL('https://api.bigdatacloud.net/data/reverse-geocode-client')

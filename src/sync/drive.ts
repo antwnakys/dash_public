@@ -5,7 +5,7 @@
 import { GoogleReconnectError, invalidateGoogleToken } from '@/data/google'
 import type { SyncDoc } from './merge'
 
-const FILE_NAME = 'dash-data.json'
+const FILE_NAME = 'unidash-data.json'
 const API = 'https://www.googleapis.com/drive/v3'
 const UPLOAD = 'https://www.googleapis.com/upload/drive/v3'
 
