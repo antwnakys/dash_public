@@ -139,8 +139,9 @@ not listed here works as described in the original's `CLAUDE.md`.
 - Settings: "You" (name, school, school address, where you live, location toggle, weather city) and "Getting to
   school" (mode, door to door, bus/train times, time to the stop, travel pass). Reminders section hidden on the web;
   iCal-link section only in a native app.
-- `src/config.ts`: `SITE_URL` and the Google client IDs, **empty** until the new Cloud project exists (the app then
-  hides Google buttons and says sign-in isn't switched on yet).
+- `src/config.ts`: `SITE_URL` and the Google client IDs. Web client ID set (Cloud project "unidash", Testing mode,
+  origin `https://antwnakys.github.io`, redirect `https://antwnakys.github.io/dash_public/`, Calendar + Drive APIs on).
+  iOS client ID empty until there's an iPhone app (Google buttons hide when the ID for the platform is empty).
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac/iPhone build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -150,11 +151,11 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 5, 2026**: repo planned; this file written from `antwnakys/dash` at `1c497a7`.
 - **Nov 5, 2026**: bootstrap done: source copied, renamed to unidash, personal parts replaced by settings, first-open
   setup added. Tested in an iPhone-sized browser (setup flow, Leave card with Greek/English address match, pass card,
-  Settings). Google sign-in not set up yet (needs Antonis's new Cloud project).
+  Settings). Pages switched on and live. Antonis created the Google Cloud project "unidash" (consent screen External,
+  Testing; Calendar + Drive APIs; web client) and the web client ID went into `src/config.ts`.
 
 ## Next up
 
-- Antonis: switch on GitHub Pages (repo Settings → Pages → Source: GitHub Actions), then re-run the deploy.
-- Google: Antonis creates the new Cloud project (steps given in chat on Nov 5); paste the Web client ID into
-  `GOOGLE_WEB_CLIENT_ID` in `src/config.ts`.
+- Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
+  tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.
 - Share with classmates, collect feedback. Later: Greek UI, privacy policy page, Google verification, apps.
