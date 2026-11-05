@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Default (light) home screen icon: the same mark as app-icon.svg in dark ink on white. -->
+  <defs>
+    <radialGradient id="bg" cx="25%" cy="12%" r="110%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".6" stop-color="#f7f8fa"/>
+      <stop offset="1" stop-color="#eceef2"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="30%" cy="58%" r="45%">
+      <stop offset="0" stop-color="#3b7bff" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#3b7bff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <g transform="translate(512 512) scale(6.4) translate(-50 -50)" fill="none" stroke-linecap="round">
+    <g transform="translate(8 2)">
+      <path d="M17 46h7" stroke="#1d1d1f" stroke-opacity=".22" stroke-width="7"/>
+      <path d="M5 58h19" stroke="#0a6cff" stroke-width="8"/>
+      <path d="M13 70h11" stroke="#1d1d1f" stroke-opacity=".45" stroke-width="7"/>
+      <circle cx="56" cy="58" r="18" stroke="#1d1d1f" stroke-width="11"/>
+      <path d="M74 20v56" stroke="#1d1d1f" stroke-width="11"/>
+    </g>
+  </g>
+</svg>
