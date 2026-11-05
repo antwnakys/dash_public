@@ -145,6 +145,19 @@ not listed here works as described in the original's `CLAUDE.md`.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac/iPhone build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
+- **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
+  no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
+  devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
+  the switch knob and `.pressable` cards. Use these instead of one-off durations.
+  - Tabs slide in the direction of the tab picked (AppShell, `popLayout`, no blank gap). **Don't put
+    `initial={false}` on that AnimatePresence**: it blocks every entrance inside the first page (it did in the original).
+  - `lib/intro.ts`: the launch logo plays once per session; `Reveal` waits for it (`introDelay`) so the page rises in
+    as the logo lifts away. During first-open setup the intro is skipped and the page isn't mounted, so Today's
+    entrance plays when setup closes.
+  - Sheet: rises on phones, grows from the centre on wider screens; contents settle in a beat later.
+  - Setup: each screen's parts stagger in, choice tiles press and ring, progress bar springs, the finish has a
+    check-and-burst `Celebration`. Checkbox fill springs out and the tick draws; tasks slide in/out; toasts bounce in
+    and can be swiped away.
 
 ## History
 
@@ -153,6 +166,8 @@ not listed here works as described in the original's `CLAUDE.md`.
   setup added. Tested in an iPhone-sized browser (setup flow, Leave card with Greek/English address match, pass card,
   Settings). Pages switched on and live. Antonis created the Google Cloud project "unidash" (consent screen External,
   Testing; Calendar + Drive APIs; web client) and the web client ID went into `src/config.ts`.
+- **Nov 5, 2026**: motion pass (Antonis: "do the animations way better"): one spring system, directional tabs, intro
+  hand-off, setup choreography, fixed the first page's entrance never playing.
 
 ## Next up
 

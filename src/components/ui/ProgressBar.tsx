@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/cn'
+import { spring } from '@/lib/motion'
 
 // Fill-in animation only right after launch; afterwards bars and rings appear at their value.
 let launching = true
@@ -20,7 +21,7 @@ export function ProgressBar({ value, label, className }: { value: number; label:
         className="h-full rounded-full bg-accent-fill"
         initial={launching ? { width: 0 } : false}
         animate={{ width: `${pct}%` }}
-        transition={{ type: 'spring', bounce: 0, duration: 0.9, delay: 0.15 }}
+        transition={{ ...spring.gentle, delay: 0.25 }}
       />
     </div>
   )
@@ -52,7 +53,7 @@ export function ProgressRing({ value, label, size = 28 }: { value: number; label
         strokeDasharray={c}
         initial={launching ? { strokeDashoffset: c } : false}
         animate={{ strokeDashoffset: c * (1 - pct) }}
-        transition={{ type: 'spring', bounce: 0, duration: 1, delay: 0.2 }}
+        transition={{ ...spring.gentle, delay: 0.3 }}
       />
     </svg>
   )

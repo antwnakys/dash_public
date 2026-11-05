@@ -45,12 +45,13 @@ export function Toggle({ label, checked, onChange }: { label: string; checked: b
         aria-checked={checked}
         aria-label={label}
         onClick={() => onChange(!checked)}
-        className={cn('relative h-[31px] w-[51px] shrink-0 rounded-full transition-colors duration-200', checked ? 'bg-accent-fill' : 'bg-fill-strong')}
+        className={cn('group relative h-[31px] w-[51px] shrink-0 rounded-full transition-colors duration-200', checked ? 'bg-accent-fill' : 'bg-fill-strong')}
       >
+        {/* The knob slides with a little give and stretches while pressed, like iOS. */}
         <span
           className={cn(
-            'absolute top-[2px] left-[2px] size-[27px] rounded-full bg-white shadow-[0_2px_6px_rgb(0_0_0/0.18)] transition-transform duration-200 ease-[var(--ease-out-soft)]',
-            checked && 'translate-x-5',
+            'switch-knob absolute top-[2px] left-[2px] h-[27px] w-[27px] rounded-full bg-white shadow-[0_2px_6px_rgb(0_0_0/0.18)] group-active:w-[33px]',
+            checked && 'translate-x-5 group-active:translate-x-[14px]',
           )}
         />
       </button>

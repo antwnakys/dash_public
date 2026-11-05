@@ -5,6 +5,7 @@ import { Onboarding } from '@/components/onboarding/Onboarding'
 import { ToastHost } from '@/components/ui/Toast'
 import { useDashboard } from '@/context/DashboardContext'
 import { onMenuBar } from '@/lib/macApp'
+import { blur, ease, spring } from '@/lib/motion'
 import { isNative } from '@/lib/native'
 import { views } from '@/views'
 import { AmbientBackground } from './AmbientBackground'
@@ -28,6 +29,12 @@ function usePhone() {
   return phone
 }
 
+const pageVariants = {
+  enter: (dir: number) => ({ x: dir * 36, opacity: 0, ...blur(4) }),
+  center: { x: 0, opacity: 1, ...blur(0) },
+  exit: (dir: number) => ({ x: dir * -36, opacity: 0, ...blur(4), transition: { x: spring.smooth, opacity: { duration: 0.09 } } }),
+}
+
 export function AppShell() {
   const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile } = useDashboard()
   const reduce = useReducedMotion()
@@ -37,6 +44,10 @@ export function AppShell() {
   if (editor && phone && originY === 0) setOriginY(window.scrollY + window.innerHeight / 2)
   if (!editor && originY !== 0) setOriginY(0)
   const View = views.find((v) => v.id === view)!.component
+  // Which way to slide: towards the tab you picked, like moving along the tab bar.
+  const index = views.findIndex((v) => v.id === view)
+  const [nav, setNav] = useState({ index, dir: 0 })
+  if (nav.index !== index) setNav({ index, dir: index > nav.index ? 1 : -1 })
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -107,20 +118,25 @@ export function AppShell() {
       {/* On phones an open sheet pushes the page back, like iOS. */}
       <motion.main
         animate={phone && editor && !reduce ? { scale: 0.93, borderRadius: 28, y: 8 } : { scale: 1, borderRadius: 0, y: 0 }}
-        transition={{ type: 'spring', bounce: 0, duration: 0.42 }}
+        transition={spring.smooth}
         style={{ transformOrigin: `50% ${originY || window.scrollY + window.innerHeight / 2}px` }}
         className="overflow-clip lg:pl-[15.5rem]"
       >
-        <div className="mx-auto w-full max-w-[70rem] px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-36 sm:px-6 lg:px-10 lg:pt-11 lg:pb-16">
-          <AnimatePresence mode="wait" initial={false}>
+        <div className="relative mx-auto w-full max-w-[70rem] px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-36 sm:px-6 lg:px-10 lg:pt-11 lg:pb-16">
+          {/* The new page slides in while the old one slides away: no blank moment in between.
+              (No initial={false} here: it would also switch off every entrance inside the first page.) */}
+          <AnimatePresence mode="popLayout" custom={nav.dir}>
             <motion.div
               key={view}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              custom={nav.dir}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ x: spring.smooth, opacity: { duration: 0.14, ease: ease.out }, filter: { duration: 0.18 } }}
             >
-              <View />
+              {/* During first-open setup the page waits, so its entrance plays as the setup closes. */}
+              {profile.onboarded && <View />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -129,7 +145,7 @@ export function AppShell() {
       <EditorSheet />
       <AnimatePresence>{!profile.onboarded && <Onboarding key="setup" />}</AnimatePresence>
       <ToastHost onDismiss={dismissToast} />
-      <Intro />
+      <Intro skip={!profile.onboarded} />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Cloud, CloudAlert, CloudOff, RefreshCw } from 'lucide-react'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { spring } from '@/lib/motion'
 import { countdown } from '@/lib/date'
 
 /** Live sync state; turns into a "Resume sync" button when Google needs a tap. */
@@ -56,7 +57,7 @@ export function SyncBadge() {
           initial={{ opacity: 0, scale: 0.6, filter: 'blur(3px)' }}
           animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, scale: 0.6, filter: 'blur(3px)' }}
-          transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+          transition={{ ...spring.snappy, damping: 30 }}
           className="flex"
         >
           {cloud.status === 'syncing' ? (
@@ -73,7 +74,7 @@ export function SyncBadge() {
           aria-hidden
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ type: 'spring', bounce: 0.5, duration: 0.4, delay: 0.1 }}
+          transition={{ ...spring.bouncy, delay: 0.1 }}
           className="absolute right-1.5 bottom-1.5 size-2 rounded-full bg-[#34c759] ring-2 ring-bg"
         />
       )}

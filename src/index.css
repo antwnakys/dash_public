@@ -289,3 +289,28 @@
     animation: none;
   }
 }
+
+/*
+ * Spring curves for CSS transitions (same feel as src/lib/motion.ts), written with linear().
+ * --spring-snappy: quick with a small overshoot; --spring-smooth: no overshoot.
+ */
+:root {
+  --spring-snappy: linear(0, 0.157, 0.497, 0.809, 1.004, 1.087, 1.096, 1.071, 1.04, 1.015, 1.001, 0.996, 0.997, 1);
+  --spring-smooth: linear(0, 0.09, 0.3, 0.53, 0.71, 0.83, 0.91, 0.955, 0.98, 0.993, 1);
+}
+.switch-knob {
+  transition:
+    transform 0.42s var(--spring-snappy),
+    width 0.3s var(--spring-smooth);
+}
+
+/* Cards that open something sink slightly under the finger. */
+.pressable {
+  transition:
+    transform 0.4s var(--spring-snappy),
+    background-color 0.2s ease;
+}
+.pressable:active {
+  transform: scale(0.98);
+  transition-duration: 0.12s, 0.2s;
+}

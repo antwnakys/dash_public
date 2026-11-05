@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { spring } from '@/lib/motion'
 import { views } from '@/views'
 
 const item =
@@ -43,7 +44,7 @@ export function Sidebar() {
                   <motion.span
                     layoutId="sidebar-active"
                     className="absolute inset-0 rounded-[0.65rem] bg-fill-strong"
-                    transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                    transition={{ ...spring.snappy, damping: 30 }}
                   />
                 )}
                 <Icon aria-hidden className={cn('relative size-[18px]', active && 'text-accent')} strokeWidth={2} />

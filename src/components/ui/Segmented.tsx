@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useId } from 'react'
 import { cn } from '@/lib/cn'
+import { spring } from '@/lib/motion'
 
 interface SegmentedProps<T extends string> {
   label: string
@@ -36,7 +37,7 @@ export function Segmented<T extends string>({ label, options, value, onChange, c
               <motion.span
                 layoutId={layoutId}
                 className="absolute inset-0 rounded-[0.5rem] bg-thumb shadow-[var(--shadow-thumb)]"
-                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                transition={{ ...spring.snappy, damping: 30 }}
               />
             )}
             <span className="relative">{o.label}</span>

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -101,7 +102,7 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              transition={{ x: spring.smooth, opacity: { duration: 0.18 } }}
               // Swipe sideways to change month or week; the grid follows the finger and rubber-bands back.
               drag="x"
               dragDirectionLock

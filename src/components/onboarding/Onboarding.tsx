@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Bike, Car, ChevronLeft, Footprints, TrainFront } from 'lucide-react'
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { Children, useState, type FormEvent, type ReactNode } from 'react'
 import { Logo } from '@/components/brand/Logo'
 import { Field, Select, TextInput } from '@/components/editor/fields'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { blur, ease, press, spring } from '@/lib/motion'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, passDays } from '@/lib/setup'
 import type { CommuteMode } from '@/types'
 
@@ -18,14 +19,101 @@ const modeChoices: Array<{ value: CommuteMode; label: string; icon: typeof Car }
   { value: 'bike', label: 'Bike or scooter', icon: Bike },
 ]
 
+// Each screen's parts arrive one after another (title, then the explanation, then fields, then buttons).
+// The step container drives them through the 'enter' → 'center' variants.
+const rise = {
+  enter: { opacity: 0, y: 16, ...blur(4) },
+  center: { opacity: 1, y: 0, ...blur(0), transition: { ...spring.gentle, opacity: { duration: 0.35 } } },
+}
+const stagger = (delay = 0.08) => ({ enter: {}, center: { transition: { staggerChildren: 0.065, delayChildren: delay } } })
+
+function Rise({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div variants={rise} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+
 function Screen({ title, lead, children }: { title: ReactNode; lead?: ReactNode; children?: ReactNode }) {
   return (
-    <div className="flex flex-col gap-6">
+    <motion.div variants={stagger()} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-large-title text-ink">{title}</h1>
-        {lead && <p className="text-body text-muted">{lead}</p>}
+        <Rise>
+          <h1 className="text-large-title text-ink">{title}</h1>
+        </Rise>
+        {lead && (
+          <Rise>
+            <p className="text-body text-muted">{lead}</p>
+          </Rise>
+        )}
       </div>
+      {Children.map(children, (child) => child && <Rise>{child}</Rise>)}
+    </motion.div>
+  )
+}
+
+/** A choice tile that sinks when pressed and rings in blue when picked. */
+function Choice({ selected, onClick, children, className }: { selected: boolean; onClick: () => void; children: ReactNode; className?: string }) {
+  return (
+    <motion.button
+      type="button"
+      variants={rise}
+      whileTap={press}
+      onClick={onClick}
+      aria-pressed={selected}
+      className={cn('surface relative text-left hover:bg-fill/60', className)}
+    >
+      <AnimatePresence>
+        {selected && (
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-2 ring-accent"
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={spring.snappy}
+          />
+        )}
+      </AnimatePresence>
       {children}
+    </motion.button>
+  )
+}
+
+/** The last screen's moment: a check that pops in, draws itself, and sends out a little burst. */
+function Celebration() {
+  const dots = Array.from({ length: 10 }, (_, i) => (i / 10) * Math.PI * 2)
+  return (
+    <div aria-hidden className="relative flex size-24 items-center justify-center">
+      {dots.map((a, i) => (
+        <motion.span
+          key={i}
+          className={cn('absolute size-2 rounded-full', i % 2 ? 'bg-course' : 'bg-accent')}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+          animate={{ x: Math.cos(a) * 62, y: Math.sin(a) * 62, scale: [0, 1.2, 0], opacity: [1, 1, 0] }}
+          transition={{ duration: 0.8, delay: 0.32, ease: ease.out, times: [0, 0.4, 1] }}
+        />
+      ))}
+      <motion.span
+        className="absolute inset-2 rounded-full bg-accent-fill"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ ...spring.bouncy, delay: 0.1 }}
+      />
+      <svg viewBox="0 0 24 24" className="relative size-10">
+        <motion.path
+          d="M6 12.5l4 4 8-9"
+          fill="none"
+          stroke="var(--accent-ink)"
+          strokeWidth={2.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.35, delay: 0.3, ease: ease.out }}
+        />
+      </svg>
     </div>
   )
 }
@@ -50,7 +138,15 @@ function Actions({ busy, onSkip }: { busy?: boolean; onSkip?: () => void }) {
  * First open: a few calm questions, one per screen (name, school, home, how you get there, travel pass).
  * Everything can be skipped and changed later in Settings. AppShell shows it until `profile.onboarded`.
  */
+// The setup can only be on screen at page load the first time it's shown.
+let shownBefore = false
+
 export function Onboarding() {
+  const [firstShow] = useState(() => {
+    const first = !shownBefore && performance.now() < 3000
+    shownBefore = true
+    return first
+  })
   const { profile, setProfile, calendar, notify } = useDashboard()
   const [step, setStep] = useState<Step>('welcome')
   const [back, setBack] = useState(false)
@@ -134,13 +230,14 @@ export function Onboarding() {
   switch (step) {
     case 'welcome':
       body = (
-        <div className="flex flex-col items-center gap-6 text-center">
+        // The logo draws itself first; the words and buttons follow once it's done.
+        <motion.div variants={stagger(0.75)} className="flex flex-col items-center gap-6 text-center">
           <Logo animated className="size-20" />
-          <div className="flex flex-col gap-2">
+          <Rise className="flex flex-col gap-2">
             <h1 className="text-large-title text-ink">Welcome to unidash</h1>
             <p className="text-body text-muted">Your classes, deadlines, exams and calendar in one calm place. A few quick questions to set it up; skip any of them.</p>
-          </div>
-          <div className="flex w-full flex-col gap-2 pt-2">
+          </Rise>
+          <Rise className="flex w-full flex-col gap-2 pt-2">
             <Button variant="primary" className="h-12 w-full text-headline" onClick={next}>
               Get started
             </Button>
@@ -152,9 +249,11 @@ export function Onboarding() {
             <Button variant="plain" className="h-11 w-full" onClick={finish}>
               Skip setup
             </Button>
-          </div>
-          <p className="text-caption text-faint">Everything stays on this device{calendar.google.available ? ' and, if you sign in, in your own Google Drive' : ''}. There’s no unidash server.</p>
-        </div>
+          </Rise>
+          <Rise>
+            <p className="text-caption text-faint">Everything stays on this device{calendar.google.available ? ' and, if you sign in, in your own Google Drive' : ''}. There’s no unidash server.</p>
+          </Rise>
+        </motion.div>
       )
       break
     case 'name':
@@ -191,7 +290,17 @@ export function Onboarding() {
             <Field label="Neighbourhood and city">
               <TextInput value={home} onChange={(e) => setHome(e.target.value)} autoComplete="off" placeholder="Kifisia, Athens" autoFocus />
             </Field>
-            {error && <p className="px-1 text-subhead text-danger">{error}</p>}
+            {error && (
+              <motion.p
+                key={error}
+                initial={{ x: 0 }}
+                animate={{ x: [0, -8, 7, -5, 3, 0] }}
+                transition={{ duration: 0.45, ease: ease.out }}
+                className="px-1 text-subhead text-danger"
+              >
+                {error}
+              </motion.p>
+            )}
             <Actions busy={busy} onSkip={next} />
           </Screen>
         </form>
@@ -200,26 +309,23 @@ export function Onboarding() {
     case 'mode':
       body = (
         <Screen title="How do you get to school?">
-          <div className="grid grid-cols-2 gap-3">
+          <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
             {modeChoices.map(({ value, label, icon: Icon }) => (
-              <button
+              <Choice
                 key={value}
-                type="button"
+                selected={mode === value}
                 onClick={() => {
                   setProfile({ commute: { ...profile.commute, mode: value } })
-                  go('minutes')
+                  // A beat to see the choice light up before moving on.
+                  window.setTimeout(() => go('minutes'), 180)
                 }}
-                aria-pressed={mode === value}
-                className={cn(
-                  'surface flex flex-col items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-fill/60',
-                  mode === value && 'ring-2 ring-accent',
-                )}
+                className="flex flex-col items-start gap-3 px-4 py-4"
               >
-                <Icon aria-hidden className="size-6 text-accent" strokeWidth={2} />
-                <span className="text-headline text-ink">{label}</span>
-              </button>
+                <Icon aria-hidden className="relative size-6 text-accent" strokeWidth={2} />
+                <span className="relative text-headline text-ink">{label}</span>
+              </Choice>
             ))}
-          </div>
+          </motion.div>
           <Button variant="plain" className="h-11 w-full" onClick={() => go('done')}>
             Skip for now
           </Button>
@@ -248,33 +354,37 @@ export function Onboarding() {
       body = (
         <form onSubmit={submit(() => (setProfile({ pass: hasPass ? { renewDay: passDay } : undefined }), next()))}>
           <Screen title="Do you have a monthly travel pass?" lead="unidash can remind you the day before it runs out.">
-            <div className="grid grid-cols-2 gap-3">
+            <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
               {[
                 { value: true, label: 'Yes' },
                 { value: false, label: 'No' },
               ].map((o) => (
-                <button
-                  key={o.label}
-                  type="button"
-                  aria-pressed={hasPass === o.value}
-                  onClick={() => setHasPass(o.value)}
-                  className={cn('surface h-12 text-headline text-ink transition-colors hover:bg-fill/60', hasPass === o.value && 'ring-2 ring-accent')}
-                >
-                  {o.label}
-                </button>
+                <Choice key={o.label} selected={hasPass === o.value} onClick={() => setHasPass(o.value)} className="h-12 text-center text-headline text-ink">
+                  <span className="relative">{o.label}</span>
+                </Choice>
               ))}
-            </div>
-            {hasPass && (
-              <Field label="It runs out on">
-                <Select value={passDay} onChange={(e) => setPassDay(+e.target.value)}>
-                  {passDays.map((d) => (
-                    <option key={d} value={d}>
-                      {dayLabel(d)} of each month
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-            )}
+            </motion.div>
+            <AnimatePresence initial={false}>
+              {hasPass && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={spring.smooth}
+                  className="-m-1 overflow-hidden p-1"
+                >
+                  <Field label="It runs out on">
+                    <Select value={passDay} onChange={(e) => setPassDay(+e.target.value)}>
+                      {passDays.map((d) => (
+                        <option key={d} value={d}>
+                          {dayLabel(d)} of each month
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <Actions onSkip={next} />
           </Screen>
         </form>
@@ -282,16 +392,18 @@ export function Onboarding() {
       break
     case 'done':
       body = (
-        <div className="flex flex-col items-center gap-6 text-center">
-          <Logo className="size-16" />
-          <div className="flex flex-col gap-2">
+        <motion.div variants={stagger(0.5)} className="flex flex-col items-center gap-6 text-center">
+          <Celebration />
+          <Rise className="flex flex-col gap-2">
             <h1 className="text-large-title text-ink">{profile.name ? `You’re all set, ${profile.name}` : 'You’re all set'}</h1>
             <p className="text-body text-muted">Add your courses and deadlines with the + button. You can change any of these answers in Settings.</p>
-          </div>
-          <Button variant="primary" className="h-12 w-full text-headline" onClick={finish}>
-            Open unidash
-          </Button>
-        </div>
+          </Rise>
+          <Rise className="w-full">
+            <Button variant="primary" className="h-12 w-full text-headline" onClick={finish}>
+              Open unidash
+            </Button>
+          </Rise>
+        </motion.div>
       )
       break
   }
@@ -301,9 +413,12 @@ export function Onboarding() {
       role="dialog"
       aria-modal
       aria-label="Set up unidash"
-      initial={{ opacity: 0 }}
+      // On first load the setup is simply there (fading in would flash the app behind it);
+      // "Run setup again" fades it in over the app.
+      initial={{ opacity: firstShow ? 1 : 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      // Closing: the setup lifts away and fades while Today rises in underneath.
+      exit={{ opacity: 0, scale: 1.04, ...blur(8), transition: { duration: 0.4, ease: ease.out } }}
       className="fixed inset-0 z-50 overflow-y-auto bg-bg"
     >
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-6">
@@ -316,23 +431,39 @@ export function Onboarding() {
           ) : (
             <span />
           )}
-          {step !== 'welcome' && step !== 'done' && (
-            <div aria-hidden className="flex gap-1.5">
-              {order.slice(1, -1).map((s, i) => (
-                <span key={s} className={cn('h-1.5 rounded-full transition-all', i + 1 <= index ? 'w-5 bg-accent' : 'w-1.5 bg-fill-strong')} />
-              ))}
-            </div>
-          )}
+          <AnimatePresence>
+            {step !== 'welcome' && step !== 'done' && (
+              <motion.div
+                aria-hidden
+                initial={{ opacity: 0, scaleX: 0.6 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                exit={{ opacity: 0 }}
+                transition={spring.smooth}
+                className="h-1.5 w-28 overflow-hidden rounded-full bg-fill-strong"
+              >
+                <motion.div
+                  className="h-full rounded-full bg-accent"
+                  initial={false}
+                  animate={{ width: `${(index / (order.length - 2)) * 100}%` }}
+                  transition={spring.smooth}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <span className="w-12" />
         </div>
         <div className="flex flex-1 flex-col justify-center py-8">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="wait">
             <motion.div
               key={step}
-              initial={{ opacity: 0, x: back ? -24 : 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: back ? 24 : -24 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              variants={{
+                enter: { opacity: 0, x: back ? -40 : 40 },
+                center: { opacity: 1, x: 0, transition: { x: spring.smooth, opacity: { duration: 0.2 } } },
+                exit: { opacity: 0, x: back ? 40 : -40, transition: { x: spring.smooth, opacity: { duration: 0.14 } } },
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
             >
               {body}
             </motion.div>
