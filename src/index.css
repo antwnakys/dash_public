@@ -1,0 +1,291 @@
+@import 'tailwindcss';
+
+/*
+ * dash design tokens.
+ * Raw values live on :root per theme; Tailwind utilities read them through @theme inline,
+ * so `bg-surface`, `text-muted`, `bg-accent/10` etc. follow the active theme automatically.
+ */
+:root {
+  --bg: #f2f2f0;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --fill: rgb(120 120 128 / 0.1);
+  --fill-strong: rgb(120 120 128 / 0.18);
+  --thumb: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #8a8a8f;
+  --line: rgb(60 60 67 / 0.12);
+  --accent: #0066cc;
+  --accent-fill: #0071e3;
+  --accent-ink: #ffffff;
+  --danger: #c4171d;
+  --course: #248a3d;
+  --scrim: rgb(0 0 0 / 0.22);
+
+  --glass: rgb(250 250 248 / 0.72);
+  --glass-solid: #fafaf8;
+  --glass-edge: rgb(255 255 255 / 0.7);
+  --glass-outline: rgb(0 0 0 / 0.07);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 0 0 0.5px rgb(0 0 0 / 0.04);
+  --shadow-float: 0 10px 34px rgb(0 0 0 / 0.1), 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-thumb: 0 1px 3px rgb(0 0 0 / 0.12), 0 0 0 0.5px rgb(0 0 0 / 0.04);
+  color-scheme: light;
+}
+
+/* Dark: follows the system unless the user picked a theme, or forced via data-theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0b0b0d;
+    --surface: #17171a;
+    --surface-raised: #1f1f23;
+    --fill: rgb(118 118 128 / 0.2);
+    --fill-strong: rgb(118 118 128 / 0.3);
+    --thumb: #5a5a5f;
+    --ink: #f5f5f7;
+    --muted: #a1a1a6;
+    --faint: #7d7d83;
+    --line: rgb(255 255 255 / 0.08);
+    --accent: #5aa7ff;
+    --accent-fill: #1d7cf2;
+    --accent-ink: #ffffff;
+    --danger: #ff6b66;
+    --course: #30d158;
+    --scrim: rgb(0 0 0 / 0.5);
+
+    --glass: rgb(28 28 31 / 0.72);
+    --glass-solid: #1c1c1f;
+    --glass-edge: rgb(255 255 255 / 0.07);
+    --glass-outline: rgb(0 0 0 / 0.5);
+    --shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.05);
+    --shadow-float: 0 12px 40px rgb(0 0 0 / 0.55), 0 0 0 0.5px rgb(255 255 255 / 0.06);
+    --shadow-thumb: 0 1px 3px rgb(0 0 0 / 0.4);
+    color-scheme: dark;
+}
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b0b0d;
+  --surface: #17171a;
+  --surface-raised: #1f1f23;
+  --fill: rgb(118 118 128 / 0.2);
+  --fill-strong: rgb(118 118 128 / 0.3);
+  --thumb: #5a5a5f;
+  --ink: #f5f5f7;
+  --muted: #a1a1a6;
+  --faint: #7d7d83;
+  --line: rgb(255 255 255 / 0.08);
+  --accent: #5aa7ff;
+  --accent-fill: #1d7cf2;
+  --accent-ink: #ffffff;
+  --danger: #ff6b66;
+  --course: #30d158;
+  --scrim: rgb(0 0 0 / 0.5);
+
+  --glass: rgb(28 28 31 / 0.72);
+  --glass-solid: #1c1c1f;
+  --glass-edge: rgb(255 255 255 / 0.07);
+  --glass-outline: rgb(0 0 0 / 0.5);
+  --shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.05);
+  --shadow-float: 0 12px 40px rgb(0 0 0 / 0.55), 0 0 0 0.5px rgb(255 255 255 / 0.06);
+  --shadow-thumb: 0 1px 3px rgb(0 0 0 / 0.4);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-fill: var(--fill);
+  --color-fill-strong: var(--fill-strong);
+  --color-thumb: var(--thumb);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-course: var(--course);
+}
+
+@theme {
+  /* SF Pro on Apple devices (with optical sizing), Inter everywhere else. */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
+  --radius-card: 1.375rem;
+  --radius-control: 0.75rem;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    transition: background-color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    /* Transparent so the ambient light (z -10) shows between html's background and the content. */
+    @apply font-sans text-ink antialiased;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    min-height: 100dvh;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: default;
+  }
+}
+
+/* Type scale: weight, size, leading and tracking move together (tight and negative as text grows). */
+@utility text-large-title {
+  font-size: 2.125rem;
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.024em;
+}
+@utility text-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.016em;
+}
+@utility text-headline {
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+@utility text-body {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+@utility text-subhead {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+@utility text-caption {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+}
+
+/* Solid content surface. */
+@utility surface {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* Frosted material for floating chrome only: tab bar, sidebar, sheets, toasts. */
+@utility material {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    inset 0 0.5px 0 var(--glass-edge),
+    0 0 0 0.5px var(--glass-outline),
+    var(--shadow-float);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--glass-solid);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  @media (prefers-contrast: more) {
+    background: var(--glass-solid);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+}
+
+/* iOS-style list row separators, inset to the text column. */
+@utility separated {
+  & > * + * {
+    box-shadow: inset 0 0.5px 0 var(--line);
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Ambient light colours per theme. */
+:root {
+  --orb-a: rgb(120 170 255 / 0.28);
+  --orb-b: rgb(255 196 160 / 0.22);
+  --orb-c: rgb(140 220 210 / 0.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --orb-a: rgb(40 100 230 / 0.22);
+    --orb-b: rgb(20 120 140 / 0.14);
+    --orb-c: rgb(80 70 200 / 0.1);
+  }
+}
+:root[data-theme='dark'] {
+  --orb-a: rgb(40 100 230 / 0.22);
+  --orb-b: rgb(20 120 140 / 0.14);
+  --orb-c: rgb(80 70 200 / 0.1);
+}
+
+@keyframes ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(6vmax, 4vmax, 0) scale(1.08);
+  }
+  66% {
+    transform: translate3d(-4vmax, 6vmax, 0) scale(0.95);
+  }
+}
+.ambient-orb {
+  animation: ambient-drift 40s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-orb {
+    animation: none;
+  }
+}
+
+/* Phones: keep the ambient light still, so glass surfaces aren't re-blurred every frame. */
+@media (hover: none) {
+  .ambient-orb {
+    animation: none;
+  }
+}
