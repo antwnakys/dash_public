@@ -1,5 +1,6 @@
 import { ChevronDown, Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import { useState } from 'react'
 import { Checkbox } from '@/components/tasks/Checkbox'
 import { Button } from '@/components/ui/Button'
@@ -131,7 +132,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+            transition={{ height: spring.smooth, opacity: { duration: 0.2 } }}
             className="overflow-hidden border-t border-line"
           >
             {total > 0 ? (

@@ -1,38 +1,36 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { useState, type ReactNode } from 'react'
+import { introDelay } from '@/lib/intro'
+import { blur, spring } from '@/lib/motion'
 
 // Each screen's entrance plays once per app session; later visits appear instantly, so switching
 // tabs never feels like the page reloaded.
 const played = new Set<string>()
 
-// Blur is costly to animate on phones; they get a plain rise and fade.
-const touch = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
-
-const container: Variants = {
-  hidden: {},
-  shown: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
-}
-
 const item: Variants = {
-  hidden: touch ? { opacity: 0, y: 12 } : { opacity: 0, y: 14, filter: 'blur(6px)' },
-  shown: {
-    opacity: 1,
-    y: 0,
-    ...(touch ? {} : { filter: 'blur(0px)' }),
-    transition: { type: 'spring', bounce: 0, duration: 0.55 },
-  },
+  hidden: { opacity: 0, y: 18, scale: 0.985, ...blur(6) },
+  shown: { opacity: 1, y: 0, scale: 1, ...blur(0), transition: { ...spring.gentle, opacity: { duration: 0.4 } } },
 }
 
-/** One orchestrated entrance for a screen: children rise in, a beat apart. */
+/**
+ * One orchestrated entrance for a screen: children rise in, a beat apart, starting as the launch
+ * logo clears (or right away when it isn't playing).
+ */
 export function Reveal({ id, children, className }: { id: string; children: ReactNode; className?: string }) {
   const reduce = useReducedMotion()
-  const [animate] = useState(() => {
+  const [plan] = useState(() => {
     const first = !played.has(id)
     played.add(id)
-    return first && !reduce
+    // Start a little before the logo has fully gone, so the two overlap into one motion.
+    return { animate: first && !reduce, delay: Math.max(0.04, introDelay() - 0.25) }
   })
   return (
-    <motion.div variants={container} initial={animate ? 'hidden' : false} animate="shown" className={className}>
+    <motion.div
+      variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.07, delayChildren: plan.delay } } }}
+      initial={plan.animate ? 'hidden' : false}
+      animate="shown"
+      className={className}
+    >
       {children}
     </motion.div>
   )

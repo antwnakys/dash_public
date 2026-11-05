@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { useDashboard } from '@/context/DashboardContext'
 import { useScrollState } from '@/hooks/useScrollState'
 import { cn } from '@/lib/cn'
+import { spring } from '@/lib/motion'
 import { haptic } from '@/lib/native'
 import { views } from '@/views'
 
@@ -18,7 +19,7 @@ export function TabBar() {
         <motion.nav
           aria-label="Sections"
           animate={{ height: compact ? 52 : 60 }}
-          transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+          transition={spring.smooth}
           className="material flex flex-1 items-center rounded-full p-1"
         >
           {views.map(({ id, label, icon: Icon }) => {
@@ -40,19 +41,22 @@ export function TabBar() {
                   <motion.span
                     layoutId="tab-active"
                     className="absolute inset-0 rounded-full bg-fill"
-                    transition={{ type: 'spring', bounce: 0, duration: 0.32 }}
+                    transition={{ ...spring.snappy, damping: 28 }}
                   />
                 )}
+                {/* The icon you pick springs up from slightly small, so the tap feels answered. */}
                 <motion.span
+                  key={active ? 'on' : 'off'}
                   className="relative flex"
-                  animate={active ? { scale: [1, 1.18, 1] } : { scale: 1 }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  initial={active ? { scale: 0.72, y: 3 } : false}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={spring.bouncy}
                 >
                   <Icon aria-hidden className="size-[21px]" strokeWidth={active ? 2.2 : 1.9} />
                 </motion.span>
                 <motion.span
                   animate={{ opacity: compact ? 0 : 1, height: compact ? 0 : 'auto' }}
-                  transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                  transition={spring.smooth}
                   className="relative overflow-hidden text-[0.65rem] font-medium tracking-[0.01em]"
                 >
                   {label}
@@ -62,8 +66,8 @@ export function TabBar() {
           })}
         </motion.nav>
         <motion.button
-          whileTap={{ scale: 0.92 }}
-          transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
+          whileTap={{ scale: 0.88 }}
+          transition={spring.bouncy}
           onClick={() => {
             haptic()
             openEditor({ type: 'new' })

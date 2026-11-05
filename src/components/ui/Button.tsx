@@ -1,5 +1,6 @@
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/lib/cn'
+import { press } from '@/lib/motion'
 
 type Variant = 'primary' | 'secondary' | 'plain' | 'danger'
 type Size = 'sm' | 'md'
@@ -26,8 +27,7 @@ export function Button({
   return (
     <motion.button
       type="button"
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
+      whileTap={press}
       className={cn(
         'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full whitespace-nowrap transition-[background-color,filter] disabled:pointer-events-none disabled:opacity-40',
         variants[variant],

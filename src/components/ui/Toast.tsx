@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { blur, ease, spring } from '@/lib/motion'
 
 export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
   const { toast } = useDashboard()
@@ -22,12 +23,17 @@ export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
           <motion.p
             key={toast.id}
             role={toast.tone === 'error' ? 'alert' : 'status'}
-            initial={{ opacity: 0, y: 12, scale: 0.96, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: 8, scale: 0.98, filter: 'blur(4px)' }}
-            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+            // Pops up from below with a little bounce; swipe it down (or sideways) to dismiss.
+            initial={{ opacity: 0, y: 24, scale: 0.9, ...blur(6) }}
+            animate={{ opacity: 1, y: 0, scale: 1, ...blur(0) }}
+            exit={{ opacity: 0, y: 10, scale: 0.96, ...blur(4), transition: { duration: 0.2, ease: ease.out } }}
+            transition={{ ...spring.bouncy, damping: 22, opacity: { duration: 0.2 } }}
+            drag
+            dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+            dragElastic={0.6}
+            onDragEnd={(_, info) => (info.offset.y > 30 || Math.abs(info.offset.x) > 80) && onDismiss()}
             className={cn(
-              'material pointer-events-auto max-w-sm rounded-full px-4 py-2.5 text-subhead font-medium',
+              'material pointer-events-auto max-w-sm cursor-grab touch-none rounded-full px-4 py-2.5 text-subhead font-medium active:cursor-grabbing',
               toast.tone === 'error' ? 'text-danger' : 'text-ink',
             )}
           >

@@ -2,6 +2,7 @@ import { motion, Reorder, useDragControls } from 'framer-motion'
 import { CalendarClock, GripVertical, X } from 'lucide-react'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { ease, spring } from '@/lib/motion'
 import type { DueState } from '@/lib/taskDue'
 import type { Task } from '@/types'
 import { categoryLabel } from './categories'
@@ -32,10 +33,12 @@ export function TaskItem({ task, showCategory, due, onToggle, onRemove }: TaskIt
       dragListener={false}
       dragControls={controls}
       layout="position"
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0, transition: { duration: 0.18 } }}
-      whileDrag={{ scale: 1.02, boxShadow: 'var(--shadow-float)', zIndex: 10, borderRadius: 14 }}
+      // New tasks open a gap and slide into it; deleted ones slip sideways and the gap closes.
+      initial={{ opacity: 0, height: 0, x: -12 }}
+      animate={{ opacity: 1, height: 'auto', x: 0 }}
+      exit={{ opacity: 0, height: 0, x: 40, transition: { height: { ...spring.smooth, delay: 0.06 }, x: { duration: 0.18, ease: ease.out }, opacity: { duration: 0.15 } } }}
+      transition={{ height: spring.smooth, x: spring.gentle, opacity: { duration: 0.25 }, layout: spring.smooth }}
+      whileDrag={{ scale: 1.03, boxShadow: 'var(--shadow-float)', zIndex: 10, borderRadius: 14 }}
       className="group relative list-none bg-surface"
     >
       <div className="flex min-h-[3.25rem] items-center gap-3 py-2 pr-2 pl-1">
@@ -65,7 +68,7 @@ export function TaskItem({ task, showCategory, due, onToggle, onRemove }: TaskIt
               className="absolute top-1/2 left-0 h-px w-full origin-left bg-faint"
               initial={false}
               animate={{ scaleX: task.done ? 1 : 0 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.32, delay: task.done ? 0.12 : 0, ease: ease.out }}
             />
           </span>
           {(showCategory || (due && !task.done)) && (
