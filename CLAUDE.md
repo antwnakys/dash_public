@@ -174,3 +174,10 @@ not listed here works as described in the original's `CLAUDE.md`.
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.
 - Share with classmates, collect feedback. Later: Greek UI, privacy policy page, Google verification, apps.
+- **Apple (Nov 6)**: Antonis has a **paid Apple developer account** now. Claude recommended TestFlight first (real app
+  for classmates: reminders, home-screen icon, native Google sign-in), then the App Store after feedback + Google
+  verification (needed so non-test users and Apple's reviewer can sign in) + a privacy policy page. Risks noted:
+  guideline 4.2 (web wrapper; native features help), Sign in with Apple (Google is used only for Calendar/Drive).
+  Options offered: 1 TestFlight first, 2 straight to App Store, 3 wait. **He'll decide later**; don't start until he does.
+  Needs from him: App Store Connect app record, and either an App Store Connect API key in GitHub secrets (CI build)
+  or a build from his Mac with Xcode. Bundle id planned: `com.antwnakys.unidash` (already in `capacitor.config.ts`).
