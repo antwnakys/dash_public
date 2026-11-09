@@ -3,7 +3,8 @@ import { Cloud, CloudAlert, CloudOff, RefreshCw } from 'lucide-react'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
-import { countdown } from '@/lib/date'
+import { since } from '@/lib/date'
+import { t } from '@/i18n'
 
 /** Live sync state; turns into a "Resume sync" button when Google needs a tap. */
 export function SyncBadge() {
@@ -14,9 +15,9 @@ export function SyncBadge() {
     try {
       await calendar.google.connect()
       cloud.syncNow()
-      notify('Sync resumed')
+      notify(t('sync.resumed'))
     } catch {
-      notify('Couldn’t reconnect to Google. Try again.', 'error')
+      notify(t('sync.reconnectFailed'), 'error')
     }
   }
 
@@ -30,7 +31,7 @@ export function SyncBadge() {
         className="flex h-8 items-center gap-1.5 rounded-full bg-accent/12 px-3 text-subhead font-semibold text-accent"
       >
         <CloudOff aria-hidden className="size-4" strokeWidth={2.2} />
-        Resume sync
+        {t('sync.resume')}
       </motion.button>
     )
 
@@ -38,8 +39,8 @@ export function SyncBadge() {
     cloud.status === 'syncing'
       ? 'Syncing…'
       : cloud.status === 'error'
-        ? `Sync failed: ${cloud.error}`
-        : `Synced ${cloud.lastSyncedAt ? countdown(new Date(cloud.lastSyncedAt)).replace('today', 'just now') : ''}`
+        ? t('sync.failed', { error: cloud.error ?? '' })
+        : t('sync.synced', { when: cloud.lastSyncedAt ? since(new Date(cloud.lastSyncedAt)) : '' })
 
   return (
     <button

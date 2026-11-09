@@ -1,4 +1,5 @@
 import type { CalendarEvent, Course, School } from '@/types'
+import { t } from '@/i18n'
 
 /** Lower case, accents removed, final sigma folded: "Πατησίων 76, Αθήνα" → "πατησιων 76, αθηνα". */
 export const normalize = (s: string) =>
@@ -89,7 +90,7 @@ export const isClass = (e: CalendarEvent, school: School | undefined) =>
   e.kind === 'event' && !e.allDay && atSchool(e.location, school) && !isExamTitle(e.title)
 
 /** "University of Piraeus", else the street of the address ("Karaoli & Dimitriou 80"), else "school". */
-export const schoolLabel = (school: School | undefined) => school?.name?.trim() || school?.address?.split(',')[0].trim() || 'school'
+export const schoolLabel = (school: School | undefined) => school?.name?.trim() || school?.address?.split(',')[0].trim() || t('school.fallback')
 
 /** The course an event title refers to: same name, or the course code / name appears in the title. */
 export function matchCourse(title: string, courses: Course[]): Course | undefined {

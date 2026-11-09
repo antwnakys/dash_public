@@ -5,6 +5,7 @@ import { addDays, fmt, startOfDay } from './date'
 import { planTrip } from './commute'
 import { meetingName } from './meeting'
 import { passReminders } from './pass'
+import { t } from '@/i18n'
 
 export interface Reminder {
   id: number
@@ -19,7 +20,7 @@ const LEAVE_HEADS_UP = 10 // minutes before it's time to leave
 const DUE_SOON_HOURS = 3
 const EVENING_BEFORE = 20 // 20:00 the day before
 
-const kindName = { assignment: 'Due', task: 'Due', exam: 'Exam', quiz: 'Quiz' } as const
+const kindName = { assignment: t('rp.due'), task: t('rp.due'), exam: t('rp.exam'), quiz: t('rp.quiz') } as const
 
 /** What to remind about in the next two weeks, soonest first. Pure, so it can be tested. */
 export function planReminders(input: {
@@ -42,7 +43,7 @@ export function planReminders(input: {
       for (const c of day.filter((c) => c.online)) {
         const join = new Date(c.start.getTime() - LEAVE_HEADS_UP * 60_000)
         if (join > now)
-          out.push({ at: join, title: `${c.title} online in ${LEAVE_HEADS_UP} min`, body: c.link ? `Open unidash to join on ${meetingName(c.link)}` : 'Online lesson' })
+          out.push({ at: join, title: t('rp.onlineSoon', { title: c.title, n: LEAVE_HEADS_UP }), body: c.link ? t('rp.openToJoin', { service: meetingName(c.link) }) : t('rp.onlineLesson') })
       }
       const first = day.find((c) => !c.online)
       if (!first || !commute?.minutes) continue
@@ -51,8 +52,8 @@ export function planReminders(input: {
       if (at > now)
         out.push({
           at,
-          title: `Leave in ${LEAVE_HEADS_UP} min`,
-          body: `${trip.departure ? `Take the ${fmt.time.format(trip.departure)} · ` : ''}${first.title} at ${fmt.time.format(first.start)}`,
+          title: t('rp.leaveSoon', { n: LEAVE_HEADS_UP }),
+          body: `${trip.departure ? t('rp.take', { time: fmt.time.format(trip.departure) }) : ''}${t('rp.classAt', { title: first.title, time: fmt.time.format(first.start) })}`,
         })
     }
   }
@@ -60,7 +61,7 @@ export function planReminders(input: {
   if (passDay && prefs.pass !== false) {
     // Monthly, so these are scheduled beyond the two-week window: the next two, in case unidash isn't opened for a while.
     for (const at of passReminders(passDay, now))
-      out.push({ at, title: 'Your travel pass runs out tomorrow', body: 'Renew it today so you can travel tomorrow.' })
+      out.push({ at, title: t('pass.tomorrow'), body: t('pass.tomorrowDetail') })
   }
 
   if (prefs.deadlines !== false) {
@@ -74,14 +75,14 @@ export function planReminders(input: {
       if (evening > now)
         out.push({
           at: evening,
-          title: item.kind === 'assignment' || item.kind === 'task' ? `Due tomorrow: ${item.title}` : `${label} tomorrow: ${item.title}`,
-          body: `${item.allDay ? 'All day' : fmt.time.format(item.date)}${where}`,
+          title: item.kind === 'assignment' || item.kind === 'task' ? t('rp.dueTomorrow', { title: item.title }) : t('rp.kindTomorrow', { kind: label, title: item.title }),
+          body: `${item.allDay ? t('rp.allDay') : fmt.time.format(item.date)}${where}`,
         })
       const soon = new Date(item.date.getTime() - DUE_SOON_HOURS * 3_600_000)
       if (!item.allDay && soon > now && soon > evening)
         out.push({
           at: soon,
-          title: item.kind === 'assignment' || item.kind === 'task' ? `Due in ${DUE_SOON_HOURS} hours: ${item.title}` : `${label} in ${DUE_SOON_HOURS} hours: ${item.title}`,
+          title: item.kind === 'assignment' || item.kind === 'task' ? t('rp.dueIn', { n: DUE_SOON_HOURS, title: item.title }) : t('rp.kindIn', { kind: label, n: DUE_SOON_HOURS, title: item.title }),
           body: `${fmt.time.format(item.date)}${where}`,
         })
     }

@@ -7,6 +7,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import { isClass, matchCourse, normalize, schoolLabel } from '@/lib/school'
 import { formatMeetings, meetingsFromEvents } from '@/lib/schedule'
 import type { CalendarEvent, Course } from '@/types'
+import { t } from '@/i18n'
 
 type Draft = Omit<Course, 'id'>
 
@@ -47,17 +48,17 @@ export function SchoolClasses() {
 
   const add = (list: Draft[]) => {
     list.forEach((c) => courses.add(c))
-    notify(list.length === 1 ? `${list[0].name} added to courses` : `${list.length} courses added`)
+    notify(list.length === 1 ? t('sc.added', { name: list[0].name }) : t('sc.addedMany', { n: list.length }))
   }
 
   return (
     <RevealItem className="mb-8">
     <Section
-      title="From your calendar"
+      title={t('sc.title')}
       action={
         found.length > 1 && (
           <Button variant="plain" size="sm" onClick={() => add(found)}>
-            Add all
+            {t('sc.addAll')}
           </Button>
         )
       }
@@ -73,15 +74,15 @@ export function SchoolClasses() {
                 <span className="block truncate text-body text-ink">{c.name}</span>
                 {c.schedule && <span className="block truncate text-subhead text-muted">{c.schedule}</span>}
               </span>
-              <Button size="sm" onClick={() => add([c])} aria-label={`Add ${c.name} to courses`}>
+              <Button size="sm" onClick={() => add([c])} aria-label={t('sc.addOne', { name: c.name })}>
                 <Plus aria-hidden className="size-3.5" strokeWidth={2.4} />
-                Add
+                {t('sc.add')}
               </Button>
             </li>
           ))}
         </ul>
       </Card>
-      <p className="px-1 text-caption text-faint">Classes at {schoolLabel(profile.school)} that aren’t in your courses yet.</p>
+      <p className="px-1 text-caption text-faint">{t('sc.footer', { school: schoolLabel(profile.school) })}</p>
     </Section>
     </RevealItem>
   )

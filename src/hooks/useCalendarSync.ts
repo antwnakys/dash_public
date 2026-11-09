@@ -12,6 +12,7 @@ import { parseIcs } from '@/lib/ics'
 import { isNative } from '@/lib/native'
 import type { CalendarEvent } from '@/types'
 import { useLocalStorage } from './useLocalStorage'
+import { t } from '@/i18n'
 
 const DAY_MS = 86_400_000
 const EVERY = 15 * 60_000
@@ -42,15 +43,15 @@ const normalize = (url: string) => url.trim().replace(/^webcal:\/\//i, 'https://
 async function fetchFeed(url: string, index: number): Promise<CalendarEvent[]> {
   // In the iOS app fetch goes through native HTTP (CapacitorHttp), so Google's missing CORS headers don't matter.
   const res = await fetch(normalize(url), { cache: 'no-store' })
-  if (!res.ok) throw new Error(`Calendar returned ${res.status}. Check that the address is the full secret iCal link.`)
+  if (!res.ok) throw new Error(t('cal.feedStatus', { status: res.status }))
   const text = await res.text()
-  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('That address didn’t return a calendar. Copy the “Secret address in iCal format”.')
+  if (!text.includes('BEGIN:VCALENDAR')) throw new Error(t('cal.notCalendar'))
   return parseIcs(text, { from: Date.now() - DAY_MS, to: Date.now() + 180 * DAY_MS, idPrefix: `cal${index}` })
 }
 
 const feedError = (e: unknown) =>
   e instanceof TypeError && !isNative
-    ? 'Browsers can’t read iCal links directly. Use Connect with Google, or import an .ics file.'
+    ? t('cal.browserBlocked')
     : e instanceof Error
       ? e.message
       : String(e)
@@ -95,7 +96,7 @@ export function useCalendarSync(urls: string[] = []): CalendarSync {
     }
     if (failures.some((f) => f instanceof GoogleReconnectError)) {
       setStatus('reconnect')
-      setError('Google sign-in has expired. Reconnect to keep syncing.')
+      setError(t('google.expired'))
     } else if (failures.length) {
       setStatus('error')
       setError(feedError(failures[0]))

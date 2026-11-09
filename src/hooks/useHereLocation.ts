@@ -42,7 +42,7 @@ export function useHereLocation(enabled: boolean): { here?: Place; denied: boole
           }
         })
         .catch((e) => {
-          if (!cancelled && e instanceof Error && /denied|off for dash|not authorized|permission/i.test(e.message)) setDenied(true)
+          if (!cancelled && e instanceof Error && ('denied' in e ? e.denied : /denied|not authorized|permission/i.test(e.message))) setDenied(true)
         })
     }
     refresh()

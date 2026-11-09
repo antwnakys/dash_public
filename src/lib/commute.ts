@@ -1,17 +1,19 @@
 import { classesOn } from './classes'
 import { addDays, startOfDay } from './date'
 import type { AgendaItem, Commute, CommuteMode, Course, School } from '@/types'
+import { t } from '@/i18n'
 
 /** Minutes at school before class starts. */
 const SPARE = 5
 /** A departure more than this long before class isn't the plan; the door-to-door estimate is closer. */
 const MAX_EARLY = 60
 
-export const modeWords: Record<CommuteMode, { label: string; ride: string }> = {
-  transit: { label: 'Public transport', ride: 'bus or train' },
-  car: { label: 'Car', ride: 'drive' },
-  walk: { label: 'Walking', ride: 'walk' },
-  bike: { label: 'Bike', ride: 'ride' },
+/** "public transport", "car"…, as it reads mid-sentence. */
+export const modeWords: Record<CommuteMode, string> = {
+  transit: t('mode.transit'),
+  car: t('mode.car'),
+  walk: t('mode.walk'),
+  bike: t('mode.bike'),
 }
 
 /** "17:11, 17:32 17.50" → ["17:11", "17:32", "17:50"]. */

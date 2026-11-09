@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import type { TaskCategory } from '@/types'
 import { categories, categoryLabel } from './categories'
+import { t } from '@/i18n'
 
 export function AddTask({ defaultCategory, onAdd }: { defaultCategory: TaskCategory; onAdd: (title: string, category: TaskCategory) => void }) {
   const [title, setTitle] = useState('')
@@ -22,15 +23,15 @@ export function AddTask({ defaultCategory, onAdd }: { defaultCategory: TaskCateg
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Add a task"
-        aria-label="New task"
+        placeholder={t('tasks.add')}
+        aria-label={t('tasks.new')}
         enterKeyHint="done"
         className="min-w-0 flex-1 bg-transparent py-2 text-base text-ink placeholder:text-faint focus:outline-none sm:text-[0.9375rem]"
       />
       <select
         value={chosen}
         onChange={(e) => setCategory(e.target.value as TaskCategory)}
-        aria-label="Category"
+        aria-label={t('tasks.category')}
         className="h-8 max-w-36 shrink-0 appearance-none rounded-full bg-fill px-3 text-subhead font-medium text-muted outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         {categories.map((c) => (

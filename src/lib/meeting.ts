@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 /** Online lessons: meeting links (Teams, Zoom, Meet) and how to tell an online class from one on campus. */
 
 const LINK = /https:\/\/(?:teams\.microsoft\.com|teams\.live\.com|[\w-]+\.zoom\.us|zoom\.us|meet\.google\.com)\/[^\s"'<>)\]]+/i
@@ -25,7 +26,7 @@ export function findOtherLink(...texts: Array<string | undefined>): string | und
 }
 
 /** A short button label for a link: "Practice" for practice and test sites, else "Open link". */
-export const linkLabel = (url: string) => (/practi|quiz|test|exam|mock/i.test(url) ? 'Practice' : 'Open link')
+export const linkLabel = (url: string) => (/practi|quiz|test|exam|mock/i.test(url) ? t('link.practice') : t('link.open'))
 
 /** "Teams", "Zoom" or "Meet". */
 export const meetingName = (url: string) => (/zoom\.us/i.test(url) ? 'Zoom' : /meet\.google/i.test(url) ? 'Meet' : 'Teams')

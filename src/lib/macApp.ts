@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 /**
  * The Mac app (Tauri, `src-tauri/`) opens the live website in a window. These helpers only do
  * anything inside that window; on the web and on the iPhone they're inert.
@@ -53,7 +54,7 @@ export async function nextDeepLink(matches: (url: string) => boolean, timeoutMs:
     }
     const timer = setTimeout(() => {
       finish()
-      reject(new Error('Google sign-in wasn’t finished. Try again.'))
+      reject(new Error(t('mac.notFinished')))
     }, timeoutMs)
     listen<string[]>('deep-link://new-url', (event) => {
       const url = event.payload.find(matches)

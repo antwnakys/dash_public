@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react'
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
+import { t } from '@/i18n'
 
 // Filled controls, no borders. 16px text on phones stops iOS from zooming into focused fields.
 const control =
@@ -80,7 +81,7 @@ export function PickerPill({
   onChange,
   label,
   display,
-  placeholder = 'None',
+  placeholder = t('common.none'),
   className,
 }: {
   type: 'date' | 'time'

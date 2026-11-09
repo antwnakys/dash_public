@@ -1,4 +1,5 @@
 import type { CalendarEvent, Course, CourseMeeting } from '@/types'
+import { joinList, locale } from '@/i18n'
 
 /** A blank class time to fill in. */
 export const newMeeting = (): CourseMeeting => ({ days: [], start: '09:00', end: '10:30' })
@@ -8,11 +9,11 @@ export const WEEK = [1, 2, 3, 4, 5, 6, 0]
 
 // 4 Jan 2026 was a Sunday, so day n of that week is weekday n.
 const weekdayDate = (day: number) => new Date(2026, 0, 4 + day)
-const short = new Intl.DateTimeFormat(undefined, { weekday: 'short' })
-const long = new Intl.DateTimeFormat(undefined, { weekday: 'long' })
-const narrow = new Intl.DateTimeFormat(undefined, { weekday: 'narrow' })
-const timeFmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
-const dateFmt = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+const short = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+const long = new Intl.DateTimeFormat(locale, { weekday: 'long' })
+const narrow = new Intl.DateTimeFormat(locale, { weekday: 'narrow' })
+const timeFmt = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' })
+const dateFmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' })
 
 export const dayName = {
   short: (d: number) => short.format(weekdayDate(d)),
@@ -54,7 +55,7 @@ export function formatMeetings(meetings: CourseMeeting[] = []): string {
     .filter((m) => m.days.length)
     .map((m) => {
       const days = sortDays(m.days).map(dayName.short)
-      const list = days.length > 1 ? `${days.slice(0, -1).join(', ')} & ${days.at(-1)}` : days[0]
+      const list = joinList(days)
       return `${list} ${formatTime(m.start)}${m.end ? `–${formatTime(m.end)}` : ''}`
     })
     .join(' · ')

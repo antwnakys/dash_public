@@ -7,6 +7,7 @@ import type { DueState } from '@/lib/taskDue'
 import type { Task } from '@/types'
 import { categoryLabel } from './categories'
 import { Checkbox } from './Checkbox'
+import { t } from '@/i18n'
 
 interface TaskItemProps {
   task: Task
@@ -44,7 +45,7 @@ export function TaskItem({ task, showCategory, due, onToggle, onRemove }: TaskIt
       <div className="flex min-h-[3.25rem] items-center gap-3 py-2 pr-2 pl-1">
         <button
           type="button"
-          aria-label={`Reorder “${task.title}”`}
+          aria-label={t('tasks.reorder', { title: task.title })}
           onPointerDown={(e) => controls.start(e)}
           className="flex h-9 w-5 shrink-0 cursor-grab touch-none items-center justify-center text-faint opacity-50 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing lg:opacity-0"
         >
@@ -56,7 +57,7 @@ export function TaskItem({ task, showCategory, due, onToggle, onRemove }: TaskIt
         <button
           type="button"
           onClick={() => openEditor({ type: 'task', id: task.id })}
-          aria-label={`Edit “${task.title}”`}
+          aria-label={t('tasks.edit', { title: task.title })}
           className="ml-2 flex min-w-0 flex-1 flex-col text-left"
         >
           <span className="relative w-fit max-w-full">
@@ -88,7 +89,7 @@ export function TaskItem({ task, showCategory, due, onToggle, onRemove }: TaskIt
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`Delete “${task.title}”`}
+          aria-label={t('tasks.delete', { title: task.title })}
           className="flex size-9 shrink-0 items-center justify-center rounded-full text-faint transition hover:bg-fill hover:text-ink focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
         >
           <X aria-hidden className="size-4" />

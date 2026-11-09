@@ -7,6 +7,7 @@
 import { isExamTitle, normalize } from './school'
 import { addDays, isSameDay, startOfDay } from './date'
 import type { AgendaItem, CalendarEvent, StudySession } from '@/types'
+import { t } from '@/i18n'
 
 const DAY = 86_400_000
 const LOOKBACK_DAYS = 60
@@ -94,7 +95,7 @@ export function plannedSessions(exam: Exam, study: StudySession[]): SessionView[
     .filter((s) => s.examId === exam.id && !s.fromCalendar)
     .map((s) => {
       const start = new Date(s.start)
-      return { id: s.id, start, end: new Date(start.getTime() + s.minutes * 60_000), topic: s.topic ?? 'Study', done: s.done, fromCalendar: false }
+      return { id: s.id, start, end: new Date(start.getTime() + s.minutes * 60_000), topic: s.topic ?? t('study.default'), done: s.done, fromCalendar: false }
     })
     .sort((a, b) => a.start.getTime() - b.start.getTime())
 }
@@ -155,7 +156,7 @@ export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: s
 
   return unique.map((start, i) => {
     const last = i === unique.length - 1 && unique.length > 1
-    const topic = last ? 'Full practice test' : topics.length ? topics[i % topics.length] : `Study session ${i + 1}`
+    const topic = last ? t('study.practiceTest') : topics.length ? topics[i % topics.length] : t('study.session', { n: i + 1 })
     return { id: `${exam.id}@${start.toISOString()}`, examId: exam.id, start: start.toISOString(), minutes: SESSION_MINUTES, topic, done: false }
   })
 }

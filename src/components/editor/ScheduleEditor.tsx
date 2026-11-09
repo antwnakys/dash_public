@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 import { WEEK, dayName, formatDate, formatTime, newMeeting, shiftEnd } from '@/lib/schedule'
 import type { Course, CourseMeeting } from '@/types'
 import { PickerPill } from './fields'
+import { t } from '@/i18n'
 
 type Term = NonNullable<Course['term']>
 
@@ -38,7 +39,7 @@ export function ScheduleEditor({
     <div className="flex flex-col gap-3">
       {meetings.map((m, i) => (
         <div key={i} className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
-          <div className="flex items-center gap-1.5 px-3 py-3" role="group" aria-label="Days">
+          <div className="flex items-center gap-1.5 px-3 py-3" role="group" aria-label={t('se.days')}>
             {WEEK.map((day) => {
               const on = m.days.includes(day)
               return (
@@ -60,7 +61,7 @@ export function ScheduleEditor({
             {meetings.length > 1 && (
               <button
                 type="button"
-                aria-label="Remove this time"
+                aria-label={t('se.removeTime')}
                 onClick={() => onMeetings(meetings.filter((_, j) => j !== i))}
                 className="ml-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-danger text-white transition-transform active:scale-90"
               >
@@ -68,13 +69,13 @@ export function ScheduleEditor({
               </button>
             )}
           </div>
-          <Row label="Starts">
-            <PickerPill type="time" label="Class starts" value={m.start} display={formatTime} onChange={(v) => v && change(i, shiftEnd(m, v))} />
+          <Row label={t('se.starts')}>
+            <PickerPill type="time" label={t('se.classStarts')} value={m.start} display={formatTime} onChange={(v) => v && change(i, shiftEnd(m, v))} />
           </Row>
-          <Row label="Ends">
+          <Row label={t('se.ends')}>
             <PickerPill
               type="time"
-              label="Class ends"
+              label={t('se.classEnds')}
               value={m.end ?? ''}
               display={formatTime}
               onChange={(v) => change(i, { ...m, end: v || undefined })}
@@ -89,15 +90,15 @@ export function ScheduleEditor({
         className="inline-flex h-9 w-fit items-center gap-1.5 rounded-full px-2 text-subhead font-medium text-accent transition-colors hover:bg-fill"
       >
         <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-        Add another time
+        {t('se.addTime')}
       </button>
 
       <div className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
-        <Row label="First class">
-          <PickerPill type="date" label="First class" value={term.start ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, start: v || undefined })} />
+        <Row label={t('se.firstClass')}>
+          <PickerPill type="date" label={t('se.firstClass')} value={term.start ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, start: v || undefined })} />
         </Row>
-        <Row label="Last class">
-          <PickerPill type="date" label="Last class" value={term.end ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, end: v || undefined })} />
+        <Row label={t('se.lastClass')}>
+          <PickerPill type="date" label={t('se.lastClass')} value={term.end ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, end: v || undefined })} />
         </Row>
       </div>
     </div>

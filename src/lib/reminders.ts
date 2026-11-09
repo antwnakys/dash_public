@@ -9,6 +9,7 @@ import { LocalNotifications } from '@capacitor/local-notifications'
 import { isMacApp } from './macApp'
 import { isNative } from './native'
 import type { Reminder } from './reminderPlan'
+import { t } from '@/i18n'
 
 export { planReminders } from './reminderPlan'
 
@@ -37,12 +38,12 @@ const TEST_ID = 9999
 export async function sendTestReminder(): Promise<void> {
   if (isMacApp) {
     const { invoke } = await mac()
-    setTimeout(() => invoke('notify', { title: 'unidash reminders work', body: 'This is what a reminder looks like.' }).catch(() => {}), 5000)
+    setTimeout(() => invoke('notify', { title: t('rp.testTitle'), body: t('rp.testBody') }).catch(() => {}), 5000)
     return
   }
   if (!isNative) return
   await LocalNotifications.schedule({
-    notifications: [{ id: TEST_ID, title: 'unidash reminders work', body: 'This is what a reminder looks like.', schedule: { at: new Date(Date.now() + 5000) } }],
+    notifications: [{ id: TEST_ID, title: t('rp.testTitle'), body: t('rp.testBody'), schedule: { at: new Date(Date.now() + 5000) } }],
   })
 }
 

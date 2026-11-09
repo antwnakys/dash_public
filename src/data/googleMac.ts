@@ -8,6 +8,7 @@
  */
 import { GOOGLE_IOS_CLIENT_ID } from '@/config'
 import { nextDeepLink, openInBrowser } from '@/lib/macApp'
+import { t } from '@/i18n'
 
 const AUTH = 'https://accounts.google.com/o/oauth2/v2/auth'
 const TOKEN = 'https://oauth2.googleapis.com/token'
@@ -103,15 +104,15 @@ export async function macSignIn(scopes: string[]): Promise<{ email: string; name
   const params = new URL(await back).searchParams
   const code = params.get('code')
   if (!code) {
-    throw new Error(params.get('error') === 'access_denied' ? 'Google sign-in was cancelled.' : 'Google didn’t sign you in. Try again.')
+    throw new Error(params.get('error') === 'access_denied' ? t('mac.cancelled') : t('mac.failed'))
   }
 
-  const t = await tokenRequest({ code, code_verifier: verifier, grant_type: 'authorization_code', redirect_uri: MAC_REDIRECT })
-  if (t.error || !t.access_token || !t.refresh_token) throw new Error('Google didn’t finish signing you in. Try again.')
-  const { email, name } = profileFrom(t.id_token)
-  if (!email) throw new Error('Google didn’t return an account.')
-  localStorage.setItem(KEY, JSON.stringify({ refreshToken: t.refresh_token, email, name } satisfies Saved))
-  access = { token: t.access_token, until: Date.now() + (t.expires_in ?? 3600) * 1000 }
+  const tok = await tokenRequest({ code, code_verifier: verifier, grant_type: 'authorization_code', redirect_uri: MAC_REDIRECT })
+  if (tok.error || !tok.access_token || !tok.refresh_token) throw new Error(t('mac.unfinished'))
+  const { email, name } = profileFrom(tok.id_token)
+  if (!email) throw new Error(t('google.noAccount'))
+  localStorage.setItem(KEY, JSON.stringify({ refreshToken: tok.refresh_token, email, name } satisfies Saved))
+  access = { token: tok.access_token, until: Date.now() + (tok.expires_in ?? 3600) * 1000 }
   return { email, name }
 }
 
@@ -119,15 +120,15 @@ export async function macSignIn(scopes: string[]): Promise<{ email: string; name
 export async function macAccessToken(): Promise<string> {
   if (access && Date.now() < access.until - 60_000) return access.token
   const saved = load()
-  if (!saved) throw new MacSignInExpired('Not signed in on this Mac.')
-  const t = await tokenRequest({ refresh_token: saved.refreshToken, grant_type: 'refresh_token' })
-  if (t.error === 'invalid_grant' || t.error === 'unauthorized_client') {
+  if (!saved) throw new MacSignInExpired(t('mac.notSignedIn'))
+  const tok = await tokenRequest({ refresh_token: saved.refreshToken, grant_type: 'refresh_token' })
+  if (tok.error === 'invalid_grant' || tok.error === 'unauthorized_client') {
     localStorage.removeItem(KEY)
     throw new MacSignInExpired('Google sign-in has expired.')
   }
-  if (t.error || !t.access_token) throw new Error('Google didn’t respond. Check the internet connection.')
-  access = { token: t.access_token, until: Date.now() + (t.expires_in ?? 3600) * 1000 }
-  return t.access_token
+  if (tok.error || !tok.access_token) throw new Error(t('mac.noResponse'))
+  access = { token: tok.access_token, until: Date.now() + (tok.expires_in ?? 3600) * 1000 }
+  return tok.access_token
 }
 
 export function macForgetToken() {

@@ -11,27 +11,28 @@ import type { ExamWithPlan } from '@/hooks/useExams'
 import { cn } from '@/lib/cn'
 import { dayDiff, fmt, isSameDay } from '@/lib/date'
 import { planStudy, type SessionView } from '@/lib/exams'
+import { t, tn } from '@/i18n'
 
 /** "Today", "Tomorrow", "6 days". */
 function untilLabel(date: Date, now: Date): string {
   const d = dayDiff(now, date)
-  return d <= 0 ? 'Today' : d === 1 ? 'Tomorrow' : `${d} days`
+  return d <= 0 ? t('exam.today') : d === 1 ? t('exam.tomorrow') : tn('exam.days', d)
 }
 
 const when = (d: Date, now: Date) =>
-  `${isSameDay(d, now) ? 'Today' : dayDiff(now, d) === 1 ? 'Tomorrow' : fmt.shortDate.format(d)}, ${fmt.time.format(d)}`
+  `${isSameDay(d, now) ? t('exam.today') : dayDiff(now, d) === 1 ? t('exam.tomorrow') : fmt.shortDate.format(d)}, ${fmt.time.format(d)}`
 
 function SessionRow({ s, now, onToggle }: { s: SessionView; now: Date; onToggle: () => void }) {
   const past = s.end < now
   const current = s.start <= now && !past
   return (
     <li className={cn('flex items-center gap-3 px-4 py-2.5', current && 'bg-accent/8')}>
-      <Checkbox checked={s.done} onToggle={onToggle} label={`${s.topic} done`} />
+      <Checkbox checked={s.done} onToggle={onToggle} label={t('exam.sessionDone', { topic: s.topic })} />
       <span className="min-w-0 flex-1">
         <span className={cn('block truncate text-body', s.done ? 'text-muted line-through decoration-faint' : 'text-ink')}>{s.topic}</span>
         <span className={cn('block text-caption tabular-nums', current ? 'font-medium text-accent' : 'text-muted')}>
-          {current ? 'Now' : when(s.start, now)}
-          {past && !s.done && ' · not ticked'}
+          {current ? t('exam.now') : when(s.start, now)}
+          {past && !s.done && t('exam.notTicked')}
         </span>
       </span>
     </li>
@@ -70,14 +71,14 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
       .map((t) => t.trim())
       .filter(Boolean)
     const plan = planStudy(exam, agenda, now, list, profile.commute?.minutes)
-    if (!plan.length) return notify('No free time left before this exam to plan sessions.', 'error')
+    if (!plan.length) return notify(t('exam.noTime'), 'error')
     study.set((items) => [...items.filter((i) => !(i.examId === exam.id && !i.fromCalendar)), ...plan])
-    notify(`${plan.length} study ${plan.length === 1 ? 'session' : 'sessions'} planned`)
+    notify(tn('exam.planned', plan.length))
   }
 
   const clearPlan = () => {
     study.set((items) => items.filter((i) => !(i.examId === exam.id && !i.fromCalendar)))
-    notify('Study plan removed')
+    notify(t('exam.planRemoved'))
   }
 
   const soon = dayDiff(now, exam.date) <= 2
@@ -86,7 +87,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
     <article className="surface overflow-hidden">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-4 px-5 pt-5 pb-4 text-left">
         <span className="min-w-0 flex-1">
-          <span className="text-subhead font-medium text-muted">Exam{exam.context ? ` · ${exam.context}` : ''}</span>
+          <span className="text-subhead font-medium text-muted">{t('exam.label')}{exam.context ? ` · ${exam.context}` : ''}</span>
           <span className="mt-0.5 block text-title text-ink">{exam.subject}</span>
           <span className="mt-0.5 block text-subhead text-muted">
             {exam.allDay ? fmt.longDate.format(exam.date) : `${fmt.longDate.format(exam.date)}, ${fmt.time.format(exam.date)}`}
@@ -97,7 +98,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             {dayDiff(now, exam.date) <= 1 ? '' : dayDiff(now, exam.date)}
           </span>
           <span className={cn('text-subhead font-medium', soon ? 'text-danger' : 'text-muted')}>
-            {dayDiff(now, exam.date) <= 1 ? untilLabel(exam.date, now) : 'days left'}
+            {dayDiff(now, exam.date) <= 1 ? untilLabel(exam.date, now) : t('exam.daysLeft')}
           </span>
         </span>
       </button>
@@ -110,7 +111,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
 
       {total > 0 && (
         <div className="flex items-center gap-3 px-5 pb-4">
-          <ProgressBar value={exam.done / total} label={`${exam.subject} study progress`} className="flex-1" />
+          <ProgressBar value={exam.done / total} label={t('exam.studyProgress', { subject: exam.subject })} className="flex-1" />
           <span className="text-subhead font-medium text-ink tabular-nums">
             {exam.done}/{total}
           </span>
@@ -119,7 +120,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
 
       {!open && exam.next && (
         <button onClick={() => setOpen(true)} className="flex w-full items-center gap-2 border-t border-line px-5 py-3 text-left text-subhead">
-          <span className="text-muted">Next:</span>
+          <span className="text-muted">{t('exam.nextLabel')}</span>
           <span className="min-w-0 flex-1 truncate text-ink">{exam.next.topic}</span>
           <span className="shrink-0 text-muted tabular-nums">{when(exam.next.start, now)}</span>
           <ChevronDown aria-hidden className="size-4 shrink-0 text-faint" />
@@ -138,7 +139,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             {total > 0 ? (
               <>
                 <p className="px-5 pt-3 pb-1 text-caption text-faint">
-                  {planned ? 'Planned by unidash on your free time.' : 'Study sessions from your calendar.'}
+                  {planned ? t('exam.plannedBy') : t('exam.fromCalendar')}
                 </p>
                 <ul className="separated">
                   {exam.sessions.map((s) => (
@@ -153,12 +154,12 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
                   )}
                   {planned && (
                     <Button size="sm" variant="plain" onClick={clearPlan}>
-                      Remove plan
+                      {t('exam.removePlan')}
                     </Button>
                   )}
                   {editTarget && (
                     <Button size="sm" variant="plain" onClick={() => openEditor(editTarget)}>
-                      Edit exam
+                      {t('exam.edit')}
                     </Button>
                   )}
                 </div>
@@ -166,23 +167,23 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
             ) : (
               <div className="flex flex-col gap-3 px-5 py-4">
                 <p className="text-subhead text-muted">
-                  No study sessions yet. unidash can plan up to six on your free time before the exam, keeping work, classes and your trips clear.
+                  {t('exam.noSessions')}
                 </p>
                 <textarea
                   value={topics}
                   onChange={(e) => setTopics(e.target.value)}
                   rows={2}
-                  placeholder="Topics, one per line or separated by commas (optional)"
+                  placeholder={t('exam.topics')}
                   className="w-full resize-none rounded-[var(--radius-control)] bg-fill px-3.5 py-2.5 text-base text-ink placeholder:text-faint outline-none focus:bg-surface sm:text-[0.9375rem]"
                 />
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="primary" onClick={makePlan}>
                     <Sparkles aria-hidden className="size-4" strokeWidth={2.2} />
-                    Make a study plan
+                    {t('exam.makePlan')}
                   </Button>
                   {editTarget && (
                     <Button size="sm" variant="plain" onClick={() => openEditor(editTarget)}>
-                      Edit exam
+                      {t('exam.edit')}
                     </Button>
                   )}
                 </div>

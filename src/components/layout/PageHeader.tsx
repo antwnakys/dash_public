@@ -6,6 +6,7 @@ import { IconButton } from '@/components/ui/IconButton'
 import { RevealItem } from '@/components/ui/Reveal'
 import { useDashboard } from '@/context/DashboardContext'
 import { SyncBadge } from './SyncBadge'
+import { t } from '@/i18n'
 
 interface PageHeaderProps {
   title: ReactNode
@@ -48,7 +49,7 @@ export function PageHeader({ title, shortTitle, eyebrow, accessory, aside, summa
           <div className="-mr-1.5 flex shrink-0 items-center gap-0.5">
             {accessory}
             <SyncBadge />
-            <IconButton icon={Settings} label="Settings" onClick={() => openEditor({ type: 'settings' })} className="lg:hidden" />
+            <IconButton icon={Settings} label={t('nav.settings')} onClick={() => openEditor({ type: 'settings' })} className="lg:hidden" />
           </div>
         </RevealItem>
         <RevealItem className="mt-1 flex items-end justify-between gap-6">

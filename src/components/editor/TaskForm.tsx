@@ -6,8 +6,9 @@ import { useDashboard } from '@/context/DashboardContext'
 import { formatDate, formatTime, hhmm, ymd } from '@/lib/schedule'
 import type { TaskCategory } from '@/types'
 import { Field, PickerPill, TextInput, Toggle } from './fields'
+import { t } from '@/i18n'
 
-const options = categories.map((c) => ({ value: c, label: c === 'projects' ? 'Projects' : categoryLabel[c] }))
+const options = categories.map((c) => ({ value: c, label: categoryLabel[c] }))
 
 /** New task, or edit one (with an optional due date and time). */
 export function TaskForm({ id, onDone }: { id?: string; onDone: () => void }) {
@@ -30,10 +31,10 @@ export function TaskForm({ id, onDone }: { id?: string; onDone: () => void }) {
     const patch = { due, dueAllDay: due && !time ? true : undefined }
     if (existing) {
       tasks.update(existing.id, { title: title.trim(), category, ...patch })
-      notify('Task saved')
+      notify(t('tf.saved'))
     } else {
       tasks.add(title.trim(), category, patch)
-      notify('Task added')
+      notify(t('tf.added'))
     }
     onDone()
   }
@@ -41,29 +42,29 @@ export function TaskForm({ id, onDone }: { id?: string; onDone: () => void }) {
   const remove = () => {
     if (!existing) return
     tasks.remove(existing.id)
-    notify('Task deleted')
+    notify(t('tf.deleted'))
     onDone()
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <Field label="Task">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs doing?" required autoFocus={!existing} />
+      <Field label={t('tf.task')}>
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('tf.taskPh')} required autoFocus={!existing} />
       </Field>
-      <Segmented label="Category" options={options} value={category} onChange={setCategory} block />
+      <Segmented label={t('tf.category')} options={options} value={category} onChange={setCategory} block />
       <div className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
         <div className="px-3 py-1.5">
-          <Toggle label="Due date" checked={hasDue} onChange={setHasDue} />
+          <Toggle label={t('tf.dueDate')} checked={hasDue} onChange={setHasDue} />
         </div>
         {hasDue && (
           <>
             <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-1.5">
-              <span className="text-body text-ink">Day</span>
-              <PickerPill type="date" label="Due day" value={date} display={formatDate} onChange={(v) => v && setDate(v)} />
+              <span className="text-body text-ink">{t('common.day')}</span>
+              <PickerPill type="date" label={t('tf.dueDay')} value={date} display={formatDate} onChange={(v) => v && setDate(v)} />
             </div>
             <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-1.5">
-              <span className="text-body text-ink">Time</span>
-              <PickerPill type="time" label="Due time" value={time} display={formatTime} placeholder="Any time" onChange={setTime} />
+              <span className="text-body text-ink">{t('common.time')}</span>
+              <PickerPill type="time" label={t('tf.dueTime')} value={time} display={formatTime} placeholder={t('tf.anyTime')} onChange={setTime} />
             </div>
           </>
         )}
@@ -71,11 +72,11 @@ export function TaskForm({ id, onDone }: { id?: string; onDone: () => void }) {
       <div className="flex items-center gap-2">
         {existing && (
           <Button variant="danger" onClick={remove}>
-            Delete
+            {t('common.delete')}
           </Button>
         )}
         <Button type="submit" variant="primary" className={existing ? 'ml-auto min-w-28' : 'w-full'}>
-          {existing ? 'Save task' : 'Add task'}
+          {existing ? t('tf.save') : t('tf.add')}
         </Button>
       </div>
     </form>

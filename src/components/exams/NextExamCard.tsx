@@ -5,6 +5,7 @@ import { useExams } from '@/hooks/useExams'
 import { useNow } from '@/hooks/useNow'
 import { cn } from '@/lib/cn'
 import { dayDiff, fmt, isSameDay } from '@/lib/date'
+import { t, tn } from '@/i18n'
 
 const SHOW_WITHIN_DAYS = 14
 
@@ -17,13 +18,20 @@ export function NextExamCard() {
   const days = dayDiff(now, exam.date)
   if (days > SHOW_WITHIN_DAYS) return null
 
-  const headline = days <= 0 ? `${exam.subject} exam today${exam.allDay ? '' : ` at ${fmt.time.format(exam.date)}`}` : days === 1 ? `${exam.subject} exam tomorrow` : `${exam.subject} exam in ${days} days`
+  const headline =
+    days <= 0
+      ? exam.allDay
+        ? t('next.today', { subject: exam.subject })
+        : t('next.todayAt', { subject: exam.subject, time: fmt.time.format(exam.date) })
+      : days === 1
+        ? t('next.tomorrow', { subject: exam.subject })
+        : tn('next.inDays', days, { subject: exam.subject })
   const s = exam.next
   const sessionLine = s
-    ? `${isSameDay(s.start, now) ? (s.start <= now ? 'Now' : `Today ${fmt.time.format(s.start)}`) : `${fmt.shortDate.format(s.start)} ${fmt.time.format(s.start)}`}: ${s.topic}`
+    ? `${isSameDay(s.start, now) ? (s.start <= now ? t('next.now') : t('next.todayTime', { time: fmt.time.format(s.start) })) : `${fmt.shortDate.format(s.start)} ${fmt.time.format(s.start)}`}: ${s.topic}`
     : exam.sessions.length
-      ? 'All study sessions done'
-      : 'No study plan yet. Tap to make one.'
+      ? t('next.allDone')
+      : t('next.noPlan')
 
   return (
     <div className="surface flex items-center gap-2 pr-3">
@@ -39,7 +47,7 @@ export function NextExamCard() {
         <span className="block truncate text-subhead text-muted">{sessionLine}</span>
         {exam.sessions.length > 0 && (
           <span className="block text-caption text-faint tabular-nums">
-            {exam.done} of {exam.sessions.length} study sessions done
+            {t('next.sessionsDone', { done: exam.done, total: exam.sessions.length })}
           </span>
         )}
       </span>

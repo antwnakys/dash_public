@@ -1,6 +1,7 @@
 import { Video } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { meetingName } from '@/lib/meeting'
+import { t } from '@/i18n'
 
 /** "Join on Teams": opens the lesson's meeting link (in the Teams app on iPhone, when installed). */
 export function JoinButton({ url, compact, className }: { url: string; compact?: boolean; className?: string }) {
@@ -16,7 +17,7 @@ export function JoinButton({ url, compact, className }: { url: string; compact?:
       )}
     >
       <Video aria-hidden className={compact ? 'size-3.5' : 'size-4'} strokeWidth={2.2} />
-      {compact ? 'Join' : `Join on ${meetingName(url)}`}
+      {compact ? t('join.short') : t('join.long', { service: meetingName(url) })}
     </a>
   )
 }

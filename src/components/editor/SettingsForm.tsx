@@ -4,7 +4,7 @@ import { Segmented } from '@/components/ui/Segmented'
 import { useDashboard } from '@/context/DashboardContext'
 import { searchPlace } from '@/data/weather'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, modes, passDays } from '@/lib/setup'
-import { countdown } from '@/lib/date'
+import { since } from '@/lib/date'
 import { parseIcs } from '@/lib/ics'
 import { parseTimes } from '@/lib/commute'
 import { BUILD, BUILT_AT } from '@/lib/liveUpdate'
@@ -12,13 +12,14 @@ import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
 import type { ThemePreference } from '@/types'
 import { Field, FormGroup, Select, TextArea, TextInput, Toggle } from './fields'
+import { lang, langIsChosen, languages, locale, setLanguage, t, tn, type LangCode } from '@/i18n'
 
 const isCalendarUrl = (u: string) => /^(https?|webcal):\/\/\S+/i.test(u.trim())
 
 const themes: Array<{ value: ThemePreference; label: string }> = [
-  { value: 'system', label: 'Automatic' },
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: t('set.auto') },
+  { value: 'light', label: t('set.light') },
+  { value: 'dark', label: t('set.dark') },
 ]
 
 export function SettingsForm({ onDone, section }: { onDone: () => void; section?: 'calendar' | 'commute' }) {
@@ -43,19 +44,19 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
     const urls = text.split(/\s+/).filter(isCalendarUrl)
     setProfile({ calendarUrls: urls })
     setCalendarText(urls.join('\n'))
-    notify(urls.length ? 'Calendar connected' : 'Calendar disconnected')
+    notify(urls.length ? t('set.calConnected') : t('set.calDisconnected'))
   }
 
   const pasteAndConnect = async () => {
     try {
       const text = (await navigator.clipboard.readText()).trim()
       if (!isCalendarUrl(text)) {
-        notify('The clipboard doesn’t hold a calendar link. Copy the secret iCal address first.', 'error')
+        notify(t('set.clipboardNoLink'), 'error')
         return
       }
       connect([calendarText, text].filter(Boolean).join('\n'))
     } catch {
-      notify('Couldn’t read the clipboard. Paste into the box below instead.', 'error')
+      notify(t('set.clipboardFailed'), 'error')
     }
   }
 
@@ -69,7 +70,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
       else if (trimmed !== profile.place?.name) {
         const found = await searchPlace(trimmed)
         if (!found) {
-          notify(`No place called “${trimmed}” was found. Check the spelling.`, 'error')
+          notify(t('set.noPlace', { name: trimmed }), 'error')
           return
         }
         place = found
@@ -78,12 +79,12 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
       const homePlace = home.trim() === profile.home?.name ? { place: profile.home, found: true } : await lookUp(home)
       const school = schoolName.trim() || address.trim() ? { name: schoolName.trim() || undefined, address: address.trim() || undefined, place: schoolPlace.place } : undefined
       setProfile({ name: name.trim(), place, school, home: homePlace.place })
-      if (!homePlace.found) notify(`Couldn’t find “${home.trim()}” on the map. Try a neighbourhood and city.`, 'error')
-      else if (!schoolPlace.found) notify('Saved. The school address wasn’t found on the map, so there’s no weather for it, but classes there still count.')
-      else notify('Settings saved')
+      if (!homePlace.found) notify(t('set.homeNotFound', { name: home.trim() }), 'error')
+      else if (!schoolPlace.found) notify(t('set.schoolNotFound'))
+      else notify(t('set.saved'))
       if (homePlace.found) onDone()
     } catch {
-      notify('Couldn’t reach the location service. Check your connection.', 'error')
+      notify(t('set.locServiceFailed'), 'error')
     } finally {
       setBusy(false)
     }
@@ -92,54 +93,64 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
   const importIcs = async (file: File) => {
     const imported = parseIcs(await file.text())
     if (imported.length === 0) {
-      notify('No upcoming events were found in that file.', 'error')
+      notify(t('set.noEvents'), 'error')
       return
     }
     const ids = new Set(imported.map((e) => e.id))
     events.set((list) => [...list.filter((e) => !ids.has(e.id)), ...imported])
-    notify(`Imported ${imported.length} ${imported.length === 1 ? 'event' : 'events'}`)
+    notify(tn('set.imported', imported.length))
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <FormGroup title="Appearance">
-        <Segmented label="Theme" options={themes} value={theme.preference} onChange={theme.setPreference} block />
+      <FormGroup title={t('set.appearance')}>
+        <Segmented label={t('set.theme')} options={themes} value={theme.preference} onChange={theme.setPreference} block />
+        <Field label={t('set.language')}>
+          <Select value={langIsChosen() ? lang : ''} onChange={(e) => setLanguage((e.target.value || undefined) as LangCode | undefined)}>
+            <option value="">{t('set.languageAuto', { name: languages.find((l) => l.code === lang)?.name ?? lang })}</option>
+            {languages.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
       </FormGroup>
 
       <form onSubmit={save}>
-        <FormGroup title="You">
-          <Field label="Name" hint="Used in the greeting.">
+        <FormGroup title={t('set.you')}>
+          <Field label={t('set.name')} hint={t('set.nameHint')}>
             <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" />
           </Field>
-          <Field label="School" hint="Optional, e.g. University of Piraeus.">
-            <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="School name" autoComplete="organization" />
+          <Field label={t('set.school')} hint={t('set.schoolHint')}>
+            <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder={t('set.schoolPh')} autoComplete="organization" />
           </Field>
-          <Field label="School address" hint="Street and number. Events in your calendar at this address count as classes.">
-            <TextInput value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street 12, Area" autoComplete="off" />
+          <Field label={t('set.address')} hint={t('set.addressHint')}>
+            <TextInput value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('set.addressPh')} autoComplete="off" />
           </Field>
-          <Field label="Where you live" hint="A neighbourhood is enough. Used for the weather on your way and when location is off.">
-            <TextInput value={home} onChange={(e) => setHome(e.target.value)} placeholder="Neighbourhood, City" autoComplete="off" />
+          <Field label={t('set.home')} hint={t('set.homeHint')}>
+            <TextInput value={home} onChange={(e) => setHome(e.target.value)} placeholder={t('set.homePh')} autoComplete="off" />
           </Field>
           <Toggle
-            label="Use this device’s location for the weather"
+            label={t('set.useLocation')}
             checked={profile.autoLocation === true}
             onChange={(v) => setProfile({ autoLocation: v })}
           />
           {profile.autoLocation === true && (
             <p className="-mt-1 px-1 text-subhead text-muted">
               {location.denied
-                ? 'Location is off for unidash in this browser, so the weather uses where you live.'
+                ? t('set.locDenied')
                 : location.here
-                  ? `Weather for where you are: ${location.here.name}. This device only.`
-                  : 'Finding where you are…'}
+                  ? t('set.locHere', { place: location.here.name })
+                  : t('set.locFinding')}
             </p>
           )}
-          <Field label="Weather city (optional)" hint="Leave empty to use where you live.">
-            <TextInput value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" autoComplete="address-level2" />
+          <Field label={t('set.city')} hint={t('set.cityHint')}>
+            <TextInput value={city} onChange={(e) => setCity(e.target.value)} placeholder={t('set.cityPh')} autoComplete="address-level2" />
           </Field>
           <div className="flex items-center justify-end gap-2">
             <Button type="submit" variant="primary" disabled={busy} className="min-w-24">
-              {busy ? 'Saving…' : 'Save'}
+              {busy ? t('set.saving') : t('common.save')}
             </Button>
           </div>
         </FormGroup>
@@ -147,25 +158,25 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
       <div ref={commuteSection} className="scroll-mt-4">
         <FormGroup
-          title="Getting to school"
-          footer="Today shows when to leave for your first class at school; in the evening, for tomorrow’s. Online lessons don’t count."
+          title={t('set.commute')}
+          footer={t('set.commuteFooter')}
         >
           <Segmented
-            label="How you get there"
+            label={t('set.how')}
             options={modes}
             value={profile.commute?.mode ?? 'transit'}
             onChange={(mode) => setProfile({ commute: { ...profile.commute, mode } })}
             block
           />
-          <Field label="Door to door">
+          <Field label={t('set.doorToDoor')}>
             <Select
               value={profile.commute?.minutes ?? ''}
               onChange={(e) => {
                 setProfile({ commute: { ...profile.commute, minutes: e.target.value ? +e.target.value : undefined } })
-                notify('Travel time saved')
+                notify(t('set.travelSaved'))
               }}
             >
-              <option value="">Not set</option>
+              <option value="">{t('common.notSet')}</option>
               {minuteOptions.map((m) => (
                 <option key={m} value={m}>
                   {minutesLabel(m)}
@@ -176,8 +187,8 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           {(profile.commute?.mode ?? 'transit') === 'transit' && (
             <>
               <Field
-                label="Bus or train times (optional)"
-                hint="If you always catch one of a few departures, list them. unidash picks the latest one that gets you there on time."
+                label={t('set.departures')}
+                hint={t('set.departuresHint')}
               >
                 <TextInput
                   defaultValue={(profile.commute?.departures ?? []).join(', ')}
@@ -188,20 +199,20 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                     e.target.value = times.join(', ')
                     if (times.join() !== (profile.commute?.departures ?? []).join()) {
                       setProfile({ commute: { ...profile.commute, departures: times.length ? times : undefined } })
-                      notify(times.length ? 'Departure times saved' : 'Departure times removed')
+                      notify(times.length ? t('set.departuresSaved') : t('set.departuresRemoved'))
                     }
                   }}
                 />
               </Field>
               {Boolean(profile.commute?.departures?.length) && (
-                <Field label="From home to that stop">
+                <Field label={t('set.toStop')}>
                   <Select
                     value={profile.commute?.toStop ?? 0}
                     onChange={(e) => setProfile({ commute: { ...profile.commute, toStop: +e.target.value } })}
                   >
                     {[0, 2, 5, 8, 10, 12, 15, 20, 25, 30, 40, 45, 60].map((m) => (
                       <option key={m} value={m}>
-                        {m ? minutesLabel(m) : 'Right outside'}
+                        {m ? minutesLabel(m) : t('set.rightOutside')}
                       </option>
                     ))}
                   </Select>
@@ -210,12 +221,12 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
             </>
           )}
           <Toggle
-            label="Monthly travel pass"
+            label={t('set.pass')}
             checked={Boolean(profile.pass?.renewDay)}
             onChange={(v) => setProfile({ pass: v ? { renewDay: profile.pass?.renewDay ?? 1 } : undefined })}
           />
           {profile.pass?.renewDay && (
-            <Field label="It runs out on" hint="Today shows a reminder the day before.">
+            <Field label={t('set.passDay')} hint={t('set.passHint')}>
               <Select value={profile.pass.renewDay} onChange={(e) => setProfile({ pass: { renewDay: +e.target.value } })}>
                 {passDays.map((d) => (
                   <option key={d} value={d}>
@@ -230,28 +241,28 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
       {reminders.permission !== 'unavailable' && (
       <FormGroup
-        title="Reminders"
+        title={t('set.reminders')}
         footer={
           reminders.permission === 'granted'
-            ? `${reminders.scheduled} ${reminders.scheduled === 1 ? 'reminder' : 'reminders'} lined up for the next two weeks. ${isMacApp ? 'They arrive while unidash is in the menu bar (closing the window keeps it there).' : 'They arrive even when unidash is closed.'}`
+            ? `${tn('set.lined', reminders.scheduled)} ${isMacApp ? t('set.arriveMac') : t('set.arrive')}`
             : undefined
         }
       >
         {reminders.permission === 'granted' && (
           <div className="flex flex-col gap-1">
             <Toggle
-              label="Time to leave for class"
+              label={t('set.remLeave')}
               checked={profile.reminders?.leave !== false}
               onChange={(v) => setProfile({ reminders: { ...profile.reminders, leave: v } })}
             />
             <Toggle
-              label="Deadlines and exams"
+              label={t('set.remDeadlines')}
               checked={profile.reminders?.deadlines !== false}
               onChange={(v) => setProfile({ reminders: { ...profile.reminders, deadlines: v } })}
             />
             {profile.pass?.renewDay && (
               <Toggle
-                label="Travel pass (the day before)"
+                label={t('set.remPass')}
                 checked={profile.reminders?.pass !== false}
                 onChange={(v) => setProfile({ reminders: { ...profile.reminders, pass: v } })}
               />
@@ -260,7 +271,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         )}
         {reminders.permission === 'prompt' && (
           <Button size="sm" variant="primary" className="self-start" onClick={reminders.enable}>
-            Turn on reminders
+            {t('rem.turnOn')}
           </Button>
         )}
         {(reminders.permission === 'granted' || reminders.permission === 'prompt') && (
@@ -269,25 +280,25 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
             className="self-start"
             onClick={async () => {
               await reminders.test()
-              notify('Test sent. It arrives in 5 seconds.')
+              notify(t('set.testSent'))
             }}
           >
-            Send test notification
+            {t('set.sendTest')}
           </Button>
         )}
         {reminders.permission === 'denied' && (
-          <p className="px-1 text-subhead text-muted">Notifications are switched off for unidash in the iPhone's Settings app, under unidash.</p>
+          <p className="px-1 text-subhead text-muted">{t('set.notifOff')}</p>
         )}
         <p className="px-1 text-subhead text-muted">
-          Ten minutes before it's time to leave for your first class, the evening before and three hours before anything is due{profile.pass?.renewDay ? ', and at 10:00 the day before your travel pass runs out' : ''}.
+          {profile.pass?.renewDay ? t('set.remWhenPass') : t('set.remWhen')}
         </p>
       </FormGroup>
       )}
 
       <div ref={calendarSection} className="scroll-mt-4">
         <FormGroup
-          title="Google account"
-          footer="Signing in on every device keeps your courses, deadlines, events and tasks the same everywhere. unidash stores them in a private folder in your own Google Drive that only unidash can see, and only reads your calendar. There is no unidash server."
+          title={t('set.google')}
+          footer={t('set.googleFooter')}
         >
           {calendar.google.account ? (
             <div className="surface flex items-center gap-3 px-4 py-3">
@@ -295,7 +306,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 {(calendar.google.account.name ?? calendar.google.account.email).slice(0, 1).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-body font-medium text-ink">{calendar.google.account.name ?? 'Google account'}</span>
+                <span className="block truncate text-body font-medium text-ink">{calendar.google.account.name ?? t('set.googleAccount')}</span>
                 <span className="block truncate text-subhead text-muted">{calendar.google.account.email}</span>
               </span>
               <Button
@@ -303,10 +314,10 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 variant="danger"
                 onClick={async () => {
                   await calendar.google.disconnect()
-                  notify('Google Calendar disconnected')
+                  notify(t('set.googleDisconnected'))
                 }}
               >
-                Disconnect
+                {t('set.disconnect')}
               </Button>
             </div>
           ) : calendar.google.available ? (
@@ -317,45 +328,45 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               onClick={async () => {
                 try {
                   await calendar.google.connect()
-                  notify('Google Calendar connected')
+                  notify(t('google.connected'))
                 } catch (e) {
-                  notify(e instanceof Error && /cancel|closed/i.test(e.message) ? 'Sign-in cancelled' : 'Couldn’t connect to Google. Try again.', 'error')
+                  notify(e instanceof Error && /cancel|closed/i.test(e.message) ? t('google.cancelled') : t('google.connectFailed'), 'error')
                 }
               }}
             >
-              {calendar.google.connecting ? 'Waiting for Google…' : 'Connect with Google'}
+              {calendar.google.connecting ? t('google.waiting') : t('set.connectGoogle')}
             </Button>
           ) : (
-            <p className="px-1 text-subhead text-muted">Google sign-in isn’t switched on yet. For now, import an .ics file below.</p>
+            <p className="px-1 text-subhead text-muted">{t('set.googleOff')}</p>
           )}
           {calendar.google.account && (
             <div className="surface flex items-center justify-between gap-3 px-4 py-3">
               <span className="min-w-0">
-                <span className="block text-body font-medium text-ink">Sync across devices</span>
+                <span className="block text-body font-medium text-ink">{t('set.syncDevices')}</span>
                 <span className={`block text-subhead ${cloud.status === 'error' || cloud.status === 'paused' ? 'text-danger' : 'text-muted'}`}>
                   {cloud.status === 'syncing'
                     ? 'Syncing…'
                     : cloud.status === 'paused' || cloud.status === 'error'
                       ? cloud.error
                       : cloud.lastSyncedAt
-                        ? `Up to date, synced ${countdown(new Date(cloud.lastSyncedAt)).replace('today', 'just now')}`
-                        : 'Waiting for the first sync'}
+                        ? t('set.upToDate', { when: since(new Date(cloud.lastSyncedAt)) })
+                        : t('set.firstSync')}
                 </span>
               </span>
               {cloud.status === 'paused' ? (
                 <Button size="sm" variant="primary" onClick={() => calendar.google.connect().then(cloud.syncNow).catch(() => {})}>
-                  Reconnect
+                  {t('set.reconnect')}
                 </Button>
               ) : (
                 <Button size="sm" onClick={cloud.syncNow} disabled={cloud.status === 'syncing'}>
-                  Sync now
+                  {t('set.syncNow')}
                 </Button>
               )}
             </div>
           )}
           {calendar.status === 'reconnect' && calendar.google.account && (
             <Button size="sm" variant="primary" onClick={() => calendar.google.connect().catch(() => {})} className="self-start">
-              Reconnect
+              {t('set.reconnect')}
             </Button>
           )}
           {calendar.status !== 'off' && (
@@ -364,11 +375,11 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 {calendar.status === 'syncing'
                   ? 'Syncing…'
                   : calendar.syncedAt
-                    ? `${calendar.events.length} upcoming events, synced ${countdown(new Date(calendar.syncedAt)).replace('today', 'just now')}.`
-                    : 'Not synced yet.'}
+                    ? tn('set.upcoming', calendar.events.length, { when: since(new Date(calendar.syncedAt)) })
+                    : t('set.notSynced')}
               </p>
               <Button size="sm" onClick={calendar.sync} disabled={calendar.status === 'syncing'}>
-                Sync now
+                {t('set.syncNow')}
               </Button>
             </div>
           )}
@@ -377,16 +388,16 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           {isNative && (
           <details className="group">
             <summary className="cursor-pointer list-none px-1 text-subhead font-medium text-accent [&::-webkit-details-marker]:hidden">
-              Use an iCal link instead
+              {t('set.ical')}
             </summary>
             <div className="mt-3 flex flex-col gap-3">
               <ol className="list-decimal space-y-1 pl-6 text-subhead text-muted">
-                <li>On a computer, open Google Calendar → Settings.</li>
-                <li>Pick a calendar, then “Integrate calendar”.</li>
-                <li>Copy “Secret address in iCal format”, then tap below.</li>
+                <li>{t('set.ical1')}</li>
+                <li>{t('set.ical2')}</li>
+                <li>{t('set.ical3')}</li>
               </ol>
               <Button onClick={pasteAndConnect} className="w-full">
-                Paste link and connect
+                {t('set.paste')}
               </Button>
               <TextArea
                 value={calendarText}
@@ -396,11 +407,11 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 autoCapitalize="off"
                 autoCorrect="off"
                 placeholder="https://calendar.google.com/calendar/ical/…/basic.ics"
-                aria-label="Calendar addresses, one per line"
+                aria-label={t('set.calAddresses')}
                 className="break-all"
               />
               <Button size="sm" onClick={() => connect(calendarText)} className="self-start">
-                {profile.calendarUrls?.length ? 'Save addresses' : 'Connect typed address'}
+                {profile.calendarUrls?.length ? t('set.saveAddresses') : t('set.connectTyped')}
               </Button>
             </div>
           </details>
@@ -408,8 +419,8 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         </FormGroup>
       </div>
 
-      <FormGroup title="Import" footer="Importing the same file again updates those events instead of duplicating them.">
-        <p className="px-1 text-subhead text-muted">Add events from an .ics file, such as an Apple Calendar export or your school portal.</p>
+      <FormGroup title={t('set.import')} footer={t('set.importFooter')}>
+        <p className="px-1 text-subhead text-muted">{t('set.importText')}</p>
         <input
           ref={fileInput}
           type="file"
@@ -422,45 +433,45 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           }}
         />
         <Button size="sm" onClick={() => fileInput.current?.click()} className="self-start">
-          Choose .ics file
+          {t('set.chooseFile')}
         </Button>
       </FormGroup>
 
-      <FormGroup title="Data" footer={calendar.google.account ? 'Stored on this device and in your own Google Drive. Nothing goes to a unidash server.' : 'Stored on this device only. Nothing goes to a unidash server.'}>
+      <FormGroup title={t('set.data')} footer={calendar.google.account ? t('set.dataDrive') : t('set.dataLocal')}>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             onClick={() => {
-              if (courses.items.length && !confirm('Replace your courses, deadlines, events and tasks with sample data?')) return
+              if (courses.items.length && !confirm(t('set.confirmSample'))) return
               loadSample()
-              notify('Sample data loaded')
+              notify(t('set.sampleLoaded'))
               onDone()
             }}
           >
-            Load sample data
+            {t('set.loadSample')}
           </Button>
           <Button
             size="sm"
             variant="danger"
             onClick={() => {
-              if (!confirm('Delete all courses, deadlines, events and tasks on this device?')) return
+              if (!confirm(t('set.confirmDeleteAll'))) return
               clearAll()
-              notify('All data deleted')
+              notify(t('set.allDeleted'))
               onDone()
             }}
           >
-            Delete all data
+            {t('set.deleteAll')}
           </Button>
         </div>
       </FormGroup>
 
       <FormGroup
-        title="About"
-        footer={isNative ? 'The app downloads new versions from the website by itself and switches to them the next time you open it.' : undefined}
+        title={t('set.about')}
+        footer={isNative ? t('set.liveUpdate') : undefined}
       >
         <p className="px-1 text-subhead text-muted">
-          Version <span className="font-medium text-ink tabular-nums">{BUILD}</span> · built{' '}
-          {BUILT_AT.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          {t('set.version')} <span className="font-medium text-ink tabular-nums">{BUILD}</span> · {t('set.built')}{' '}
+          {BUILT_AT.toLocaleString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
         <Button
           size="sm"
@@ -470,8 +481,11 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
             onDone()
           }}
         >
-          Run setup again
+          {t('set.rerun')}
         </Button>
+        <a href="./privacy.html" target="_blank" rel="noreferrer" className="self-start px-1 text-subhead font-medium text-accent">
+          {t('set.privacy')}
+        </a>
       </FormGroup>
     </div>
   )

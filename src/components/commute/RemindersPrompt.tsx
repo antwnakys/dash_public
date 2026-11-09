@@ -2,6 +2,7 @@ import { BellRing, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
+import { t } from '@/i18n'
 
 const DISMISSED = 'unidash.reminders.prompt.dismissed'
 
@@ -34,13 +35,13 @@ export function RemindersPrompt() {
         <BellRing className="size-5" strokeWidth={2} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-headline text-ink">Get reminders on your phone</span>
-        <span className="block text-subhead text-muted">When to leave for class, and before deadlines and exams.</span>
+        <span className="block text-headline text-ink">{t('rem.prompt')}</span>
+        <span className="block text-subhead text-muted">{t('rem.promptDetail')}</span>
         <Button size="sm" variant="primary" className="mt-2.5" onClick={reminders.enable}>
-          Turn on reminders
+          {t('rem.turnOn')}
         </Button>
       </span>
-      <button onClick={dismiss} aria-label="Not now" className="-mt-8 -mr-1 self-start rounded-full p-1.5 text-faint transition-colors hover:bg-fill hover:text-muted">
+      <button onClick={dismiss} aria-label={t('common.notNow')} className="-mt-8 -mr-1 self-start rounded-full p-1.5 text-faint transition-colors hover:bg-fill hover:text-muted">
         <X aria-hidden className="size-4" />
       </button>
     </div>

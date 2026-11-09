@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { formatDate, formatTime, hhmm, ymd } from '@/lib/schedule'
 import { Field, PickerPill, TextInput } from './fields'
+import { t } from '@/i18n'
 
 /** + → Exam: an exam that isn't tied to a course deadline (driving theory, a language test…), or edit one. */
 export function ExamForm({ id, onDone }: { id?: string; onDone: () => void }) {
@@ -30,51 +31,51 @@ export function ExamForm({ id, onDone }: { id?: string; onDone: () => void }) {
     }
     if (existing) {
       events.update(existing.id, data)
-      notify('Exam saved')
+      notify(t('xf.saved'))
     } else {
       events.add(data)
-      notify('Exam added. Make a study plan for it here.')
+      notify(t('xf.added'))
       setView('exams')
     }
     onDone()
   }
 
   const remove = () => {
-    if (!existing || !confirm(`Delete the ${existing.title} exam?`)) return
+    if (!existing || !confirm(t('xf.confirmDelete', { title: existing.title }))) return
     events.remove(existing.id)
-    notify('Exam deleted')
+    notify(t('xf.deleted'))
     onDone()
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <Field label="What's the exam?">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Physics final, Driving theory…" required autoFocus={!existing} />
+      <Field label={t('xf.what')}>
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('xf.whatPh')} required autoFocus={!existing} />
       </Field>
       <div className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
         <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-1.5">
-          <span className="text-body text-ink">Day</span>
-          <PickerPill type="date" label="Exam day" value={date} display={formatDate} onChange={(v) => v && setDate(v)} />
+          <span className="text-body text-ink">{t('common.day')}</span>
+          <PickerPill type="date" label={t('xf.day')} value={date} display={formatDate} onChange={(v) => v && setDate(v)} />
         </div>
         <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-1.5">
-          <span className="text-body text-ink">Time</span>
-          <PickerPill type="time" label="Exam time" value={time} display={formatTime} placeholder="Not set" onChange={setTime} />
+          <span className="text-body text-ink">{t('common.time')}</span>
+          <PickerPill type="time" label={t('xf.time')} value={time} display={formatTime} placeholder={t('common.notSet')} onChange={setTime} />
         </div>
       </div>
-      <Field label="Where">
-        <TextInput value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Optional" />
+      <Field label={t('common.where')}>
+        <TextInput value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t('common.optional')} />
       </Field>
-      <Field label="Link" hint="A practice site or anything you'll want one tap away. Shows as a button on the exam.">
+      <Field label={t('xf.link')} hint={t('xf.linkHint')}>
         <TextInput type="url" inputMode="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" />
       </Field>
       <div className="flex items-center gap-2">
         {existing && (
           <Button variant="danger" onClick={remove}>
-            Delete
+            {t('common.delete')}
           </Button>
         )}
         <Button type="submit" variant="primary" className={existing ? 'ml-auto min-w-28' : 'w-full'}>
-          {existing ? 'Save exam' : 'Add exam'}
+          {existing ? t('xf.save') : t('xf.add')}
         </Button>
       </div>
     </form>

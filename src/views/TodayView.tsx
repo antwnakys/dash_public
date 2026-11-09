@@ -13,6 +13,7 @@ import { RollingTime } from '@/components/ui/RollingTime'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { countdown, fmt, greeting, isSameDay } from '@/lib/date'
+import { t, tn } from '@/i18n'
 
 /** One calm sentence about the day, built from what's actually scheduled. */
 function useSummary(now: Date) {
@@ -21,15 +22,15 @@ function useSummary(now: Date) {
   const open = tasks.tasks.filter((t) => !t.done).length
   const deadline = agenda.find((i) => (i.kind === 'assignment' || i.kind === 'exam' || i.kind === 'quiz' || i.kind === 'task') && i.date > now)
 
-  const first = leftToday === 0 ? 'Nothing else on today' : `${leftToday} more ${leftToday === 1 ? 'thing' : 'things'} today`
-  const second = open === 0 ? 'no open tasks' : `${open} open ${open === 1 ? 'task' : 'tasks'}`
+  const first = leftToday === 0 ? t('today.left_zero') : tn('today.left', leftToday)
+  const second = open === 0 ? t('today.open_zero') : tn('today.open', open)
   return (
     <>
-      {first}, {second}.
+      {t('today.summary', { left: first, open: second })}
       {deadline && (
         <>
           {' '}
-          Next due: <span className="text-ink">{deadline.title}</span>, {countdown(deadline.date, now)}.
+          {t('today.nextDue')} <span className="text-ink">{deadline.title}</span>, {countdown(deadline.date, now)}.
         </>
       )}
     </>
@@ -52,7 +53,7 @@ export function TodayView() {
   return (
     <Reveal id="today">
       <PageHeader
-        shortTitle="Today"
+        shortTitle={t('nav.today')}
         eyebrow={fmt.longDate.format(now)}
         accessory={<WeatherChip />}
         title={
