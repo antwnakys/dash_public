@@ -168,7 +168,7 @@ not listed here works as described in the original's `CLAUDE.md`.
   page already loaded (the app starts after the language file). `components/commute/InstallCard.tsx` on Today (phones in
   a browser tab, not installed, until dismissed): iPhone gets the Share → Add to Home Screen steps, Chrome/Edge on
   Android a one-tap Install (`beforeinstallprompt`), others the browser-menu hint.
-- **Feedback** (Settings → Feedback): opens a mail to `FEEDBACK_EMAIL` (`src/config.ts`, empty for now) or, while empty,
+- **Feedback** (Settings → Feedback): opens a mail to `FEEDBACK_EMAIL` (`src/config.ts`, empty on purpose: Antonis chose GitHub issues on Nov 9, no email published) or, while empty,
   a new GitHub issue on `FEEDBACK_REPO`, with version, language and device appended (`lib/wipe.ts` `feedbackDetails`).
 - **Delete all data** (Settings → Data, `lib/wipe.ts` `deleteEverything`): signed in → disconnect Google (stops sync),
   delete the Drive app-data file, revoke the token; if Drive can't be reached nothing is deleted. Then every
