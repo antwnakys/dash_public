@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useDashboard } from '@/context/DashboardContext'
-import { sessionsFor, upcomingExams, type Exam, type SessionView } from '@/lib/exams'
+import { examsAwaitingResult, sessionsFor, upcomingExams, type Exam, type SessionView } from '@/lib/exams'
 
 export interface ExamWithPlan extends Exam {
   sessions: SessionView[]
@@ -11,10 +11,10 @@ export interface ExamWithPlan extends Exam {
 
 /** Upcoming exams with their study sessions, soonest first. */
 export function useExams(now: Date): ExamWithPlan[] {
-  const { agenda, calendar, events, study } = useDashboard()
+  const { agenda, calendar, events, study, examResults } = useDashboard()
   return useMemo(() => {
     const all = [...calendar.events, ...events.items]
-    return upcomingExams(agenda, now).map((exam) => {
+    return upcomingExams(agenda, now, examResults.items).map((exam) => {
       const sessions = sessionsFor(exam, all, study.items)
       return {
         ...exam,
@@ -23,5 +23,11 @@ export function useExams(now: Date): ExamWithPlan[] {
         next: sessions.find((s) => !s.done && s.end > now),
       }
     })
-  }, [agenda, calendar.events, events.items, study.items, now])
+  }, [agenda, calendar.events, events.items, study.items, examResults.items, now])
+}
+
+/** Exams that are over and still need a result. */
+export function useExamsAwaitingResult(now: Date): Exam[] {
+  const { agenda, examResults } = useDashboard()
+  return useMemo(() => examsAwaitingResult(agenda, now, examResults.items), [agenda, examResults.items, now])
 }

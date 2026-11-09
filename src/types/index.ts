@@ -67,6 +67,24 @@ export interface StudySession {
   fromCalendar?: boolean
 }
 
+/**
+ * How an exam went, entered after it. Kept apart from the exam itself (which may be a Google Calendar event
+ * that later disappears), with the subject and date copied in so the history stays complete.
+ */
+export interface ExamResult {
+  /** The exam's id: calendar event, exam added in unidash, or exam-type deadline. */
+  id: string
+  subject: string
+  /** ISO timestamp of the exam. */
+  date: string
+  allDay?: boolean
+  score?: number
+  outOf?: number
+  /** Missing: not said (e.g. skipped without a result). */
+  passed?: boolean
+  courseId?: string
+}
+
 export interface CalendarEvent {
   id: string
   title: string
@@ -174,6 +192,7 @@ export type EditorTarget =
   | { type: 'deadline'; id?: string; courseId?: string }
   | { type: 'event'; id?: string }
   | { type: 'exam'; id?: string }
+  | { type: 'examResult'; id: string; subject: string; date: string; allDay?: boolean; courseId?: string; source?: 'assignment' | 'event' | 'calendar' | 'task' }
   | { type: 'task'; id?: string }
   | { type: 'new' }
   | { type: 'settings'; section?: 'calendar' | 'commute' }

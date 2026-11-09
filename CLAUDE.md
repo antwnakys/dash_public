@@ -173,6 +173,14 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Delete all data** (Settings → Data, `lib/wipe.ts` `deleteEverything`): signed in → disconnect Google (stops sync),
   delete the Drive app-data file, revoke the token; if Drive can't be reached nothing is deleted. Then every
   `unidash.*` key is removed and the app reloads into first-open setup.
+- **Exam results** (Nov 9): synced collection `unidash.examResults.v1` (`ExamResult`: subject + date copied in, so the
+  history survives the calendar event going away; optional score/outOf/passed). `lib/exams.ts`: an exam is over once
+  its day has passed (all-day) or 2 h after the start; `upcomingExams` hides exams that are over or have a result,
+  `examsAwaitingResult` = over in the last 30 days with no result. Exams tab: "How did it go?" list (Add result / Skip)
+  → upcoming (empty state only when both are empty) → History (passed · failed). Today shows `ExamResultPrompt` for
+  3 days after an exam. `ExamResultForm` (editor `examResult`) guesses passed at ≥ half marks until picked by hand;
+  for a deadline-based exam it also writes the grade to the deadline. Calendar/iCal now read 31 days back so recent
+  exams can still be graded.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -200,6 +208,7 @@ not listed here works as described in the original's `CLAUDE.md`.
   Also renamed the leftover personal task category "Gaming & projects" to "Projects".
 - **Nov 9, 2026 (evening)**: animations + first-screen fix copied into Antonis's own dash (antwnakys/dash#29). unidash got
   offline support, the Home Screen card, Settings → Feedback and a full Delete all data (device + Drive + revoke).
+  Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
 
 ## Next up
 

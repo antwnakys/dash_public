@@ -55,7 +55,7 @@ function Row({ item, now }: { item: AgendaItem; now: Date }) {
             flagged ? 'font-semibold text-accent' : isClass ? 'font-semibold text-course' : 'text-muted',
           )}
         >
-          {item.allDay ? 'All day' : fmt.time.format(item.date)}
+          {item.allDay ? t('ef.allDay') : fmt.time.format(item.date)}
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">

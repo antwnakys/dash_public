@@ -46,7 +46,7 @@ async function fetchFeed(url: string, index: number): Promise<CalendarEvent[]> {
   if (!res.ok) throw new Error(t('cal.feedStatus', { status: res.status }))
   const text = await res.text()
   if (!text.includes('BEGIN:VCALENDAR')) throw new Error(t('cal.notCalendar'))
-  return parseIcs(text, { from: Date.now() - DAY_MS, to: Date.now() + 180 * DAY_MS, idPrefix: `cal${index}` })
+  return parseIcs(text, { from: Date.now() - 31 * DAY_MS, to: Date.now() + 180 * DAY_MS, idPrefix: `cal${index}` })
 }
 
 const feedError = (e: unknown) =>

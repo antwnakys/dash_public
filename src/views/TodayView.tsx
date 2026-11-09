@@ -1,6 +1,7 @@
 import { Agenda } from '@/components/calendar/Agenda'
 import { MiniCalendar } from '@/components/calendar/MiniCalendar'
 import { LeaveCard, OnlineCard } from '@/components/commute/LeaveCard'
+import { ExamResultPrompt } from '@/components/exams/ExamResultPrompt'
 import { NextExamCard } from '@/components/exams/NextExamCard'
 import { InstallCard } from '@/components/commute/InstallCard'
 import { PassCard } from '@/components/commute/PassCard'
@@ -75,6 +76,7 @@ export function TodayView() {
             <PassCard />
             <OnlineCard />
             <LeaveCard />
+            <ExamResultPrompt />
             <NextExamCard />
           </RevealItem>
           <RevealItem className="order-1">
