@@ -3,6 +3,7 @@
  * Looks at home around leaving and coming back, and at school while you're there.
  */
 import type { HourlyPoint } from '@/data/weather'
+import { t } from '@/i18n'
 
 export interface TripHint {
   kind: 'storm' | 'rain' | 'cold' | 'hot'
@@ -55,7 +56,7 @@ export function tripHint(
   if (!hours.length) return undefined
 
   const storm = hours.find((h) => h.code >= 95)
-  if (storm) return { kind: 'storm', text: `Thunderstorms around ${hourLabel(storm.time)} in ${storm.where}. Take an umbrella.` }
+  if (storm) return { kind: 'storm', text: t('trip.storm', { time: hourLabel(storm.time), place: storm.where }) }
 
   const rain = hours.find((h) => h.rainChance >= RAIN_CHANCE || h.rainMm >= RAIN_MM)
   if (rain) {
@@ -63,16 +64,16 @@ export function tripHint(
     return {
       kind: 'rain',
       text: leaving
-        ? `Rain when you leave (${Math.round(rain.rainChance)}%). Take an umbrella.`
-        : `Rain likely from ${hourLabel(rain.time)} in ${rain.where} (${Math.round(rain.rainChance)}%). Take an umbrella.`,
+        ? t('trip.rainLeaving', { chance: Math.round(rain.rainChance) })
+        : t('trip.rain', { time: hourLabel(rain.time), place: rain.where, chance: Math.round(rain.rainChance) }),
     }
   }
 
   const coldest = hours.reduce((m, h) => (h.tempC < m.tempC ? h : m))
-  if (coldest.tempC <= COLD) return { kind: 'cold', text: `Down to ${Math.round(coldest.tempC)}° around ${hourLabel(coldest.time)}. Take a jacket.` }
+  if (coldest.tempC <= COLD) return { kind: 'cold', text: t('trip.cold', { temp: Math.round(coldest.tempC), time: hourLabel(coldest.time) }) }
 
   const hottest = hours.reduce((m, h) => (h.tempC > m.tempC ? h : m))
-  if (hottest.tempC >= HOT) return { kind: 'hot', text: `Up to ${Math.round(hottest.tempC)}° in ${hottest.where}. Bring water.` }
+  if (hottest.tempC >= HOT) return { kind: 'hot', text: t('trip.hot', { temp: Math.round(hottest.tempC), place: hottest.where }) }
 
   return undefined
 }

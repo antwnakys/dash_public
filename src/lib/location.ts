@@ -7,15 +7,16 @@ import { Capacitor } from '@capacitor/core'
 import { Geolocation } from '@capacitor/geolocation'
 import type { Place } from '@/types'
 import { isNative } from './native'
+import { t } from '@/i18n'
 
 const OPTIONS = { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 }
 
 function fromBrowser(): Promise<{ latitude: number; longitude: number }> {
   return new Promise((resolve, reject) => {
-    if (!('geolocation' in navigator)) return reject(new Error('Location is not available on this device'))
+    if (!('geolocation' in navigator)) return reject(new Error(t('loc.unavailable')))
     navigator.geolocation.getCurrentPosition(
       (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude }),
-      (e) => reject(new Error(e.message)),
+      (e) => reject(Object.assign(new Error(e.message), { denied: e.code === e.PERMISSION_DENIED })),
       OPTIONS,
     )
   })
@@ -24,7 +25,7 @@ function fromBrowser(): Promise<{ latitude: number; longitude: number }> {
 async function fromNative(): Promise<{ latitude: number; longitude: number }> {
   let { location } = await Geolocation.checkPermissions()
   if (location === 'prompt' || location === 'prompt-with-rationale') location = (await Geolocation.requestPermissions()).location
-  if (location !== 'granted') throw new Error('Location is off for dash')
+  if (location !== 'granted') throw Object.assign(new Error(t('loc.off')), { denied: true })
   const p = await Geolocation.getCurrentPosition(OPTIONS)
   return { latitude: p.coords.latitude, longitude: p.coords.longitude }
 }
@@ -37,9 +38,9 @@ async function placeName(latitude: number, longitude: number): Promise<string> {
     const res = await fetch(url)
     if (!res.ok) throw new Error(String(res.status))
     const j = (await res.json()) as { locality?: string; city?: string }
-    return j.locality || j.city || 'Current location'
+    return j.locality || j.city || t('loc.current')
   } catch {
-    return 'Current location'
+    return t('loc.current')
   }
 }
 
@@ -55,7 +56,7 @@ export function distanceKm(a: { latitude: number; longitude: number }, b: { lati
 export async function locate(previous?: Place): Promise<Place> {
   // An app build from before the native plugin was installed: wait for the reinstall instead of using the web
   // view's location, whose prompt would come back on every launch. The weather keeps the city meanwhile.
-  if (isNative && !Capacitor.isPluginAvailable('Geolocation')) throw new Error('Needs the app update from Xcode')
+  if (isNative && !Capacitor.isPluginAvailable('Geolocation')) throw new Error(t('loc.needsUpdate'))
   const pos = isNative ? await fromNative() : await fromBrowser()
   const name = previous && distanceKm(previous, pos) < 1 ? previous.name : await placeName(pos.latitude, pos.longitude)
   return { name, ...pos }

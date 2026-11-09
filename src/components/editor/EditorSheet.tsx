@@ -10,17 +10,18 @@ import { NewChooser } from './NewChooser'
 import { SettingsForm } from './SettingsForm'
 import { Sheet } from './Sheet'
 import { TaskForm } from './TaskForm'
+import { t } from '@/i18n'
 
 const titles = {
-  course: ['New course', 'Edit course'],
-  deadline: ['New deadline', 'Edit deadline'],
-  event: ['New event', 'Edit event'],
-  exam: ['New exam', 'Edit exam'],
+  course: [t('editor.newCourse'), t('editor.editCourse')],
+  deadline: [t('editor.newDeadline'), t('editor.editDeadline')],
+  event: [t('editor.newEvent'), t('editor.editEvent')],
+  exam: [t('editor.newExam'), t('editor.editExam')],
 } as const
 
 const newKinds = [
-  { value: 'deadline' as const, label: 'Deadline' },
-  { value: 'event' as const, label: 'Event' },
+  { value: 'deadline' as const, label: t('editor.deadline') },
+  { value: 'event' as const, label: t('editor.event') },
 ]
 
 const idOf = (t: EditorTarget) => ('id' in t ? t.id : undefined)
@@ -44,11 +45,11 @@ export function EditorSheet() {
 
   const title =
     type === 'settings'
-      ? 'Settings'
+      ? t('nav.settings')
       : type === 'new'
-        ? 'New'
+        ? t('nav.new')
         : type === 'task'
-          ? target && idOf(target) ? 'Edit task' : 'New task'
+          ? target && idOf(target) ? t('editor.editTask') : t('editor.newTask')
           : type
             ? titles[type][target && idOf(target) ? 1 : 0]
             : ''
@@ -58,7 +59,7 @@ export function EditorSheet() {
       {target && (
         <div key={JSON.stringify(target)} className="flex flex-col gap-5">
           {switchable && !('courseId' in target && target.courseId) && (
-            <Segmented label="What to add" options={newKinds} value={newKind} onChange={setNewKind} block />
+            <Segmented label={t('editor.whatToAdd')} options={newKinds} value={newKind} onChange={setNewKind} block />
           )}
           {type === 'new' && <NewChooser />}
           {type === 'task' && <TaskForm id={target.type === 'task' ? target.id : undefined} onDone={closeEditor} />}

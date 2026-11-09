@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchWeather } from '@/data/weather'
 import type { Place, Weather } from '@/types'
+import { t } from '@/i18n'
 
 export type WeatherState =
   | { status: 'loading' }
@@ -32,12 +33,12 @@ export function useWeather(place?: Place): WeatherState {
   const key = placeKey(place)
   const [state, setState] = useState<WeatherState>(() => {
     const cached = key ? readCache(key) : undefined
-    return cached ? { status: 'ready', data: cached } : key ? { status: 'loading' } : { status: 'unavailable', reason: 'No location set' }
+    return cached ? { status: 'ready', data: cached } : key ? { status: 'loading' } : { status: 'unavailable', reason: t('weather.noPlace') }
   })
 
   useEffect(() => {
     if (!place) {
-      setState({ status: 'unavailable', reason: 'No location set' })
+      setState({ status: 'unavailable', reason: t('weather.noPlace') })
       return
     }
     let cancelled = false

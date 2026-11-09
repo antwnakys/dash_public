@@ -6,6 +6,7 @@ import { IconButton } from '@/components/ui/IconButton'
 import { RevealItem } from '@/components/ui/Reveal'
 import { useDashboard } from '@/context/DashboardContext'
 import { SyncBadge } from './SyncBadge'
+import { t } from '@/i18n'
 
 interface PageHeaderProps {
   title: ReactNode
@@ -45,14 +46,14 @@ export function PageHeader({ title, shortTitle, eyebrow, accessory, aside, summa
       <header className="flex flex-col pb-7 lg:pb-9">
         <RevealItem className="flex min-h-9 items-center justify-between gap-3">
           <div className="min-w-0 truncate text-subhead font-medium text-muted">{eyebrow}</div>
-          <div className="-mr-1.5 flex shrink-0 items-center gap-0.5">
+          <div className="-me-1.5 flex shrink-0 items-center gap-0.5">
             {accessory}
             <SyncBadge />
-            <IconButton icon={Settings} label="Settings" onClick={() => openEditor({ type: 'settings' })} className="lg:hidden" />
+            <IconButton icon={Settings} label={t('nav.settings')} onClick={() => openEditor({ type: 'settings' })} className="lg:hidden" />
           </div>
         </RevealItem>
         <RevealItem className="mt-1 flex items-end justify-between gap-6">
-          <motion.h1 style={{ scale: titleScale }} className="min-w-0 origin-left text-large-title text-ink lg:text-[2.75rem]">
+          <motion.h1 style={{ scale: titleScale }} className="min-w-0 origin-left text-large-title rtl:origin-right text-ink lg:text-[2.75rem]">
             {title}
           </motion.h1>
           {aside && <div className="hidden shrink-0 lg:block">{aside}</div>}

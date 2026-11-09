@@ -16,7 +16,7 @@ export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-0 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5.25rem)] z-40 flex justify-center px-4 lg:bottom-6 lg:pl-60"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5.25rem)] z-40 flex justify-center px-4 lg:bottom-6 lg:ps-60"
     >
       <AnimatePresence>
         {toast && (

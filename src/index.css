@@ -314,3 +314,10 @@
   transform: scale(0.98);
   transition-duration: 0.12s, 0.2s;
 }
+
+/* Right-to-left languages (Arabic, Urdu): arrows that mean "back/forward" point the other way. */
+[dir='rtl'] .lucide-chevron-left,
+[dir='rtl'] .lucide-chevron-right,
+[dir='rtl'] .lucide-arrow-up-right {
+  transform: scaleX(-1);
+}

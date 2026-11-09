@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { spring } from '@/lib/motion'
+import { ltr, spring } from '@/lib/motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -10,12 +10,13 @@ import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { cn } from '@/lib/cn'
 import { addDays, addMonths, fmt, isSameDay, monthGrid, startOfDay, weekOf } from '@/lib/date'
+import { t, tn } from '@/i18n'
 
 type Mode = 'month' | 'week'
 
 const modes = [
-  { value: 'month' as const, label: 'Month' },
-  { value: 'week' as const, label: 'Week' },
+  { value: 'month' as const, label: t('cal.month') },
+  { value: 'week' as const, label: t('cal.week') },
 ]
 
 const dayKey = (d: Date) => startOfDay(d).toDateString()
@@ -58,7 +59,7 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
   return (
     <Section
       title={fmt.monthYear.format(mode === 'week' ? days[3] : cursor)}
-      action={<Segmented label="Calendar view" options={modes} value={mode} onChange={setMode} />}
+      action={<Segmented label={t('cal.view')} options={modes} value={mode} onChange={setMode} />}
     >
       <Card className="p-3 sm:p-4">
         <div className="mb-1 flex items-center justify-between">
@@ -71,13 +72,13 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               setCursor(today)
               setSelectedDate(today)
             }}
-            className="-ml-1"
+            className="-ms-1"
           >
-            Today
+            {t('cal.today')}
           </Button>
           <div className="flex">
-            <IconButton icon={ChevronLeft} label={mode === 'month' ? 'Previous month' : 'Previous week'} onClick={() => step(-1)} />
-            <IconButton icon={ChevronRight} label={mode === 'month' ? 'Next month' : 'Next week'} onClick={() => step(1)} />
+            <IconButton icon={ChevronLeft} label={mode === 'month' ? t('cal.prevMonth') : t('cal.prevWeek')} onClick={() => step(-1)} />
+            <IconButton icon={ChevronRight} label={mode === 'month' ? t('cal.nextMonth') : t('cal.nextWeek')} onClick={() => step(1)} />
           </div>
         </div>
 
@@ -95,9 +96,9 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               key={`${mode}-${dayKey(days[0])}`}
               custom={direction}
               variants={{
-                enter: (dir: number) => ({ x: dir * 28, opacity: 0 }),
+                enter: (dir: number) => ({ x: dir * 28 * ltr, opacity: 0 }),
                 center: { x: 0, opacity: 1 },
-                exit: (dir: number) => ({ x: dir * -28, opacity: 0 }),
+                exit: (dir: number) => ({ x: dir * -28 * ltr, opacity: 0 }),
               }}
               initial="enter"
               animate="center"
@@ -109,8 +110,10 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.3}
               onDragEnd={(_, info) => {
-                if (info.offset.x < -48 || info.velocity.x < -450) step(1)
-                else if (info.offset.x > 48 || info.velocity.x > 450) step(-1)
+                const dx = info.offset.x * ltr
+                const vx = info.velocity.x * ltr
+                if (dx < -48 || vx < -450) step(1)
+                else if (dx > 48 || vx > 450) step(-1)
               }}
               className="grid touch-pan-y grid-cols-7 gap-y-0.5"
             >
@@ -125,7 +128,7 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
                     onClick={() => select(d)}
                     aria-pressed={selected}
                     aria-current={isToday ? 'date' : undefined}
-                    aria-label={`${fmt.longDate.format(d)}${mark ? `, ${mark.count} scheduled` : ''}`}
+                    aria-label={`${fmt.longDate.format(d)}${mark ? `, ${tn('cal.scheduled', mark.count)}` : ''}`}
                     className={cn(
                       'relative mx-auto flex flex-col items-center justify-center rounded-full text-body tabular-nums transition-colors duration-150',
                       large ? 'size-11 sm:size-12' : 'size-10',

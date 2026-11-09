@@ -7,6 +7,7 @@ import { formatMeetings, newMeeting, parseSchedule } from '@/lib/schedule'
 import type { Assignment, Course, CourseLink, CourseMeeting } from '@/types'
 import { Field, TextInput } from './fields'
 import { ScheduleEditor } from './ScheduleEditor'
+import { locale, t } from '@/i18n'
 
 /** Saved times, or ones read from an older free-text schedule, or one empty time to fill in. */
 function initialMeetings(c?: Course): CourseMeeting[] {
@@ -17,7 +18,7 @@ function initialMeetings(c?: Course): CourseMeeting[] {
 
 const linkUrl = (c: Course | undefined, kind: CourseLink['kind']) => c?.links.find((l) => l.kind === kind)?.url ?? ''
 
-const dueFmt = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
+const dueFmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
 
 /** Everything due for this course, with grades; tap one to grade or edit it. */
 function WorkAndGrades({ courseId, list, onOpen }: { courseId: string; list: Assignment[]; onOpen: (id: string) => void }) {
@@ -28,7 +29,7 @@ function WorkAndGrades({ courseId, list, onOpen }: { courseId: string; list: Ass
   return (
     <div className="flex flex-col gap-1.5">
       <span className="px-1 text-subhead font-medium text-muted">
-        Work and grades{avg && ` · average ${formatGrade(avg.value)}/${SCALE}`}
+        {t('cf.work')}{avg && t('cf.average', { avg: formatGrade(avg.value), scale: SCALE })}
       </span>
       <ul className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
         {work.map((a) => {
@@ -38,17 +39,17 @@ function WorkAndGrades({ courseId, list, onOpen }: { courseId: string; list: Ass
               <button
                 type="button"
                 onClick={() => onOpen(a.id)}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-fill"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-start transition-colors hover:bg-fill"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body text-ink">{a.title}</span>
                   <span className="block text-caption text-muted">
-                    {dueFmt.format(new Date(a.due))} · {a.kind === 'assignment' ? 'Assignment' : a.kind === 'exam' ? 'Exam' : 'Quiz'}
+                    {dueFmt.format(new Date(a.due))} · {a.kind === 'assignment' ? t('df.assignment') : a.kind === 'exam' ? t('df.exam') : t('df.quiz')}
                     {a.submitted && g == null && ' · done'}
                   </span>
                 </span>
                 <span className={g == null ? 'text-subhead text-accent' : 'text-body font-semibold text-ink tabular-nums'}>
-                  {g == null ? (a.submitted || new Date(a.due) < now ? 'Add grade' : '') : `${formatGrade(a.grade!)}/${a.outOf ?? SCALE}`}
+                  {g == null ? (a.submitted || new Date(a.due) < now ? t('cf.addGrade') : '') : `${formatGrade(a.grade!)}/${a.outOf ?? SCALE}`}
                 </span>
               </button>
             </li>
@@ -76,9 +77,9 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
   const submit = (e: FormEvent) => {
     e.preventDefault()
     const links: CourseLink[] = []
-    if (portal.trim()) links.push({ label: 'Course portal', url: portal.trim(), kind: 'portal' })
-    if (materials.trim()) links.push({ label: 'Materials', url: materials.trim(), kind: 'materials' })
-    if (meeting.trim()) links.push({ label: 'Online lesson', url: meeting.trim(), kind: 'meeting' })
+    if (portal.trim()) links.push({ label: t('cf.portalLabel'), url: portal.trim(), kind: 'portal' })
+    if (materials.trim()) links.push({ label: t('cf.materialsLabel'), url: materials.trim(), kind: 'materials' })
+    if (meeting.trim()) links.push({ label: t('cf.onlineLabel'), url: meeting.trim(), kind: 'meeting' })
     // Keep links of other kinds (e.g. recorded lectures) that this form doesn't edit.
     links.push(...(existing?.links ?? []).filter((l) => l.kind === 'video'))
     const set = meetings.filter((m) => m.days.length)
@@ -95,36 +96,36 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
     }
     if (existing) courses.update(existing.id, data)
     else courses.add(data)
-    notify(existing ? 'Course saved' : 'Course added')
+    notify(existing ? t('cf.saved') : t('cf.added'))
     onDone()
   }
 
   const remove = () => {
-    if (!existing || !confirm(`Delete ${existing.name} and its deadlines?`)) return
+    if (!existing || !confirm(t('cf.confirmDelete', { name: existing.name }))) return
     assignments.set((list) => list.filter((a) => a.courseId !== existing.id))
     courses.remove(existing.id)
-    notify('Course deleted')
+    notify(t('cf.deleted'))
     onDone()
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
       <div className="grid grid-cols-[7rem_1fr] gap-3">
-        <Field label="Code">
+        <Field label={t('cf.code')}>
           <TextInput value={code} onChange={(e) => setCode(e.target.value)} placeholder="CS 310" />
         </Field>
-        <Field label="Name">
-          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="Algorithms" required autoFocus={!existing} />
+        <Field label={t('cf.name')}>
+          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder={t('cf.namePh')} required autoFocus={!existing} />
         </Field>
       </div>
-      <Field label="Instructor">
+      <Field label={t('cf.instructor')}>
         <TextInput value={instructor} onChange={(e) => setInstructor(e.target.value)} />
       </Field>
       <div className="flex flex-col gap-1.5">
-        <span className="px-1 text-subhead font-medium text-muted">Class times</span>
+        <span className="px-1 text-subhead font-medium text-muted">{t('cf.classTimes')}</span>
         <ScheduleEditor meetings={meetings} onMeetings={setMeetings} term={term} onTerm={setTerm} />
       </div>
-      <Field label={`Syllabus progress: ${progress}%`}>
+      <Field label={t('cf.progress', { pct: progress })}>
         <input
           type="range"
           min={0}
@@ -136,23 +137,23 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
         />
       </Field>
       {existing && <WorkAndGrades courseId={existing.id} list={assignments.items} onOpen={(id) => openEditor({ type: 'deadline', id })} />}
-      <Field label="Course portal link">
+      <Field label={t('cf.portal')}>
         <TextInput type="url" inputMode="url" value={portal} onChange={(e) => setPortal(e.target.value)} placeholder="https://" />
       </Field>
-      <Field label="Online lesson link" hint="Teams, Zoom or Meet, for online lessons. A link in the calendar event is used first.">
+      <Field label={t('cf.online')} hint={t('cf.onlineHint')}>
         <TextInput type="url" inputMode="url" value={meeting} onChange={(e) => setMeeting(e.target.value)} placeholder="https://" />
       </Field>
-      <Field label="Materials link">
+      <Field label={t('cf.materials')}>
         <TextInput type="url" inputMode="url" value={materials} onChange={(e) => setMaterials(e.target.value)} placeholder="https://" />
       </Field>
       <div className="mt-1 flex items-center gap-2">
         {existing && (
           <Button variant="danger" onClick={remove}>
-            Delete
+            {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className="ml-auto min-w-28">
-          {existing ? 'Save course' : 'Add course'}
+        <Button type="submit" variant="primary" className="ms-auto min-w-28">
+          {existing ? t('cf.save') : t('cf.add')}
         </Button>
       </div>
     </form>

@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Section'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { average, formatGrade, SCALE } from '@/lib/grades'
+import { t, tn } from '@/i18n'
 
 export function CoursesView() {
   const { courses, assignments, openEditor, loadSample } = useDashboard()
@@ -23,18 +24,18 @@ export function CoursesView() {
   return (
     <Reveal id="courses">
       <PageHeader
-        shortTitle="Courses"
-        eyebrow="This semester"
-        title="Courses"
+        shortTitle={t('courses.title')}
+        eyebrow={t('courses.eyebrow')}
+        title={t('courses.title')}
         summary={
           courses.items.length > 0 &&
-          `${courses.items.length} ${courses.items.length === 1 ? 'course' : 'courses'}, ${open} open ${open === 1 ? 'deadline' : 'deadlines'}, ${avg}% through on average.` +
-            (grades ? ` Grade average ${formatGrade(grades.value)}/${SCALE}.` : '')
+          t('courses.summary', { courses: tn('courses.count', courses.items.length), deadlines: tn('courses.openDeadlines', open), pct: avg }) +
+            (grades ? ` ${t('courses.gradeAvg', { avg: formatGrade(grades.value), scale: SCALE })}` : '')
         }
         aside={
           <Button variant="primary" onClick={() => openEditor({ type: 'course' })}>
             <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-            Add course
+            {t('courses.add')}
           </Button>
         }
       />
@@ -47,12 +48,12 @@ export function CoursesView() {
       {courses.items.length === 0 ? (
         <RevealItem>
         <Card>
-          <EmptyState message="Add your courses to follow syllabus progress, deadlines and exams in one place.">
+          <EmptyState message={t('courses.empty')}>
             <Button variant="primary" size="sm" onClick={() => openEditor({ type: 'course' })}>
-              Add course
+              {t('courses.add')}
             </Button>
             <Button size="sm" onClick={loadSample}>
-              Try sample data
+              {t('courses.trySample')}
             </Button>
           </EmptyState>
         </Card>

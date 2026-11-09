@@ -6,17 +6,18 @@ import { Field, Select, TextInput } from '@/components/editor/fields'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
-import { blur, ease, press, spring } from '@/lib/motion'
+import { blur, ease, ltr, press, spring } from '@/lib/motion'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, passDays } from '@/lib/setup'
 import type { CommuteMode } from '@/types'
+import { t } from '@/i18n'
 
 type Step = 'welcome' | 'name' | 'school' | 'home' | 'mode' | 'minutes' | 'pass' | 'done'
 
 const modeChoices: Array<{ value: CommuteMode; label: string; icon: typeof Car }> = [
-  { value: 'transit', label: 'Bus, metro or train', icon: TrainFront },
-  { value: 'car', label: 'Car', icon: Car },
-  { value: 'walk', label: 'On foot', icon: Footprints },
-  { value: 'bike', label: 'Bike or scooter', icon: Bike },
+  { value: 'transit', label: t('ob.transit'), icon: TrainFront },
+  { value: 'car', label: t('ob.car'), icon: Car },
+  { value: 'walk', label: t('ob.walk'), icon: Footprints },
+  { value: 'bike', label: t('ob.bike'), icon: Bike },
 ]
 
 // Each screen's parts arrive one after another (title, then the explanation, then fields, then buttons).
@@ -62,7 +63,7 @@ function Choice({ selected, onClick, children, className }: { selected: boolean;
       whileTap={press}
       onClick={onClick}
       aria-pressed={selected}
-      className={cn('surface relative text-left hover:bg-fill/60', className)}
+      className={cn('surface relative text-start hover:bg-fill/60', className)}
     >
       <AnimatePresence>
         {selected && (
@@ -123,11 +124,11 @@ function Actions({ busy, onSkip }: { busy?: boolean; onSkip?: () => void }) {
   return (
     <div className="flex flex-col gap-2 pt-2">
       <Button type="submit" variant="primary" className="h-12 w-full text-headline" disabled={busy}>
-        {busy ? 'Looking it up…' : 'Continue'}
+        {busy ? t('ob.lookingUp') : t('ob.continue')}
       </Button>
       {onSkip && (
         <Button variant="plain" className="h-11 w-full" onClick={onSkip} disabled={busy}>
-          Skip for now
+          {t('ob.skip')}
         </Button>
       )}
     </div>
@@ -206,11 +207,11 @@ export function Onboarding() {
     setBusy(true)
     try {
       const { place, found } = await lookUp(h)
-      if (!found) return setError(`Couldn’t find “${h}” on the map. Try a neighbourhood and city, like “Kifisia, Athens”.`)
+      if (!found) return setError(t('ob.homeNotFound', { name: h }))
       setProfile({ home: place })
       next()
     } catch {
-      setError('Couldn’t reach the map service. Check your connection, or skip this for now.')
+      setError(t('ob.mapFailed'))
     } finally {
       setBusy(false)
     }
@@ -220,9 +221,9 @@ export function Onboarding() {
     try {
       await calendar.google.connect()
       // Sync brings the profile from the other device; if it was set up there, this screen closes by itself.
-      notify('Signed in. Your data is on its way.')
+      notify(t('ob.signedIn'))
     } catch (e) {
-      notify(e instanceof Error && /cancel|closed/i.test(e.message) ? 'Sign-in cancelled' : 'Couldn’t connect to Google. Try again.', 'error')
+      notify(e instanceof Error && /cancel|closed/i.test(e.message) ? t('google.cancelled') : t('google.connectFailed'), 'error')
     }
   }
 
@@ -234,24 +235,29 @@ export function Onboarding() {
         <motion.div variants={stagger(0.75)} className="flex flex-col items-center gap-6 text-center">
           <Logo animated className="size-20" />
           <Rise className="flex flex-col gap-2">
-            <h1 className="text-large-title text-ink">Welcome to unidash</h1>
-            <p className="text-body text-muted">Your classes, deadlines, exams and calendar in one calm place. A few quick questions to set it up; skip any of them.</p>
+            <h1 className="text-large-title text-ink">{t('ob.welcome')}</h1>
+            <p className="text-body text-muted">{t('ob.welcomeLead')}</p>
           </Rise>
           <Rise className="flex w-full flex-col gap-2 pt-2">
             <Button variant="primary" className="h-12 w-full text-headline" onClick={next}>
-              Get started
+              {t('ob.start')}
             </Button>
             {calendar.google.available && !calendar.google.account && (
               <Button className="h-11 w-full" onClick={connectGoogle} disabled={calendar.google.connecting}>
-                {calendar.google.connecting ? 'Waiting for Google…' : 'I already use unidash: sign in with Google'}
+                {calendar.google.connecting ? t('google.waiting') : t('ob.signIn')}
               </Button>
             )}
             <Button variant="plain" className="h-11 w-full" onClick={finish}>
-              Skip setup
+              {t('ob.skipSetup')}
             </Button>
           </Rise>
           <Rise>
-            <p className="text-caption text-faint">Everything stays on this device{calendar.google.available ? ' and, if you sign in, in your own Google Drive' : ''}. There’s no unidash server.</p>
+            <p className="text-caption text-faint">
+              {calendar.google.available ? t('ob.privacyGoogle') : t('ob.privacy')}{' '}
+              <a href="./privacy.html" target="_blank" rel="noreferrer" className="font-medium text-accent">
+                {t('ob.privacyLink')}
+              </a>
+            </p>
           </Rise>
         </motion.div>
       )
@@ -259,9 +265,9 @@ export function Onboarding() {
     case 'name':
       body = (
         <form onSubmit={submit(() => (setProfile({ name: name.trim() }), next()))}>
-          <Screen title="What’s your name?" lead="Just for the greeting.">
-            <Field label="First name">
-              <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" autoFocus placeholder="Your name" />
+          <Screen title={t('ob.name')} lead={t('ob.nameLead')}>
+            <Field label={t('ob.firstName')}>
+              <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" autoFocus placeholder={t('ob.namePh')} />
             </Field>
             <Actions onSkip={next} />
           </Screen>
@@ -271,12 +277,12 @@ export function Onboarding() {
     case 'school':
       body = (
         <form onSubmit={submit(saveSchool)}>
-          <Screen title="Where do you study?" lead="Events in your calendar at this address count as classes, and Today tells you when to leave for them.">
-            <Field label="School (optional)">
-              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder="University of Piraeus" autoFocus />
+          <Screen title={t('ob.school')} lead={t('ob.schoolLead')}>
+            <Field label={t('ob.schoolName')}>
+              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder={t('ob.schoolPh')} autoFocus />
             </Field>
-            <Field label="Address" hint="Street and number, the way it appears in your calendar events.">
-              <TextInput value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" placeholder="Street 12, Area" />
+            <Field label={t('ob.address')} hint={t('ob.addressHint')}>
+              <TextInput value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" placeholder={t('set.addressPh')} />
             </Field>
             <Actions busy={busy} onSkip={next} />
           </Screen>
@@ -286,9 +292,9 @@ export function Onboarding() {
     case 'home':
       body = (
         <form onSubmit={submit(saveHome)}>
-          <Screen title="Where do you live?" lead="A neighbourhood is enough. It’s used for the weather on your way to class.">
-            <Field label="Neighbourhood and city">
-              <TextInput value={home} onChange={(e) => setHome(e.target.value)} autoComplete="off" placeholder="Kifisia, Athens" autoFocus />
+          <Screen title={t('ob.home')} lead={t('ob.homeLead')}>
+            <Field label={t('ob.homeField')}>
+              <TextInput value={home} onChange={(e) => setHome(e.target.value)} autoComplete="off" placeholder={t('ob.homePh')} autoFocus />
             </Field>
             {error && (
               <motion.p
@@ -308,7 +314,7 @@ export function Onboarding() {
       break
     case 'mode':
       body = (
-        <Screen title="How do you get to school?">
+        <Screen title={t('ob.mode')}>
           <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
             {modeChoices.map(({ value, label, icon: Icon }) => (
               <Choice
@@ -327,7 +333,7 @@ export function Onboarding() {
             ))}
           </motion.div>
           <Button variant="plain" className="h-11 w-full" onClick={() => go('done')}>
-            Skip for now
+            {t('ob.skip')}
           </Button>
         </Screen>
       )
@@ -335,8 +341,8 @@ export function Onboarding() {
     case 'minutes':
       body = (
         <form onSubmit={submit(() => (setProfile({ commute: { ...profile.commute, minutes } }), next()))}>
-          <Screen title="About how long does it take?" lead="Door to door, on a normal day. Today uses it to say when to leave.">
-            <Field label="Door to door">
+          <Screen title={t('ob.minutes')} lead={t('ob.minutesLead')}>
+            <Field label={t('set.doorToDoor')}>
               <Select value={minutes} onChange={(e) => setMinutes(+e.target.value)}>
                 {minuteOptions.map((m) => (
                   <option key={m} value={m}>
@@ -353,11 +359,11 @@ export function Onboarding() {
     case 'pass':
       body = (
         <form onSubmit={submit(() => (setProfile({ pass: hasPass ? { renewDay: passDay } : undefined }), next()))}>
-          <Screen title="Do you have a monthly travel pass?" lead="unidash can remind you the day before it runs out.">
+          <Screen title={t('ob.pass')} lead={t('ob.passLead')}>
             <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
               {[
-                { value: true, label: 'Yes' },
-                { value: false, label: 'No' },
+                { value: true, label: t('ob.yes') },
+                { value: false, label: t('ob.no') },
               ].map((o) => (
                 <Choice key={o.label} selected={hasPass === o.value} onClick={() => setHasPass(o.value)} className="h-12 text-center text-headline text-ink">
                   <span className="relative">{o.label}</span>
@@ -373,7 +379,7 @@ export function Onboarding() {
                   transition={spring.smooth}
                   className="-m-1 overflow-hidden p-1"
                 >
-                  <Field label="It runs out on">
+                  <Field label={t('set.passDay')}>
                     <Select value={passDay} onChange={(e) => setPassDay(+e.target.value)}>
                       {passDays.map((d) => (
                         <option key={d} value={d}>
@@ -395,12 +401,12 @@ export function Onboarding() {
         <motion.div variants={stagger(0.5)} className="flex flex-col items-center gap-6 text-center">
           <Celebration />
           <Rise className="flex flex-col gap-2">
-            <h1 className="text-large-title text-ink">{profile.name ? `You’re all set, ${profile.name}` : 'You’re all set'}</h1>
-            <p className="text-body text-muted">Add your courses and deadlines with the + button. You can change any of these answers in Settings.</p>
+            <h1 className="text-large-title text-ink">{profile.name ? t('ob.doneName', { name: profile.name }) : t('ob.done')}</h1>
+            <p className="text-body text-muted">{t('ob.doneLead')}</p>
           </Rise>
           <Rise className="w-full">
             <Button variant="primary" className="h-12 w-full text-headline" onClick={finish}>
-              Open unidash
+              {t('ob.open')}
             </Button>
           </Rise>
         </motion.div>
@@ -412,7 +418,7 @@ export function Onboarding() {
     <motion.div
       role="dialog"
       aria-modal
-      aria-label="Set up unidash"
+      aria-label={t('ob.dialog')}
       // On first load the setup is simply there (fading in would flash the app behind it);
       // "Run setup again" fades it in over the app.
       initial={{ opacity: firstShow ? 1 : 0 }}
@@ -424,9 +430,9 @@ export function Onboarding() {
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-6">
         <div className="flex h-11 items-center justify-between">
           {index > 0 && step !== 'done' ? (
-            <Button variant="plain" size="sm" className="-ml-2" onClick={prev} aria-label="Back">
+            <Button variant="plain" size="sm" className="-ms-2" onClick={prev} aria-label={t('ob.back')}>
               <ChevronLeft aria-hidden className="size-4" strokeWidth={2.4} />
-              Back
+              {t('ob.back')}
             </Button>
           ) : (
             <span />
@@ -457,9 +463,9 @@ export function Onboarding() {
             <motion.div
               key={step}
               variants={{
-                enter: { opacity: 0, x: back ? -40 : 40 },
+                enter: { opacity: 0, x: (back ? -40 : 40) * ltr },
                 center: { opacity: 1, x: 0, transition: { x: spring.smooth, opacity: { duration: 0.2 } } },
-                exit: { opacity: 0, x: back ? 40 : -40, transition: { x: spring.smooth, opacity: { duration: 0.14 } } },
+                exit: { opacity: 0, x: (back ? 40 : -40) * ltr, transition: { x: spring.smooth, opacity: { duration: 0.14 } } },
               }}
               initial="enter"
               animate="center"

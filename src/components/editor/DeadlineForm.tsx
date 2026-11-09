@@ -6,11 +6,12 @@ import type { Assignment } from '@/types'
 import { SCALE } from '@/lib/grades'
 import { localInput } from '@/lib/localInput'
 import { Field, Select, TextInput, Toggle } from './fields'
+import { t } from '@/i18n'
 
 const kinds = [
-  { value: 'assignment' as const, label: 'Assignment' },
-  { value: 'quiz' as const, label: 'Quiz' },
-  { value: 'exam' as const, label: 'Exam' },
+  { value: 'assignment' as const, label: t('df.assignment') },
+  { value: 'quiz' as const, label: t('df.quiz') },
+  { value: 'exam' as const, label: t('df.exam') },
 ]
 
 /** Default due time: the selected day at 23:59, or tomorrow when today is selected. */
@@ -53,25 +54,25 @@ export function DeadlineForm({ id, courseId, onDone }: { id?: string; courseId?:
     }
     if (existing) assignments.update(existing.id, data)
     else assignments.add(data)
-    notify(existing ? 'Deadline saved' : 'Deadline added')
+    notify(existing ? t('df.saved') : t('df.added'))
     onDone()
   }
 
   const remove = () => {
     if (!existing) return
     assignments.remove(existing.id)
-    notify('Deadline deleted')
+    notify(t('df.deleted'))
     onDone()
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <Segmented label="Type" options={kinds} value={kind} onChange={setKind} block />
-      <Field label="Title">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Problem set 8" required autoFocus={!existing} />
+      <Segmented label={t('common.type')} options={kinds} value={kind} onChange={setKind} block />
+      <Field label={t('common.title')}>
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('df.titlePh')} required autoFocus={!existing} />
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Course">
+        <Field label={t('df.course')}>
           <Select value={course} onChange={(e) => setCourse(e.target.value)}>
             {courses.items.map((c) => (
               <option key={c.id} value={c.id}>
@@ -80,17 +81,17 @@ export function DeadlineForm({ id, courseId, onDone }: { id?: string; courseId?:
             ))}
           </Select>
         </Field>
-        <Field label="Due">
+        <Field label={t('df.due')}>
           <TextInput type="datetime-local" value={due} onChange={(e) => setDue(e.target.value)} required />
         </Field>
       </div>
-      {existing && <Toggle label={kind === 'assignment' ? 'Submitted' : 'Done'} checked={submitted} onChange={setSubmitted} />}
+      {existing && <Toggle label={kind === 'assignment' ? t('df.submitted') : t('df.done')} checked={submitted} onChange={setSubmitted} />}
       {existing && (
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Grade" hint="Leave empty until you get it.">
+          <Field label={t('df.grade')} hint={t('df.gradeHint')}>
             <TextInput type="text" inputMode="decimal" value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="–" />
           </Field>
-          <Field label="Out of">
+          <Field label={t('df.outOf')}>
             <TextInput type="text" inputMode="decimal" value={outOf} onChange={(e) => setOutOf(e.target.value)} />
           </Field>
         </div>
@@ -98,11 +99,11 @@ export function DeadlineForm({ id, courseId, onDone }: { id?: string; courseId?:
       <div className="mt-1 flex items-center gap-2">
         {existing && (
           <Button variant="danger" onClick={remove}>
-            Delete
+            {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className="ml-auto min-w-28">
-          {existing ? 'Save' : `Add ${kind}`}
+        <Button type="submit" variant="primary" className="ms-auto min-w-28">
+          {existing ? t('common.save') : t(kind === 'assignment' ? 'df.addAssignment' : kind === 'quiz' ? 'df.addQuiz' : 'df.addExam')}
         </Button>
       </div>
     </form>

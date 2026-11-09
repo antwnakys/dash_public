@@ -9,7 +9,9 @@ import { JoinButton } from '@/components/ui/JoinButton'
 import { classesOn } from '@/lib/classes'
 import { modeWords, nextDeparture } from '@/lib/commute'
 import { fmt, startOfDay } from '@/lib/date'
+import { minutesLabel } from '@/lib/setup'
 import { tripHint, type TripHint } from '@/lib/tripWeather'
+import { t } from '@/i18n'
 
 const hintIcon = { rain: Umbrella, storm: CloudLightning, cold: Snowflake, hot: ThermometerSun } as const
 
@@ -24,7 +26,7 @@ function WeatherHint({ hint }: { hint: TripHint }) {
   )
 }
 
-const inWords = (mins: number) => (mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)} h${mins % 60 ? ` ${mins % 60} min` : ''}`)
+const inWords = minutesLabel
 
 const SHOW_ONLINE_FROM = 3 * 3_600_000 // an online lesson's card appears 3 hours before it starts
 
@@ -47,9 +49,9 @@ export function OnlineCard() {
         <Video className="size-5" strokeWidth={2} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-headline text-ink">{started ? `${lesson.title} is on now` : `${lesson.title} online at ${fmt.time.format(lesson.start)}`}</span>
+        <span className="block text-headline text-ink">{started ? t('online.now', { title: lesson.title }) : t('online.at', { title: lesson.title, time: fmt.time.format(lesson.start) })}</span>
         <span className="block text-subhead text-muted">
-          {lesson.link ? 'From home, no need to travel.' : 'From home. The meeting link will show here once it’s in the event.'}
+          {lesson.link ? t('online.fromHome') : t('online.noLink')}
         </span>
         {lesson.link && <JoinButton url={lesson.link} className="mt-2.5" />}
       </span>
@@ -83,15 +85,15 @@ export function LeaveCard() {
   // No travel time yet: one tap to add it.
   if (!trip.leaveAt || !minutes) {
     return (
-      <button onClick={open} className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-fill/60">
+      <button onClick={open} className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-start hover:bg-fill/60">
         <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
           <Icon className="size-5" strokeWidth={2} />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-headline text-ink">
-            {trip.tomorrow ? 'Tomorrow' : 'Next'}: {trip.title} at {fmt.time.format(trip.classAt)}
+            {t(trip.tomorrow ? 'leave.tomorrowNext' : 'leave.next', { title: trip.title, time: fmt.time.format(trip.classAt) })}
           </span>
-          <span className="block text-subhead text-accent">Add how long it takes to get to {schoolLabel(profile.school)} to see when to leave.</span>
+          <span className="block text-subhead text-accent">{t('leave.addTime', { school: schoolLabel(profile.school) })}</span>
         </span>
       </button>
     )
@@ -102,18 +104,18 @@ export function LeaveCard() {
   const late = left <= 0
   const soon = !late && left <= 60 && !trip.tomorrow
   const headline = trip.tomorrow
-    ? `Tomorrow, leave by ${fmt.time.format(leaveAt)}`
+    ? t('leave.tomorrow', { time: fmt.time.format(leaveAt) })
     : late
-      ? 'Leave now'
+      ? t('leave.now')
       : soon
-        ? `Leave in ${inWords(left)}`
-        : `Leave by ${fmt.time.format(leaveAt)}`
+        ? t('leave.in', { mins: inWords(left) })
+        : t('leave.by', { time: fmt.time.format(leaveAt) })
   const detail = late
-    ? `${inWords(-left)} later than usual. ${trip.title} starts at ${fmt.time.format(trip.classAt)}.`
-    : `${trip.departure ? `Take the ${fmt.time.format(trip.departure)} · ` : ''}${trip.title} at ${fmt.time.format(trip.classAt)}`
+    ? t('leave.late', { mins: inWords(-left), title: trip.title, time: fmt.time.format(trip.classAt) })
+    : `${trip.departure ? t('leave.take', { time: fmt.time.format(trip.departure) }) : ''}${t('leave.classAt', { title: trip.title, time: fmt.time.format(trip.classAt) })}`
   const route = [
-    `About ${inWords(minutes)} door to door`,
-    commute?.mode ? modeWords[commute.mode].label.toLowerCase() : undefined,
+    t('leave.about', { mins: inWords(minutes) }),
+    commute?.mode ? modeWords[commute.mode] : undefined,
     profile.home && profile.school ? `${profile.home.name} → ${schoolLabel(profile.school)}` : undefined,
   ]
     .filter(Boolean)
@@ -122,8 +124,8 @@ export function LeaveCard() {
   return (
     <button
       onClick={open}
-      aria-label={`${headline}. ${detail} Change travel time`}
-      className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-fill/60"
+      aria-label={`${headline}. ${detail} ${t('leave.change')}`}
+      className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-start hover:bg-fill/60"
     >
       <span
         aria-hidden

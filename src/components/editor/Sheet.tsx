@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { blur, ease, spring } from '@/lib/motion'
 import { IconButton } from '@/components/ui/IconButton'
+import { t } from '@/i18n'
 
 interface SheetProps {
   open: boolean
@@ -92,7 +93,7 @@ export function Sheet({ open, title, onClose, children }: SheetProps) {
             >
               <span aria-hidden className="absolute top-2 left-1/2 h-[5px] w-9 -translate-x-1/2 rounded-full bg-fill-strong sm:hidden" />
               <h2 className="text-title text-ink">{title}</h2>
-              <IconButton icon={X} label="Close" variant="filled" onClick={onClose} className="size-8" />
+              <IconButton icon={X} label={t('common.close')} variant="filled" onClick={onClose} className="size-8" />
             </div>
             {/* The contents follow the panel a beat later, so the sheet arrives first and the form settles into it. */}
             <motion.div

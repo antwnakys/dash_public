@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { passStatus } from '@/lib/pass'
+import { t } from '@/i18n'
 
 const dismissKey = (d: Date) => `unidash.pass.dismissed.${d.getFullYear()}-${d.getMonth() + 1}`
 
@@ -38,15 +39,15 @@ export function PassCard() {
         <CreditCard className="size-5" strokeWidth={2} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-headline text-ink">{status === 'tomorrow' ? 'Your travel pass runs out tomorrow' : 'Your travel pass runs out today'}</span>
-        <span className="block text-subhead text-muted">{status === 'tomorrow' ? 'Renew it today so you can travel tomorrow.' : 'Renew it before your next trip.'}</span>
+        <span className="block text-headline text-ink">{status === 'tomorrow' ? t('pass.tomorrow') : t('pass.today')}</span>
+        <span className="block text-subhead text-muted">{status === 'tomorrow' ? t('pass.tomorrowDetail') : t('pass.todayDetail')}</span>
       </span>
       <button
         onClick={dismiss}
-        aria-label="Renewed"
+        aria-label={t('pass.renewed')}
         className="shrink-0 rounded-full bg-fill px-3 py-1.5 text-subhead font-medium text-ink transition-colors hover:bg-fill-strong"
       >
-        Renewed
+        {t('pass.renewed')}
       </button>
     </div>
   )

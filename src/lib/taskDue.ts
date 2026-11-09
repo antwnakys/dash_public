@@ -1,5 +1,6 @@
 import { dayDiff, fmt } from './date'
 import type { Task } from '@/types'
+import { t } from '@/i18n'
 
 export type DueState = 'overdue' | 'today' | 'soon' | 'later'
 
@@ -10,9 +11,9 @@ export function dueInfo(task: Task, now: Date): { state: DueState; label: string
   const days = dayDiff(now, due)
   const time = task.dueAllDay ? '' : ` ${fmt.time.format(due)}`
   const overdue = task.dueAllDay ? days < 0 : due < now
-  if (overdue) return { state: 'overdue', label: `Overdue · ${days === 0 ? 'today' : days === -1 ? 'yesterday' : fmt.shortDate.format(due)}${time}` }
-  if (days === 0) return { state: 'today', label: `Today${time}` }
-  if (days === 1) return { state: 'soon', label: `Tomorrow${time}` }
+  if (overdue) return { state: 'overdue', label: t('due.overdue', { when: `${days === 0 ? t('time.today') : days === -1 ? t('due.yesterday') : fmt.shortDate.format(due)}${time}` }) }
+  if (days === 0) return { state: 'today', label: `${t('due.today')}${time}` }
+  if (days === 1) return { state: 'soon', label: `${t('due.tomorrow')}${time}` }
   return { state: days <= 6 ? 'soon' : 'later', label: `${fmt.shortDate.format(due)}${time}` }
 }
 

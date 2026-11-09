@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
 import { haptic } from '@/lib/native'
 import { views } from '@/views'
+import { t } from '@/i18n'
 
 /** Floating tab bar with a separate New button, within thumb reach. Below 1024px. */
 export function TabBar() {
@@ -17,7 +18,7 @@ export function TabBar() {
     <div className="pointer-events-none fixed inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-20 flex justify-center px-3 lg:hidden">
       <div className="pointer-events-auto flex w-full max-w-[28rem] items-center gap-2.5">
         <motion.nav
-          aria-label="Sections"
+          aria-label={t('nav.sections')}
           animate={{ height: compact ? 52 : 60 }}
           transition={spring.smooth}
           className="material flex flex-1 items-center rounded-full p-1"
@@ -72,7 +73,7 @@ export function TabBar() {
             haptic()
             openEditor({ type: 'new' })
           }}
-          aria-label="New"
+          aria-label={t('nav.new')}
           animate={{ width: compact ? 52 : 60, height: compact ? 52 : 60 }}
           className="material flex shrink-0 items-center justify-center rounded-full text-accent"
         >

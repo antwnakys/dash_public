@@ -10,8 +10,9 @@ import { classesOn } from '@/lib/classes'
 import { cn } from '@/lib/cn'
 import { addDays, fmt, isSameDay, weekOf } from '@/lib/date'
 import { schoolLabel } from '@/lib/school'
+import { locale, t, tn } from '@/i18n'
 
-const dayRange = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
+const dayRange = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
 
 /** The week's classes, Monday to Sunday, from the calendar and the courses' weekly times. */
 export function Timetable() {
@@ -21,28 +22,28 @@ export function Timetable() {
   const days = useMemo(() => weekOf(addDays(now, offset * 7)), [now, offset])
   const week = useMemo(() => days.map((d) => ({ day: d, classes: classesOn(d, agenda, courses.items) })), [days, agenda, courses.items])
   const total = week.reduce((n, d) => n + d.classes.length, 0)
-  const label = offset === 0 ? 'This week' : offset === 1 ? 'Next week' : offset === -1 ? 'Last week' : `${dayRange.format(days[0])} – ${dayRange.format(days[6])}`
+  const label = offset === 0 ? t('tt.thisWeek') : offset === 1 ? t('tt.nextWeek') : offset === -1 ? t('tt.lastWeek') : `${dayRange.format(days[0])} – ${dayRange.format(days[6])}`
 
   return (
     <Section
-      title="Timetable"
-      meta={`${label} · ${total} ${total === 1 ? 'class' : 'classes'}`}
+      title={t('tt.title')}
+      meta={`${label} · ${tn('tt.classes', total)}`}
       action={
         <>
           {offset !== 0 && (
             <Button variant="plain" size="sm" onClick={() => setOffset(0)}>
-              This week
+              {t('tt.thisWeek')}
             </Button>
           )}
-          <IconButton icon={ChevronLeft} label="Previous week" onClick={() => setOffset((o) => o - 1)} />
-          <IconButton icon={ChevronRight} label="Next week" onClick={() => setOffset((o) => o + 1)} />
+          <IconButton icon={ChevronLeft} label={t('cal.prevWeek')} onClick={() => setOffset((o) => o - 1)} />
+          <IconButton icon={ChevronRight} label={t('cal.nextWeek')} onClick={() => setOffset((o) => o + 1)} />
         </>
       }
     >
       <Card>
         {total === 0 ? (
           <p className="px-4 py-6 text-center text-subhead text-muted">
-            No classes this week. Add class times to a course{profile.school?.address ? `, or connect a calendar with your classes at ${schoolLabel(profile.school)}` : ', or add your school’s address in Settings so classes in your calendar show here'}.
+            {profile.school?.address ? t('tt.emptySchool', { school: schoolLabel(profile.school) }) : t('tt.emptyNoSchool')}
           </p>
         ) : (
           <ol className="separated">
@@ -57,7 +58,7 @@ export function Timetable() {
                       <div className="text-caption text-muted tabular-nums">{day.getDate()}</div>
                     </div>
                     {classes.length === 0 ? (
-                      <p className="pt-0.5 text-subhead text-faint">No classes</p>
+                      <p className="pt-0.5 text-subhead text-faint">{t('tt.noClasses')}</p>
                     ) : (
                       <ul className="flex min-w-0 flex-1 flex-col gap-2">
                         {classes.map((c) => {
@@ -68,14 +69,14 @@ export function Timetable() {
                                 disabled={!c.courseId}
                                 onClick={() => c.courseId && openEditor({ type: 'course', id: c.courseId })}
                                 className={cn(
-                                  'flex min-w-0 flex-1 items-start gap-3 rounded-[0.6rem] border-l-[3px] border-course bg-course/8 px-3 py-2 text-left transition-colors enabled:hover:bg-course/14',
+                                  'flex min-w-0 flex-1 items-start gap-3 rounded-[0.6rem] border-s-[3px] border-course bg-course/8 px-3 py-2 text-start transition-colors enabled:hover:bg-course/14',
                                   past && 'opacity-55',
                                 )}
                               >
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate text-body font-medium text-ink">{c.title}</span>
                                   <span className="block text-caption text-muted tabular-nums">
-                                    {[`${fmt.time.format(c.start)}${c.end ? `–${fmt.time.format(c.end)}` : ''}`, c.code, c.online && 'Online']
+                                    {[`${fmt.time.format(c.start)}${c.end ? `–${fmt.time.format(c.end)}` : ''}`, c.code, c.online && t('tt.online')]
                                       .filter(Boolean)
                                       .join(' · ')}
                                   </span>

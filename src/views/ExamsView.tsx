@@ -8,7 +8,8 @@ import { Card } from '@/components/ui/Section'
 import { useDashboard } from '@/context/DashboardContext'
 import { useExams } from '@/hooks/useExams'
 import { useNow } from '@/hooks/useNow'
-import { dayDiff } from '@/lib/date'
+import { dayDiff, inDays } from '@/lib/date'
+import { t, tn } from '@/i18n'
 
 export function ExamsView() {
   const { openEditor } = useDashboard()
@@ -20,27 +21,27 @@ export function ExamsView() {
   return (
     <Reveal id="exams">
       <PageHeader
-        shortTitle="Exams"
-        eyebrow="Coming up"
-        title="Exams"
+        shortTitle={t('exams.title')}
+        eyebrow={t('exams.eyebrow')}
+        title={t('exams.title')}
         aside={
           <Button variant="primary" onClick={() => openEditor({ type: 'exam' })}>
             <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-            Add exam
+            {t('exams.add')}
           </Button>
         }
         summary={
           next &&
-          `${exams.length} ${exams.length === 1 ? 'exam' : 'exams'} ahead. Next: ${next.subject} ${days <= 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`}` +
-            (next.sessions.length ? `, ${next.done} of ${next.sessions.length} study sessions done.` : '.')
+          `${tn('exams.ahead', exams.length)} ${t('exams.next', { subject: next.subject, when: inDays(Math.max(0, days)) })}` +
+            (next.sessions.length ? ` ${t('exams.sessionsDone', { done: next.done, total: next.sessions.length })}` : '')
         }
       />
       {exams.length === 0 ? (
         <RevealItem>
           <Card>
-            <EmptyState message="No exams coming up. Exams in your calendar show up here by themselves, or add one with + → Exam.">
+            <EmptyState message={t('exams.empty')}>
               <Button size="sm" variant="primary" onClick={() => openEditor({ type: 'exam' })}>
-                Add an exam
+                {t('exams.addOne')}
               </Button>
             </EmptyState>
           </Card>

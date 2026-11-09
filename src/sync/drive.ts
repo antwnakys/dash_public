@@ -4,6 +4,7 @@
  */
 import { GoogleReconnectError, invalidateGoogleToken } from '@/data/google'
 import type { SyncDoc } from './merge'
+import { t } from '@/i18n'
 
 const FILE_NAME = 'unidash-data.json'
 const API = 'https://www.googleapis.com/drive/v3'
@@ -18,10 +19,10 @@ async function call(token: string, url: string, init: RequestInit = {}): Promise
   const res = await fetch(url, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) } })
   if (res.status === 401) {
     invalidateGoogleToken()
-    throw new GoogleReconnectError('Google sign-in has expired. Reconnect to keep syncing.')
+    throw new GoogleReconnectError(t('google.expired'))
   }
-  if (res.status === 403) throw new GoogleReconnectError('Reconnect Google once to turn on sync between your devices.')
-  if (!res.ok) throw new Error(`Google Drive returned ${res.status}.`)
+  if (res.status === 403) throw new GoogleReconnectError(t('drive.enable'))
+  if (!res.ok) throw new Error(t('drive.status', { status: res.status }))
   return res
 }
 

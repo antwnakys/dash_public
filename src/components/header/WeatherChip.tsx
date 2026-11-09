@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { useDashboard } from '@/context/DashboardContext'
 import { isNative } from '@/lib/native'
 import type { Weather } from '@/types'
+import { t } from '@/i18n'
 
 const icons: Record<Weather['condition'], LucideIcon> = {
   clear: Sun,
@@ -21,7 +22,7 @@ export function WeatherChip() {
   if (weather.status === 'unavailable')
     return (
       <button onClick={() => openEditor({ type: 'settings' })} className="rounded-full px-2 py-1 text-subhead font-medium text-accent hover:bg-fill">
-        Set weather
+        {t('weather.set')}
       </button>
     )
 
@@ -30,8 +31,8 @@ export function WeatherChip() {
   return (
     <span
       className="flex items-center gap-1.5 px-1 text-subhead text-muted"
-      title={`${data.location}: ${data.summary}. High ${data.highC}°, low ${data.lowC}°`}
-      aria-label={`${data.tempC}°, ${data.summary.toLowerCase()} in ${data.location}`}
+      title={t('weather.title', { place: data.location, summary: data.summary, high: data.highC, low: data.lowC })}
+      aria-label={t('weather.label', { temp: data.tempC, summary: data.summary, place: data.location })}
     >
       <Icon aria-hidden className="size-4" strokeWidth={2} />
       <span className="font-semibold text-ink tabular-nums">{data.tempC}°</span>

@@ -23,6 +23,15 @@ export default defineConfig({
   // Relative asset paths work on GitHub Pages (/dash_public/) and inside a future iOS app alike.
   base: './',
   plugins: [react(), tailwindcss()],
+  // Two pages: the app, and the public privacy policy (privacy.html) that Google and Apple link to.
+  build: {
+    rolldownOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        privacy: fileURLToPath(new URL('./privacy.html', import.meta.url)),
+      },
+    },
+  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

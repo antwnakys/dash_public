@@ -16,6 +16,7 @@ import { startLiveUpdates } from '@/lib/liveUpdate'
 import type { ViewId } from '@/views'
 import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
+import { t } from '@/i18n'
 
 export interface Toast {
   id: number
@@ -157,7 +158,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string, tone: Toast['tone'] = 'default') => setToast({ id: Date.now(), message, tone }), [])
 
   // iPhone app: follow the website's version; tell the user once a newer one is downloaded.
-  useEffect(() => startLiveUpdates(() => notify('Update downloaded. It applies when you next open unidash.')), [notify])
+  useEffect(() => startLiveUpdates(() => notify(t('app.updated'))), [notify])
 
   const setProfile = useCallback(
     (patch: Partial<Profile>) => setStoredProfile((p) => ({ name: '', ...p, ...patch, updatedAt: Date.now() })),

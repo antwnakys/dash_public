@@ -11,6 +11,7 @@ import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
 import { MacSignInExpired, macAccessToken, macForgetToken, macSignIn, macSignOut } from './googleMac'
 import type { CalendarEvent } from '@/types'
+import { t } from '@/i18n'
 
 // Read-only calendar, plus dash's own hidden folder in Drive for syncing between devices.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/drive.appdata']
@@ -48,7 +49,7 @@ export async function connectGoogle(): Promise<GoogleAccount> {
   await initGoogle()
   const res = await SocialLogin.login({ provider: 'google', options: { scopes: SCOPES } })
   const r = res.result as { responseType?: string; profile?: { email?: string | null; name?: string | null } }
-  if (r.responseType === 'offline' || !r.profile?.email) throw new Error('Google didn’t return an account.')
+  if (r.responseType === 'offline' || !r.profile?.email) throw new Error(t('google.noAccount'))
   return { email: r.profile.email, name: r.profile.name ?? undefined }
 }
 
@@ -65,12 +66,15 @@ const TOKEN_REUSE = 4 * 60_000
 let cachedToken: { value: string; at: number } | null = null
 let pendingToken: Promise<string> | null = null
 
+/** Google took too long (kept apart from "signed out", which needs a reconnect). */
+class GoogleTimeoutError extends Error {}
+
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error('Google didn’t respond in time.')), ms)
+    const timer = setTimeout(() => reject(new GoogleTimeoutError(t('google.timeout'))), ms)
     promise.then(
-      (v) => (clearTimeout(t), resolve(v)),
-      (e) => (clearTimeout(t), reject(e)),
+      (v) => (clearTimeout(timer), resolve(v)),
+      (e) => (clearTimeout(timer), reject(e)),
     )
   })
 }
@@ -94,7 +98,7 @@ export function googleAccessToken(): Promise<string> {
         cachedToken = { value: token, at: Date.now() }
         return token
       } catch (e) {
-        if (e instanceof MacSignInExpired) throw new GoogleReconnectError('Google sign-in has expired. Reconnect to keep syncing.')
+        if (e instanceof MacSignInExpired) throw new GoogleReconnectError(t('google.expired'))
         throw e
       }
     }
@@ -105,8 +109,8 @@ export function googleAccessToken(): Promise<string> {
       cachedToken = { value: accessToken, at: Date.now() }
       return accessToken
     } catch (e) {
-      if (e instanceof Error && /in time/.test(e.message)) throw e
-      throw new GoogleReconnectError('Google sign-in has expired. Reconnect to keep syncing.')
+      if (e instanceof GoogleTimeoutError) throw e
+      throw new GoogleReconnectError(t('google.expired'))
     }
   })().finally(() => {
     pendingToken = null
@@ -120,10 +124,10 @@ async function api<T>(token: string, path: string, params: Record<string, string
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
   if (res.status === 401) {
     invalidateGoogleToken()
-    throw new GoogleReconnectError('Google sign-in has expired. Reconnect to keep syncing.')
+    throw new GoogleReconnectError(t('google.expired'))
   }
-  if (res.status === 403) throw new Error('Google Calendar access was denied. Reconnect and allow calendar access.')
-  if (!res.ok) throw new Error(`Google Calendar returned ${res.status}.`)
+  if (res.status === 403) throw new Error(t('google.denied'))
+  if (!res.ok) throw new Error(t('google.status', { status: res.status }))
   return res.json() as Promise<T>
 }
 
@@ -181,7 +185,7 @@ export async function fetchGoogleEvents(): Promise<CalendarEvent[]> {
           const link = findMeetingLink(e.description, e.location, e.hangoutLink, ...(e.conferenceData?.entryPoints ?? []).map((p) => p.uri))
           out.push({
             id: `g-${cal.id}-${e.id}`,
-            title: e.summary?.trim() || '(No title)',
+            title: e.summary?.trim() || t('event.untitled'),
             start: start.toISOString(),
             end: !allDay && e.end?.dateTime ? new Date(e.end.dateTime).toISOString() : undefined,
             allDay: allDay || undefined,

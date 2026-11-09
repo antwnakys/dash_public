@@ -6,6 +6,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
 import { views } from '@/views'
+import { t } from '@/i18n'
 
 const item =
   'group relative flex h-9 w-full items-center gap-3 rounded-[0.65rem] px-2.5 text-body transition-colors duration-150'
@@ -16,17 +17,17 @@ export function Sidebar() {
 
   return (
     <nav
-      aria-label="Sections"
-      className="material fixed inset-y-3 left-3 z-20 hidden w-56 flex-col rounded-[1.5rem] p-3 lg:flex"
+      aria-label={t('nav.sections')}
+      className="material fixed inset-y-3 start-3 z-20 hidden w-56 flex-col rounded-[1.5rem] p-3 lg:flex"
     >
       <div className="flex items-center gap-2 px-2 pt-1 pb-5">
         <Logo className="size-7" />
         <span className="text-headline tracking-tight text-ink">unidash</span>
       </div>
 
-      <Button variant="primary" onClick={() => openEditor({ type: 'new' })} className="mb-4 w-full" title="New (N)">
+      <Button variant="primary" onClick={() => openEditor({ type: 'new' })} className="mb-4 w-full" title={`${t('nav.new')} (N)`}>
         <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-        New
+        {t('nav.new')}
       </Button>
 
       <ul className="flex flex-col gap-0.5">
@@ -57,7 +58,7 @@ export function Sidebar() {
 
       <button onClick={() => openEditor({ type: 'settings' })} className={cn(item, 'mt-auto text-muted hover:bg-fill hover:text-ink')}>
         <Settings aria-hidden className="size-[18px]" strokeWidth={2} />
-        Settings
+        {t('nav.settings')}
       </button>
     </nav>
   )

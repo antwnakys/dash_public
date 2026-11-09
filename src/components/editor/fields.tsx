@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react'
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
+import { t } from '@/i18n'
 
 // Filled controls, no borders. 16px text on phones stops iOS from zooming into focused fields.
 const control =
@@ -27,10 +28,10 @@ export function TextArea({ className, ...rest }: TextareaHTMLAttributes<HTMLText
 export function Select({ className, children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <div className="relative">
-      <select className={cn(control, 'h-11 appearance-none pr-9', className)} {...rest}>
+      <select className={cn(control, 'h-11 appearance-none pe-9', className)} {...rest}>
         {children}
       </select>
-      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted" />
+      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 end-3 size-4 -translate-y-1/2 text-muted" />
     </div>
   )
 }
@@ -50,8 +51,8 @@ export function Toggle({ label, checked, onChange }: { label: string; checked: b
         {/* The knob slides with a little give and stretches while pressed, like iOS. */}
         <span
           className={cn(
-            'switch-knob absolute top-[2px] left-[2px] h-[27px] w-[27px] rounded-full bg-white shadow-[0_2px_6px_rgb(0_0_0/0.18)] group-active:w-[33px]',
-            checked && 'translate-x-5 group-active:translate-x-[14px]',
+            'switch-knob absolute top-[2px] start-[2px] h-[27px] w-[27px] rounded-full bg-white shadow-[0_2px_6px_rgb(0_0_0/0.18)] group-active:w-[33px]',
+            checked && 'translate-x-5 group-active:translate-x-[14px] rtl:-translate-x-5 rtl:group-active:-translate-x-[14px]',
           )}
         />
       </button>
@@ -80,7 +81,7 @@ export function PickerPill({
   onChange,
   label,
   display,
-  placeholder = 'None',
+  placeholder = t('common.none'),
   className,
 }: {
   type: 'date' | 'time'

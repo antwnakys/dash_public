@@ -5,10 +5,11 @@ import { useDashboard } from '@/context/DashboardContext'
 import type { CalendarEvent } from '@/types'
 import { localInput } from '@/lib/localInput'
 import { Field, TextInput, Toggle } from './fields'
+import { t } from '@/i18n'
 
 const kinds = [
-  { value: 'event' as const, label: 'Event' },
-  { value: 'reminder' as const, label: 'Reminder' },
+  { value: 'event' as const, label: t('ef.event') },
+  { value: 'reminder' as const, label: t('ef.reminder') },
 ]
 
 /** Default start: the selected day at 09:00, or the next full hour today. */
@@ -36,25 +37,25 @@ export function EventForm({ id, onDone }: { id?: string; onDone: () => void }) {
     const data = { title: title.trim(), kind, allDay: allDay || undefined, start: startIso, location: location.trim() || undefined }
     if (existing) events.update(existing.id, data)
     else events.add(data)
-    notify(existing ? 'Event saved' : 'Event added')
+    notify(existing ? t('ef.saved') : t('ef.added'))
     onDone()
   }
 
   const remove = () => {
     if (!existing) return
     events.remove(existing.id)
-    notify('Event deleted')
+    notify(t('ef.deleted'))
     onDone()
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <Segmented label="Type" options={kinds} value={kind} onChange={setKind} block />
-      <Field label="Title">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Study group" required autoFocus={!existing} />
+      <Segmented label={t('common.type')} options={kinds} value={kind} onChange={setKind} block />
+      <Field label={t('common.title')}>
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('ef.titlePh')} required autoFocus={!existing} />
       </Field>
-      <Toggle label="All day" checked={allDay} onChange={setAllDay} />
-      <Field label={allDay ? 'Date' : 'Starts'}>
+      <Toggle label={t('ef.allDay')} checked={allDay} onChange={setAllDay} />
+      <Field label={allDay ? t('ef.date') : t('ef.starts')}>
         <TextInput
           type={allDay ? 'date' : 'datetime-local'}
           value={localInput.fromIso(start, allDay)}
@@ -62,17 +63,17 @@ export function EventForm({ id, onDone }: { id?: string; onDone: () => void }) {
           required
         />
       </Field>
-      <Field label="Where">
-        <TextInput value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Optional" />
+      <Field label={t('common.where')}>
+        <TextInput value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t('common.optional')} />
       </Field>
       <div className="mt-1 flex items-center gap-2">
         {existing && (
           <Button variant="danger" onClick={remove}>
-            Delete
+            {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className="ml-auto min-w-28">
-          {existing ? 'Save' : `Add ${kind}`}
+        <Button type="submit" variant="primary" className="ms-auto min-w-28">
+          {existing ? t('common.save') : t(kind === 'reminder' ? 'ef.addReminder' : 'ef.addEvent')}
         </Button>
       </div>
     </form>
