@@ -2,6 +2,7 @@ import { Agenda } from '@/components/calendar/Agenda'
 import { MiniCalendar } from '@/components/calendar/MiniCalendar'
 import { LeaveCard, OnlineCard } from '@/components/commute/LeaveCard'
 import { NextExamCard } from '@/components/exams/NextExamCard'
+import { InstallCard } from '@/components/commute/InstallCard'
 import { PassCard } from '@/components/commute/PassCard'
 import { RemindersPrompt } from '@/components/commute/RemindersPrompt'
 import { CourseList } from '@/components/courses/CourseList'
@@ -70,6 +71,7 @@ export function TodayView() {
         <div className="contents xl:flex xl:flex-col xl:gap-8">
           <RevealItem className="order-0 flex flex-col gap-3 empty:hidden">
             <RemindersPrompt />
+            <InstallCard />
             <PassCard />
             <OnlineCard />
             <LeaveCard />

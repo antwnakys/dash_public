@@ -7,6 +7,8 @@ import { dayLabel, lookUp, minuteOptions, minutesLabel, modes, passDays } from '
 import { since } from '@/lib/date'
 import { parseIcs } from '@/lib/ics'
 import { parseTimes } from '@/lib/commute'
+import { deleteEverything, feedbackDetails } from '@/lib/wipe'
+import { FEEDBACK_EMAIL, FEEDBACK_REPO } from '@/config'
 import { BUILD, BUILT_AT } from '@/lib/liveUpdate'
 import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
@@ -23,7 +25,9 @@ const themes: Array<{ value: ThemePreference; label: string }> = [
 ]
 
 export function SettingsForm({ onDone, section }: { onDone: () => void; section?: 'calendar' | 'commute' }) {
-  const { profile, setProfile, events, courses, calendar, cloud, reminders, location, loadSample, clearAll, theme, notify } = useDashboard()
+  const { profile, setProfile, events, courses, calendar, cloud, reminders, location, loadSample, theme, notify } = useDashboard()
+  const [feedback, setFeedback] = useState('')
+  const [deleting, setDeleting] = useState(false)
   const [calendarText, setCalendarText] = useState((profile.calendarUrls ?? []).join('\n'))
   const [name, setName] = useState(profile.name)
   const [city, setCity] = useState(profile.place?.name ?? '')
@@ -454,15 +458,42 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
             size="sm"
             variant="danger"
             onClick={() => {
-              if (!confirm(t('set.confirmDeleteAll'))) return
-              clearAll()
-              notify(t('set.allDeleted'))
-              onDone()
+              const signedIn = Boolean(calendar.google.account)
+              if (!confirm(signedIn ? t('del.confirmDrive') : t('del.confirm'))) return
+              setDeleting(true)
+              deleteEverything(signedIn ? calendar.google : undefined).catch(() => {
+                setDeleting(false)
+                notify(t('del.failed'), 'error')
+              })
             }}
+            disabled={deleting}
           >
-            {t('set.deleteAll')}
+            {deleting ? t('del.deleting') : t('set.deleteAll')}
           </Button>
         </div>
+        <p className="px-1 text-caption text-faint">{calendar.google.account ? t('del.hintDrive') : t('del.hint')}</p>
+      </FormGroup>
+
+      <FormGroup title={t('fb.title')} footer={t('fb.footer')}>
+        <p className="px-1 text-subhead text-muted">{t('fb.lead')}</p>
+        <TextArea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={4} placeholder={t('fb.placeholder')} aria-label={t('fb.title')} />
+        <Button
+          size="sm"
+          variant="primary"
+          className="self-start"
+          disabled={!feedback.trim()}
+          onClick={() => {
+            const body = `${feedback.trim()}\n\n---\n${feedbackDetails(BUILD, lang)}`
+            const url = FEEDBACK_EMAIL
+              ? `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(t('fb.subject'))}&body=${encodeURIComponent(body)}`
+              : `https://github.com/${FEEDBACK_REPO}/issues/new?title=${encodeURIComponent(t('fb.subject'))}&body=${encodeURIComponent(body)}`
+            window.open(url, '_blank', 'noopener')
+            setFeedback('')
+            notify(t('fb.thanks'))
+          }}
+        >
+          {FEEDBACK_EMAIL ? t('fb.sendEmail') : t('fb.sendGithub')}
+        </Button>
       </FormGroup>
 
       <FormGroup
