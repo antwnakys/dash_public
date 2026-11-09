@@ -6,6 +6,7 @@ import { CourseForm } from './CourseForm'
 import { DeadlineForm } from './DeadlineForm'
 import { EventForm } from './EventForm'
 import { ExamForm } from './ExamForm'
+import { ExamResultForm } from './ExamResultForm'
 import { NewChooser } from './NewChooser'
 import { SettingsForm } from './SettingsForm'
 import { Sheet } from './Sheet'
@@ -50,7 +51,9 @@ export function EditorSheet() {
         ? t('nav.new')
         : type === 'task'
           ? target && idOf(target) ? t('editor.editTask') : t('editor.newTask')
-          : type
+          : type === 'examResult'
+            ? t('res.title')
+            : type
             ? titles[type][target && idOf(target) ? 1 : 0]
             : ''
 
@@ -74,6 +77,7 @@ export function EditorSheet() {
           )}
           {type === 'event' && <EventForm key={newKind} id={idOf(target)} onDone={closeEditor} />}
           {type === 'exam' && <ExamForm id={idOf(target)} onDone={closeEditor} />}
+          {target.type === 'examResult' && <ExamResultForm target={target} onDone={closeEditor} />}
           {type === 'settings' && (
             <SettingsForm onDone={closeEditor} section={target.type === 'settings' ? target.section : undefined} />
           )}

@@ -1,3 +1,4 @@
+import { locale } from '@/i18n'
 import type { Assignment } from '@/types'
 
 /** Greek university scale. */
@@ -15,4 +16,4 @@ export function average(list: Assignment[]): { value: number; count: number } | 
 }
 
 /** "8.25" → "8.3", "8" → "8". */
-export const formatGrade = (g: number) => (Math.round(g * 10) / 10).toLocaleString(undefined, { maximumFractionDigits: 1 })
+export const formatGrade = (g: number) => (Math.round(g * 10) / 10).toLocaleString(locale, { maximumFractionDigits: 1 })

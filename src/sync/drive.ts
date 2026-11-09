@@ -51,6 +51,11 @@ export async function download(token: string, id: string): Promise<SyncDoc | nul
   }
 }
 
+/** Deletes unidash's file from the Drive app-data folder (Delete all data). */
+export async function removeFile(token: string, id: string): Promise<void> {
+  await call(token, `${API}/files/${id}`, { method: 'DELETE' })
+}
+
 export async function upload(token: string, doc: SyncDoc, id?: string): Promise<RemoteFile> {
   const body = JSON.stringify(doc)
   if (id) {

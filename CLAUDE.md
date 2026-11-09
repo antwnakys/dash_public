@@ -161,6 +161,26 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Privacy policy**: `privacy.html` (second Vite entry, `src/privacy/`), public at `/dash_public/privacy.html`, in every
   language, with Google's Limited Use statement. Linked from Settings → About and the setup's welcome screen. Contact is
   GitHub issues for now (no email published). Bump `UPDATED` in `PrivacyPage.tsx` whenever the text changes.
+- **Offline + Home Screen** (Nov 9): `build/serviceWorker.ts` (Vite plugin) writes `dist/sw.js` with the build's files
+  (language chunks excluded; saved on first use). Pages: network first with a 3 s limit, then the saved copy; hashed
+  files: saved copy first. One cache per build (`unidash-<sha>`), old ones deleted. Matches use `ignoreVary` (otherwise
+  module-script requests never match). `src/lib/install.ts` registers it in browsers only (not native/Mac), even if the
+  page already loaded (the app starts after the language file). `components/commute/InstallCard.tsx` on Today (phones in
+  a browser tab, not installed, until dismissed): iPhone gets the Share → Add to Home Screen steps, Chrome/Edge on
+  Android a one-tap Install (`beforeinstallprompt`), others the browser-menu hint.
+- **Feedback** (Settings → Feedback): opens a mail to `FEEDBACK_EMAIL` (`src/config.ts`, empty for now) or, while empty,
+  a new GitHub issue on `FEEDBACK_REPO`, with version, language and device appended (`lib/wipe.ts` `feedbackDetails`).
+- **Delete all data** (Settings → Data, `lib/wipe.ts` `deleteEverything`): signed in → disconnect Google (stops sync),
+  delete the Drive app-data file, revoke the token; if Drive can't be reached nothing is deleted. Then every
+  `unidash.*` key is removed and the app reloads into first-open setup.
+- **Exam results** (Nov 9): synced collection `unidash.examResults.v1` (`ExamResult`: subject + date copied in, so the
+  history survives the calendar event going away; optional score/outOf/passed). `lib/exams.ts`: an exam is over once
+  its day has passed (all-day) or 2 h after the start; `upcomingExams` hides exams that are over or have a result,
+  `examsAwaitingResult` = over in the last 30 days with no result. Exams tab: "How did it go?" list (Add result / Skip)
+  → upcoming (empty state only when both are empty) → History (passed · failed). Today shows `ExamResultPrompt` for
+  3 days after an exam. `ExamResultForm` (editor `examResult`) guesses passed at ≥ half marks until picked by hand;
+  for a deadline-based exam it also writes the grade to the deadline. Calendar/iCal now read 31 days back so recent
+  exams can still be graded.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -186,6 +206,9 @@ not listed here works as described in the original's `CLAUDE.md`.
   hand-off, setup choreography, fixed the first page's entrance never playing.
 - **Nov 9, 2026**: languages (16, auto from the device, picker in Settings, RTL for Arabic/Urdu) and the privacy policy page.
   Also renamed the leftover personal task category "Gaming & projects" to "Projects".
+- **Nov 9, 2026 (evening)**: animations + first-screen fix copied into Antonis's own dash (antwnakys/dash#29). unidash got
+  offline support, the Home Screen card, Settings → Feedback and a full Delete all data (device + Drive + revoke).
+  Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
 
 ## Next up
 

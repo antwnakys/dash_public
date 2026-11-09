@@ -157,7 +157,8 @@ export async function fetchGoogleEvents(): Promise<CalendarEvent[]> {
     minAccessRole: 'reader',
   })
   const shown = calendars.filter((c) => c.primary || (c.selected && !c.hidden))
-  const timeMin = new Date(Date.now() - DAY_MS).toISOString()
+  // A month back, so a finished exam is still there to add its result to.
+  const timeMin = new Date(Date.now() - 31 * DAY_MS).toISOString()
   const timeMax = new Date(Date.now() + 180 * DAY_MS).toISOString()
 
   const perCalendar = await Promise.all(

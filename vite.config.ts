@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { serviceWorker } from './build/serviceWorker.ts'
 
 /** Short commit id of this build. The website publishes it in version.json and the iPhone app compares against it. */
 function buildId(): string {
@@ -22,7 +23,7 @@ export default defineConfig({
   },
   // Relative asset paths work on GitHub Pages (/dash_public/) and inside a future iOS app alike.
   base: './',
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), serviceWorker(buildId())],
   // Two pages: the app, and the public privacy policy (privacy.html) that Google and Apple link to.
   build: {
     rolldownOptions: {

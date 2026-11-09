@@ -6,7 +6,7 @@
  */
 import { isExamTitle, normalize } from './school'
 import { addDays, isSameDay, startOfDay } from './date'
-import type { AgendaItem, CalendarEvent, StudySession } from '@/types'
+import type { AgendaItem, CalendarEvent, ExamResult, StudySession } from '@/types'
 import { t } from '@/i18n'
 
 const DAY = 86_400_000
@@ -38,13 +38,61 @@ export function examSubject(title: string): string {
   return s || cleanTitle(title)
 }
 
-/** Exams from today on, soonest first. */
-export function upcomingExams(agenda: AgendaItem[], now: Date): Exam[] {
-  const today = startOfDay(now)
+const asExam = (i: AgendaItem): Exam => ({
+  id: i.id,
+  subject: examSubject(i.title),
+  date: i.date,
+  allDay: i.allDay,
+  context: i.context,
+  courseId: i.courseId,
+  source: i.source,
+  url: i.url,
+})
+
+/** A timed exam counts as over two hours after it starts; an all-day one once its day has passed. */
+const EXAM_HOURS = 2
+export const isOver = (exam: { date: Date; allDay?: boolean }, now: Date) =>
+  exam.allDay ? exam.date < startOfDay(now) : exam.date.getTime() + EXAM_HOURS * 3_600_000 < now.getTime()
+
+/** Exams still to come (or under way), soonest first. Exams that already have a result are done. */
+export function upcomingExams(agenda: AgendaItem[], now: Date, results: ExamResult[] = []): Exam[] {
+  const done = new Set(results.map((r) => r.id))
   return agenda
-    .filter((i) => i.kind === 'exam' && i.date >= today)
-    .map((i) => ({ id: i.id, subject: examSubject(i.title), date: i.date, allDay: i.allDay, context: i.context, courseId: i.courseId, source: i.source, url: i.url }))
+    .filter((i) => i.kind === 'exam' && !done.has(i.id))
+    .map(asExam)
+    .filter((e) => !isOver(e, now))
     .sort((a, b) => a.date.getTime() - b.date.getTime())
+}
+
+const ASK_FOR_DAYS = 30
+
+/** Exams that are over but have no result yet ("How did it go?"), most recent first, up to a month back. */
+export function examsAwaitingResult(agenda: AgendaItem[], now: Date, results: ExamResult[] = []): Exam[] {
+  const done = new Set(results.map((r) => r.id))
+  const from = addDays(startOfDay(now), -ASK_FOR_DAYS)
+  return agenda
+    .filter((i) => i.kind === 'exam' && !done.has(i.id) && i.date >= from)
+    .map(asExam)
+    .filter((e) => isOver(e, now))
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+}
+
+/** The fields an exam result copies from its exam. */
+export const resultTarget = (exam: Exam) =>
+  ({
+    type: 'examResult',
+    id: exam.id,
+    subject: exam.subject,
+    date: exam.date.toISOString(),
+    allDay: exam.allDay,
+    courseId: exam.courseId,
+    source: exam.source,
+  }) as const
+
+/** Results newest first, with counts for the summary. */
+export function examHistory(results: ExamResult[]) {
+  const list = [...results].sort((a, b) => b.date.localeCompare(a.date))
+  return { list, passed: list.filter((r) => r.passed === true).length, failed: list.filter((r) => r.passed === false).length }
 }
 
 /** "Physics – Optics" → "Optics" (the part after the dash), else the clean title. */

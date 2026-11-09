@@ -10,7 +10,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import type { ExamWithPlan } from '@/hooks/useExams'
 import { cn } from '@/lib/cn'
 import { dayDiff, fmt, isSameDay } from '@/lib/date'
-import { planStudy, type SessionView } from '@/lib/exams'
+import { planStudy, resultTarget, type SessionView } from '@/lib/exams'
 import { t, tn } from '@/i18n'
 
 /** "Today", "Tomorrow", "6 days". */
@@ -49,6 +49,8 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
   const total = exam.sessions.length
   const pastUnticked = exam.sessions.filter((s) => !s.done && s.end < now)
   const planned = exam.sessions.length > 0 && !exam.sessions[0].fromCalendar
+  // Once it has started, the result can be added (it moves to the history).
+  const started = exam.date <= now
 
   const setDone = (list: SessionView[], done: boolean) =>
     study.set((items) => {
@@ -149,7 +151,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
                 <div className="flex flex-wrap gap-2 border-t border-line px-4 py-3">
                   {pastUnticked.length > 0 && (
                     <Button size="sm" onClick={() => setDone(pastUnticked, true)}>
-                      Mark {pastUnticked.length} past {pastUnticked.length === 1 ? 'session' : 'sessions'} done
+                      {tn('exam.markPast', pastUnticked.length)}
                     </Button>
                   )}
                   {planned && (
@@ -160,6 +162,11 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
                   {editTarget && (
                     <Button size="sm" variant="plain" onClick={() => openEditor(editTarget)}>
                       {t('exam.edit')}
+                    </Button>
+                  )}
+                  {started && (
+                    <Button size="sm" variant="primary" onClick={() => openEditor(resultTarget(exam))}>
+                      {t('res.add')}
                     </Button>
                   )}
                 </div>
@@ -184,6 +191,11 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
                   {editTarget && (
                     <Button size="sm" variant="plain" onClick={() => openEditor(editTarget)}>
                       {t('exam.edit')}
+                    </Button>
+                  )}
+                  {started && (
+                    <Button size="sm" variant="primary" onClick={() => openEditor(resultTarget(exam))}>
+                      {t('res.add')}
                     </Button>
                   )}
                 </div>
