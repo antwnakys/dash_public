@@ -63,7 +63,7 @@ export function ScheduleEditor({
                 type="button"
                 aria-label={t('se.removeTime')}
                 onClick={() => onMeetings(meetings.filter((_, j) => j !== i))}
-                className="ml-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-danger text-white transition-transform active:scale-90"
+                className="ms-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-danger text-white transition-transform active:scale-90"
               >
                 <Minus aria-hidden className="size-4" strokeWidth={3} />
               </button>

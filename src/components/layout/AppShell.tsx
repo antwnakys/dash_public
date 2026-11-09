@@ -5,7 +5,7 @@ import { Onboarding } from '@/components/onboarding/Onboarding'
 import { ToastHost } from '@/components/ui/Toast'
 import { useDashboard } from '@/context/DashboardContext'
 import { onMenuBar } from '@/lib/macApp'
-import { blur, ease, spring } from '@/lib/motion'
+import { blur, ease, ltr, spring } from '@/lib/motion'
 import { isNative } from '@/lib/native'
 import { views } from '@/views'
 import { AmbientBackground } from './AmbientBackground'
@@ -30,9 +30,9 @@ function usePhone() {
 }
 
 const pageVariants = {
-  enter: (dir: number) => ({ x: dir * 36, opacity: 0, ...blur(4) }),
+  enter: (dir: number) => ({ x: dir * 36 * ltr, opacity: 0, ...blur(4) }),
   center: { x: 0, opacity: 1, ...blur(0) },
-  exit: (dir: number) => ({ x: dir * -36, opacity: 0, ...blur(4), transition: { x: spring.smooth, opacity: { duration: 0.09 } } }),
+  exit: (dir: number) => ({ x: dir * -36 * ltr, opacity: 0, ...blur(4), transition: { x: spring.smooth, opacity: { duration: 0.09 } } }),
 }
 
 export function AppShell() {
@@ -120,7 +120,7 @@ export function AppShell() {
         animate={phone && editor && !reduce ? { scale: 0.93, borderRadius: 28, y: 8 } : { scale: 1, borderRadius: 0, y: 0 }}
         transition={spring.smooth}
         style={{ transformOrigin: `50% ${originY || window.scrollY + window.innerHeight / 2}px` }}
-        className="overflow-clip lg:pl-[15.5rem]"
+        className="overflow-clip lg:ps-[15.5rem]"
       >
         <div className="relative mx-auto w-full max-w-[70rem] px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-36 sm:px-6 lg:px-10 lg:pt-11 lg:pb-16">
           {/* The new page slides in while the old one slides away: no blank moment in between.

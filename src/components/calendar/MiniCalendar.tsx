@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { spring } from '@/lib/motion'
+import { ltr, spring } from '@/lib/motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -72,7 +72,7 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               setCursor(today)
               setSelectedDate(today)
             }}
-            className="-ml-1"
+            className="-ms-1"
           >
             {t('cal.today')}
           </Button>
@@ -96,9 +96,9 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               key={`${mode}-${dayKey(days[0])}`}
               custom={direction}
               variants={{
-                enter: (dir: number) => ({ x: dir * 28, opacity: 0 }),
+                enter: (dir: number) => ({ x: dir * 28 * ltr, opacity: 0 }),
                 center: { x: 0, opacity: 1 },
-                exit: (dir: number) => ({ x: dir * -28, opacity: 0 }),
+                exit: (dir: number) => ({ x: dir * -28 * ltr, opacity: 0 }),
               }}
               initial="enter"
               animate="center"
@@ -110,8 +110,10 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.3}
               onDragEnd={(_, info) => {
-                if (info.offset.x < -48 || info.velocity.x < -450) step(1)
-                else if (info.offset.x > 48 || info.velocity.x > 450) step(-1)
+                const dx = info.offset.x * ltr
+                const vx = info.velocity.x * ltr
+                if (dx < -48 || vx < -450) step(1)
+                else if (dx > 48 || vx > 450) step(-1)
               }}
               className="grid touch-pan-y grid-cols-7 gap-y-0.5"
             >

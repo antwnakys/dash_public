@@ -47,7 +47,7 @@ function Row({ item, now }: { item: AgendaItem; now: Date }) {
       <button
         disabled={!target}
         onClick={() => target && openEditor(target)}
-        className="flex min-h-[3.25rem] w-full min-w-0 flex-1 items-center gap-3 px-4 py-2.5 text-left transition-colors enabled:hover:bg-fill enabled:active:bg-fill-strong"
+        className="flex min-h-[3.25rem] w-full min-w-0 flex-1 items-center gap-3 px-4 py-2.5 text-start transition-colors enabled:hover:bg-fill enabled:active:bg-fill-strong"
       >
         <span
           className={cn(
@@ -78,8 +78,8 @@ function Row({ item, now }: { item: AgendaItem; now: Date }) {
         </span>
         <Countdown date={item.date} now={now} />
       </button>
-      {item.online && item.link && <JoinButton url={item.link} compact className="mr-4" />}
-      {item.kind === 'exam' && item.url && <LinkButton url={item.url} compact className="mr-4" />}
+      {item.online && item.link && <JoinButton url={item.link} compact className="me-4" />}
+      {item.kind === 'exam' && item.url && <LinkButton url={item.url} compact className="me-4" />}
     </li>
   )
 }
@@ -143,7 +143,7 @@ export function Agenda({ title = t('agenda.title'), limit }: { title?: string; l
           <button
             onClick={connectGoogle}
             disabled={calendar.google.connecting}
-            className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-fill"
+            className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-fill"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
               <RefreshCw aria-hidden className="size-4" strokeWidth={2} />

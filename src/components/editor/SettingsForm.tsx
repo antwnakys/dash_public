@@ -391,7 +391,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               {t('set.ical')}
             </summary>
             <div className="mt-3 flex flex-col gap-3">
-              <ol className="list-decimal space-y-1 pl-6 text-subhead text-muted">
+              <ol className="list-decimal space-y-1 ps-6 text-subhead text-muted">
                 <li>{t('set.ical1')}</li>
                 <li>{t('set.ical2')}</li>
                 <li>{t('set.ical3')}</li>

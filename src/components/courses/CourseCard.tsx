@@ -39,7 +39,7 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
       <button
         onClick={() => openEditor({ type: 'course', id: course.id })}
         aria-label={t('course.edit', { name: course.name })}
-        className="rounded-t-[var(--radius-card)] px-5 pt-5 pb-4 text-left transition-colors hover:bg-fill/60"
+        className="rounded-t-[var(--radius-card)] px-5 pt-5 pb-4 text-start transition-colors hover:bg-fill/60"
       >
         {course.code && <span className="text-subhead font-medium text-muted">{course.code}</span>}
         <h3 className="mt-0.5 text-headline text-ink">{course.name}</h3>
@@ -74,7 +74,7 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
               <li key={a.id}>
                 <button
                   onClick={() => openEditor({ type: 'deadline', id: a.id })}
-                  className="flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors hover:bg-fill"
+                  className="flex w-full items-center gap-3 px-5 py-2.5 text-start transition-colors hover:bg-fill"
                 >
                   <span className="min-w-0 flex-1 truncate text-body text-ink">{a.title}</span>
                   <Countdown date={new Date(a.due)} now={now} />
@@ -100,7 +100,7 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
         ))}
         <button
           onClick={() => openEditor({ type: 'deadline', courseId: course.id })}
-          className="ml-auto inline-flex h-8 items-center gap-1 rounded-full px-3 text-subhead font-medium text-accent transition-colors hover:bg-fill"
+          className="ms-auto inline-flex h-8 items-center gap-1 rounded-full px-3 text-subhead font-medium text-accent transition-colors hover:bg-fill"
         >
           <Plus aria-hidden className="size-3.5" strokeWidth={2.4} />
           {t('course.deadline')}

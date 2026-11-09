@@ -39,7 +39,7 @@ function WorkAndGrades({ courseId, list, onOpen }: { courseId: string; list: Ass
               <button
                 type="button"
                 onClick={() => onOpen(a.id)}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-fill"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-start transition-colors hover:bg-fill"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body text-ink">{a.title}</span>
@@ -152,7 +152,7 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
             {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className="ml-auto min-w-28">
+        <Button type="submit" variant="primary" className="ms-auto min-w-28">
           {existing ? t('cf.save') : t('cf.add')}
         </Button>
       </div>

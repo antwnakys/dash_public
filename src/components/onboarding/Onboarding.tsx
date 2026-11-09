@@ -6,7 +6,7 @@ import { Field, Select, TextInput } from '@/components/editor/fields'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
-import { blur, ease, press, spring } from '@/lib/motion'
+import { blur, ease, ltr, press, spring } from '@/lib/motion'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, passDays } from '@/lib/setup'
 import type { CommuteMode } from '@/types'
 import { t } from '@/i18n'
@@ -63,7 +63,7 @@ function Choice({ selected, onClick, children, className }: { selected: boolean;
       whileTap={press}
       onClick={onClick}
       aria-pressed={selected}
-      className={cn('surface relative text-left hover:bg-fill/60', className)}
+      className={cn('surface relative text-start hover:bg-fill/60', className)}
     >
       <AnimatePresence>
         {selected && (
@@ -430,7 +430,7 @@ export function Onboarding() {
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-6">
         <div className="flex h-11 items-center justify-between">
           {index > 0 && step !== 'done' ? (
-            <Button variant="plain" size="sm" className="-ml-2" onClick={prev} aria-label={t('ob.back')}>
+            <Button variant="plain" size="sm" className="-ms-2" onClick={prev} aria-label={t('ob.back')}>
               <ChevronLeft aria-hidden className="size-4" strokeWidth={2.4} />
               {t('ob.back')}
             </Button>
@@ -463,9 +463,9 @@ export function Onboarding() {
             <motion.div
               key={step}
               variants={{
-                enter: { opacity: 0, x: back ? -40 : 40 },
+                enter: { opacity: 0, x: (back ? -40 : 40) * ltr },
                 center: { opacity: 1, x: 0, transition: { x: spring.smooth, opacity: { duration: 0.2 } } },
-                exit: { opacity: 0, x: back ? 40 : -40, transition: { x: spring.smooth, opacity: { duration: 0.14 } } },
+                exit: { opacity: 0, x: (back ? 40 : -40) * ltr, transition: { x: spring.smooth, opacity: { duration: 0.14 } } },
               }}
               initial="enter"
               animate="center"

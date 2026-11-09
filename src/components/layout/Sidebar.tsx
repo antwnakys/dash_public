@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <nav
       aria-label={t('nav.sections')}
-      className="material fixed inset-y-3 left-3 z-20 hidden w-56 flex-col rounded-[1.5rem] p-3 lg:flex"
+      className="material fixed inset-y-3 start-3 z-20 hidden w-56 flex-col rounded-[1.5rem] p-3 lg:flex"
     >
       <div className="flex items-center gap-2 px-2 pt-1 pb-5">
         <Logo className="size-7" />

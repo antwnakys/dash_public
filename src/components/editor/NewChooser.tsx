@@ -20,7 +20,7 @@ export function NewChooser() {
         <li key={label}>
           <button
             onClick={() => openEditor(target)}
-            className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-fill active:bg-fill-strong"
+            className="flex w-full items-center gap-3.5 px-4 py-3 text-start transition-colors hover:bg-fill active:bg-fill-strong"
           >
             <span className="flex size-9 items-center justify-center rounded-full bg-accent/12 text-accent">
               <Icon aria-hidden className="size-[18px]" strokeWidth={2} />

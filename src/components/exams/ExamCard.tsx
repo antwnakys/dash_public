@@ -85,7 +85,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
 
   return (
     <article className="surface overflow-hidden">
-      <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-4 px-5 pt-5 pb-4 text-left">
+      <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-4 px-5 pt-5 pb-4 text-start">
         <span className="min-w-0 flex-1">
           <span className="text-subhead font-medium text-muted">{t('exam.label')}{exam.context ? ` · ${exam.context}` : ''}</span>
           <span className="mt-0.5 block text-title text-ink">{exam.subject}</span>
@@ -119,7 +119,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
       )}
 
       {!open && exam.next && (
-        <button onClick={() => setOpen(true)} className="flex w-full items-center gap-2 border-t border-line px-5 py-3 text-left text-subhead">
+        <button onClick={() => setOpen(true)} className="flex w-full items-center gap-2 border-t border-line px-5 py-3 text-start text-subhead">
           <span className="text-muted">{t('exam.nextLabel')}</span>
           <span className="min-w-0 flex-1 truncate text-ink">{exam.next.topic}</span>
           <span className="shrink-0 text-muted tabular-nums">{when(exam.next.start, now)}</span>

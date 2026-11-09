@@ -76,7 +76,7 @@ export function SyncBadge() {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ ...spring.bouncy, delay: 0.1 }}
-          className="absolute right-1.5 bottom-1.5 size-2 rounded-full bg-[#34c759] ring-2 ring-bg"
+          className="absolute end-1.5 bottom-1.5 size-2 rounded-full bg-[#34c759] ring-2 ring-bg"
         />
       )}
     </button>

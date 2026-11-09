@@ -75,7 +75,7 @@ export function TaskForm({ id, onDone }: { id?: string; onDone: () => void }) {
             {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className={existing ? 'ml-auto min-w-28' : 'w-full'}>
+        <Button type="submit" variant="primary" className={existing ? 'ms-auto min-w-28' : 'w-full'}>
           {existing ? t('tf.save') : t('tf.add')}
         </Button>
       </div>

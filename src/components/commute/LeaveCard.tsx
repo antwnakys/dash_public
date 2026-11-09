@@ -85,7 +85,7 @@ export function LeaveCard() {
   // No travel time yet: one tap to add it.
   if (!trip.leaveAt || !minutes) {
     return (
-      <button onClick={open} className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-fill/60">
+      <button onClick={open} className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-start hover:bg-fill/60">
         <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
           <Icon className="size-5" strokeWidth={2} />
         </span>
@@ -125,7 +125,7 @@ export function LeaveCard() {
     <button
       onClick={open}
       aria-label={`${headline}. ${detail} ${t('leave.change')}`}
-      className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-left hover:bg-fill/60"
+      className="surface pressable flex w-full items-center gap-3.5 px-4 py-3.5 text-start hover:bg-fill/60"
     >
       <span
         aria-hidden

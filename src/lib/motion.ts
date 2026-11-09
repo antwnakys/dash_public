@@ -4,6 +4,7 @@
  * which is what makes iOS feel fluid. Change the feel here, not in components.
  */
 import type { Transition } from 'framer-motion'
+import { isRtl } from '@/i18n'
 
 export const spring = {
   /** Small UI that answers a tap: toggles, pills, the tab highlight. Quick with a hint of give. */
@@ -25,6 +26,9 @@ export const ease = {
 /** Blur is costly on phones (every frame re-blurs the glass beneath); only pointer devices get it. */
 export const canBlur = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
 export const blur = (px: number) => (canBlur ? { filter: `blur(${px}px)` } : {})
+
+/** Sideways motion follows reading direction: 1, or -1 for right-to-left languages (things "ahead" come from the left). */
+export const ltr = isRtl ? -1 : 1
 
 /** Press feedback for anything tappable: a quick, slight sink. */
 export const press = { scale: 0.97, transition: spring.snappy } as const

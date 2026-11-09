@@ -69,7 +69,7 @@ export function Timetable() {
                                 disabled={!c.courseId}
                                 onClick={() => c.courseId && openEditor({ type: 'course', id: c.courseId })}
                                 className={cn(
-                                  'flex min-w-0 flex-1 items-start gap-3 rounded-[0.6rem] border-l-[3px] border-course bg-course/8 px-3 py-2 text-left transition-colors enabled:hover:bg-course/14',
+                                  'flex min-w-0 flex-1 items-start gap-3 rounded-[0.6rem] border-s-[3px] border-course bg-course/8 px-3 py-2 text-start transition-colors enabled:hover:bg-course/14',
                                   past && 'opacity-55',
                                 )}
                               >

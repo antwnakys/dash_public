@@ -34,8 +34,8 @@ export function NextExamCard() {
       : t('next.noPlan')
 
   return (
-    <div className="surface flex items-center gap-2 pr-3">
-    <button onClick={() => setView('exams')} className="flex min-w-0 flex-1 items-center gap-3.5 rounded-[var(--radius-card)] px-4 py-3.5 text-left transition-colors hover:bg-fill/60">
+    <div className="surface flex items-center gap-2 pe-3">
+    <button onClick={() => setView('exams')} className="flex min-w-0 flex-1 items-center gap-3.5 rounded-[var(--radius-card)] px-4 py-3.5 text-start transition-colors hover:bg-fill/60">
       <span
         aria-hidden
         className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', days <= 2 ? 'bg-danger/14 text-danger' : 'bg-accent/12 text-accent')}

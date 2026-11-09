@@ -41,7 +41,7 @@ export function RemindersPrompt() {
           {t('rem.turnOn')}
         </Button>
       </span>
-      <button onClick={dismiss} aria-label={t('common.notNow')} className="-mt-8 -mr-1 self-start rounded-full p-1.5 text-faint transition-colors hover:bg-fill hover:text-muted">
+      <button onClick={dismiss} aria-label={t('common.notNow')} className="-mt-8 -me-1 self-start rounded-full p-1.5 text-faint transition-colors hover:bg-fill hover:text-muted">
         <X aria-hidden className="size-4" />
       </button>
     </div>

@@ -18,7 +18,7 @@ export function AddTask({ defaultCategory, onAdd }: { defaultCategory: TaskCateg
   }
 
   return (
-    <form onSubmit={submit} className="flex min-h-[3.25rem] items-center gap-3 pr-2 pl-4">
+    <form onSubmit={submit} className="flex min-h-[3.25rem] items-center gap-3 pe-2 ps-4">
       <Plus aria-hidden className="size-[18px] shrink-0 text-accent" strokeWidth={2.4} />
       <input
         value={title}

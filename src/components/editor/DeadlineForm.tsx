@@ -102,7 +102,7 @@ export function DeadlineForm({ id, courseId, onDone }: { id?: string; courseId?:
             {t('common.delete')}
           </Button>
         )}
-        <Button type="submit" variant="primary" className="ml-auto min-w-28">
+        <Button type="submit" variant="primary" className="ms-auto min-w-28">
           {existing ? t('common.save') : t(kind === 'assignment' ? 'df.addAssignment' : kind === 'quiz' ? 'df.addQuiz' : 'df.addExam')}
         </Button>
       </div>

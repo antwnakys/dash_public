@@ -19,7 +19,7 @@ export function Section({ title, meta, action, className, children }: SectionPro
           <h2 className="text-title whitespace-nowrap text-ink">{title}</h2>
           {meta && <span className="truncate text-subhead text-muted">{meta}</span>}
         </div>
-        {action && <div className="-mr-1.5 flex shrink-0 items-center">{action}</div>}
+        {action && <div className="-me-1.5 flex shrink-0 items-center">{action}</div>}
       </header>
       {children}
     </section>
