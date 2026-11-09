@@ -188,6 +188,7 @@ const dict: Dict = {
   "greet.evening": "こんばんは",
   "greet.late": "夜ふかしですね",
   "greet.morning": "おはようございます",
+  "greet.withName": "{greeting}、{name}さん",
   "join.long": "{service} で参加",
   "join.short": "参加",
   "kind.assignment": "課題",

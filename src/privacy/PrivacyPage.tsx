@@ -1,5 +1,3 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import { Logo } from '@/components/brand/Logo'
 import { lang, languages, locale, setLanguage, t, type Key, type LangCode } from '@/i18n'
 
@@ -28,7 +26,7 @@ function List({ items }: { items: Key[] }) {
 }
 
 /** The public privacy policy (privacy.html), in the visitor's language: the link Google and Apple ask for. */
-function PrivacyPage() {
+export function PrivacyPage() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-8 px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-16 sm:px-6 sm:pt-12">
       <header className="flex flex-col gap-4">
@@ -98,11 +96,3 @@ function PrivacyPage() {
     </main>
   )
 }
-
-document.title = `unidash · ${t('pp.title')}`
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <PrivacyPage />
-  </StrictMode>,
-)

@@ -209,6 +209,7 @@ const dict: Dict = {
   "greet.evening": "Добрый вечер",
   "greet.late": "Не спится",
   "greet.morning": "Доброе утро",
+  "greet.withName": "{greeting}, {name}",
   "join.long": "Войти в {service}",
   "join.short": "Войти",
   "kind.assignment": "Задание",

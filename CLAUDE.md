@@ -145,6 +145,22 @@ not listed here works as described in the original's `CLAUDE.md`.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac/iPhone build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
+- **Languages** (`src/i18n/`): 16 languages: en (source, `en.ts`), el, es, fr, de, it, pt, ru, tr, zh, ja, ko, hi, id,
+  ar and ur (right-to-left). `t('key', {vars})` / `tn('key', n)` (plurals via `Intl.PluralRules`: `key_one`, `key_few`,
+  `key_many`, `key_other`; a missing form falls back to `_other`, a missing key to English). The language is picked once per
+  page load (saved choice `unidash.lang.v1` → device languages → English); Settings → Appearance → Language saves and
+  **reloads**. `main.tsx` awaits `loadLanguage()` before importing the app (`boot.tsx`), so top-level `t()` calls are
+  safe. Dates, times and numbers use `locale` (the device's full tag when the language matches); "in 3 days" etc. come
+  from `Intl.RelativeTimeFormat` (`lib/date.ts`: `countdown`, `since`, `inDays`), durations from `minutesLabel`.
+  **To add or change text**: add the key to `src/i18n/en.ts` and to every `src/i18n/locales/xx.ts`, then
+  `npm run i18n:check` (also runs on every pull request; it flags missing keys and broken `{placeholders}`).
+  Don't match on error *message text* (it's translated); use error classes or flags (`GoogleTimeoutError`, `denied`).
+  RTL: use logical classes (`ps-`/`pe-`/`ms-`/`me-`/`start-`/`end-`/`text-start`/`border-s`), never `pl-`/`left-`;
+  sideways animations multiply by `ltr` from `lib/motion.ts`; chevrons flip via CSS in `index.css`.
+  Translations were written by Claude (Nov 9); native speakers should review the ones no classmate speaks.
+- **Privacy policy**: `privacy.html` (second Vite entry, `src/privacy/`), public at `/dash_public/privacy.html`, in every
+  language, with Google's Limited Use statement. Linked from Settings → About and the setup's welcome screen. Contact is
+  GitHub issues for now (no email published). Bump `UPDATED` in `PrivacyPage.tsx` whenever the text changes.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -168,12 +184,15 @@ not listed here works as described in the original's `CLAUDE.md`.
   Testing; Calendar + Drive APIs; web client) and the web client ID went into `src/config.ts`.
 - **Nov 5, 2026**: motion pass (Antonis: "do the animations way better"): one spring system, directional tabs, intro
   hand-off, setup choreography, fixed the first page's entrance never playing.
+- **Nov 9, 2026**: languages (16, auto from the device, picker in Settings, RTL for Arabic/Urdu) and the privacy policy page.
+  Also renamed the leftover personal task category "Gaming & projects" to "Projects".
 
 ## Next up
 
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.
-- Share with classmates, collect feedback. Later: Greek UI, privacy policy page, Google verification, apps.
+- Share with classmates, collect feedback. Later: Google verification (needs privacy URL = done, a demo video, likely a
+  custom domain), apps.
 - **Apple (Nov 6)**: Antonis has a **paid Apple developer account** now. Claude recommended TestFlight first (real app
   for classmates: reminders, home-screen icon, native Google sign-in), then the App Store after feedback + Google
   verification (needed so non-test users and Apple's reviewer can sign in) + a privacy policy page. Risks noted:

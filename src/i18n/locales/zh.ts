@@ -188,6 +188,7 @@ const dict: Dict = {
   "greet.evening": "晚上好",
   "greet.late": "还没睡呀",
   "greet.morning": "早上好",
+  "greet.withName": "{greeting}，{name}",
   "join.long": "通过 {service} 加入",
   "join.short": "加入",
   "kind.assignment": "作业",

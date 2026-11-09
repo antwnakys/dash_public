@@ -195,6 +195,7 @@ const dict: Dict = {
   "greet.evening": "Buonasera",
   "greet.late": "Ancora sveglio",
   "greet.morning": "Buongiorno",
+  "greet.withName": "{greeting}, {name}",
   "join.long": "Partecipa su {service}",
   "join.short": "Partecipa",
   "kind.assignment": "Compito",

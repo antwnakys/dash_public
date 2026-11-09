@@ -196,6 +196,7 @@ export const en = {
   "greet.evening": "Good evening",
   "greet.late": "Up late",
   "greet.morning": "Good morning",
+  "greet.withName": "{greeting}, {name}",
   "join.long": "Join on {service}",
   "join.short": "Join",
   "kind.assignment": "Assignment",

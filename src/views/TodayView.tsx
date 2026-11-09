@@ -58,8 +58,7 @@ export function TodayView() {
         accessory={<WeatherChip />}
         title={
           <>
-            {greeting(now)}
-            {profile.name && `, ${profile.name}`}
+            {profile.name ? t('greet.withName', { greeting: greeting(now), name: profile.name }) : greeting(now)}
           </>
         }
         aside={<Clock now={now} />}

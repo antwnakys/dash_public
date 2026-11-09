@@ -188,6 +188,7 @@ const dict: Dict = {
   "greet.evening": "좋은 저녁이에요",
   "greet.late": "아직 안 자요?",
   "greet.morning": "좋은 아침이에요",
+  "greet.withName": "{greeting}, {name}님",
   "join.long": "{service}에서 참여",
   "join.short": "참여",
   "kind.assignment": "과제",
