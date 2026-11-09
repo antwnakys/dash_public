@@ -10,7 +10,8 @@
 import { en, type Key } from './en'
 
 export type { Key }
-export type Dict = Partial<Record<Key, string>>
+/** A language's texts: the same keys as English, plus any extra plural forms it needs (`key_few`, `key_many`…). */
+export type Dict = Partial<Record<Key, string>> & { [plural: string]: string | undefined }
 
 /** Native names, shown in the language picker. `rtl`: written right to left. */
 export const languages = [
