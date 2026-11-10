@@ -7,7 +7,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useDashboard } from '@/context/DashboardContext'
 import { dayDiff, fmt } from '@/lib/date'
 import { average, formatGrade, SCALE } from '@/lib/grades'
-import { nextMeeting } from '@/lib/schedule'
+import { nextClass } from '@/lib/schedule'
 import type { Assignment, Course } from '@/types'
 import { t, tn } from '@/i18n'
 
@@ -31,9 +31,7 @@ function whenLabel(d: Date, now: Date) {
 export function CourseCard({ course, pending, now }: CourseCardProps) {
   const { openEditor, agenda, assignments, tasks, courses, setView } = useDashboard()
   const grades = average(assignments.items.filter((a) => a.courseId === course.id))
-  // The calendar knows about cancellations and room changes, so it wins over the weekly times.
-  const nextItem = agenda.find((i) => i.kind === 'class' && i.courseId === course.id && (i.end ?? i.date) > now)
-  const next = nextItem?.date ?? nextMeeting(course, now)
+  const { item: nextItem, date: next } = nextClass(course, agenda, now)
   // Join button: the next online class's own link first, else the meeting link saved on the course (always shown,
   // so a course with a Teams link has its button even without a calendar).
   const savedMeeting = course.links.find((l) => l.kind === 'meeting')?.url

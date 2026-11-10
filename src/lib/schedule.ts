@@ -1,4 +1,4 @@
-import type { CalendarEvent, Course, CourseMeeting } from '@/types'
+import type { AgendaItem, CalendarEvent, Course, CourseMeeting } from '@/types'
 import { joinList, locale } from '@/i18n'
 
 /** A blank class time to fill in. */
@@ -110,4 +110,21 @@ export function meetingsFromEvents(events: CalendarEvent[]): CourseMeeting[] {
   return [...slots.values()]
     .map((s) => ({ days: sortDays([...s.days]), start: s.start, ...(s.end ? { end: s.end } : {}) }))
     .sort((a, b) => WEEK.indexOf(a.days[0]) - WEEK.indexOf(b.days[0]) || a.start.localeCompare(b.start))
+}
+
+/**
+ * A course's next class (or the one going on now): the calendar's, which knows about cancellations and room
+ * changes, else the course's weekly times. `agenda` is in date order.
+ */
+export function nextClass(course: Course, agenda: AgendaItem[], now: Date): { date?: Date; item?: AgendaItem } {
+  const item = agenda.find((i) => i.kind === 'class' && i.courseId === course.id && (i.end ?? i.date) > now)
+  return { item, date: item?.date ?? nextMeeting(course, now) }
+}
+
+/** Courses by their next class, soonest first; courses with no class times keep their order at the end. */
+export function byNextClass(courses: Course[], agenda: AgendaItem[], now: Date): Course[] {
+  return courses
+    .map((c) => ({ c, at: nextClass(c, agenda, now).date?.getTime() ?? Infinity }))
+    .sort((a, b) => a.at - b.at)
+    .map((x) => x.c)
 }
