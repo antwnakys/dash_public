@@ -134,6 +134,11 @@ export function WeeklyReview({ onDone }: { onDone: () => void }) {
         className="w-full"
         onClick={() => {
           setSelectedDate(nextMonday)
+          try {
+            localStorage.setItem('unidash.calendarMode.v1', 'week')
+          } catch {
+            // Only a convenience.
+          }
           setView('calendar')
           onDone()
         }}
