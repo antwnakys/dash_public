@@ -820,6 +820,10 @@ const dict: Dict = {
   "cc.tasks_one": "本课程有 {n} 个未完成任务",
   "cc.tasks_other": "本课程有 {n} 个未完成任务",
   "cal.day": "日",
+  "set.design": "设计",
+  "set.designClassic": "经典",
+  "set.designObsidian": "黑曜石",
+  "set.designHint": "设计只保存在这台设备上。黑曜石在深色模式下是黑色玻璃，在浅色模式下是白色与石墨色。",
 }
 
 export default dict

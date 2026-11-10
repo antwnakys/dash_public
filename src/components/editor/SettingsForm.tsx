@@ -12,7 +12,7 @@ import { FEEDBACK_EMAIL, FEEDBACK_REPO } from '@/config'
 import { BUILD, BUILT_AT } from '@/lib/liveUpdate'
 import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
-import type { Place, ThemePreference } from '@/types'
+import type { Place, LookPreference, ThemePreference } from '@/types'
 import { SchoolPicker } from '@/components/place/SchoolPicker'
 import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { takeSnapshot } from '@/sync/backup'
@@ -21,6 +21,11 @@ import { Field, FormGroup, Select, TextArea, TextInput, Toggle } from './fields'
 import { lang, langIsChosen, languages, locale, setLanguage, t, tn, type LangCode } from '@/i18n'
 
 const isCalendarUrl = (u: string) => /^(https?|webcal):\/\/\S+/i.test(u.trim())
+
+const looks: Array<{ value: LookPreference; label: string }> = [
+  { value: 'classic', label: t('set.designClassic') },
+  { value: 'obsidian', label: t('set.designObsidian') },
+]
 
 const themes: Array<{ value: ThemePreference; label: string }> = [
   { value: 'system', label: t('set.auto') },
@@ -113,7 +118,11 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
   return (
     <div className="flex flex-col gap-8">
-      <FormGroup title={t('set.appearance')}>
+      <FormGroup title={t('set.appearance')} footer={t('set.designHint')}>
+        <div className="flex flex-col gap-1.5">
+          <span className="px-1 text-subhead font-medium text-muted">{t('set.design')}</span>
+          <Segmented label={t('set.design')} options={looks} value={theme.look.preference} onChange={theme.look.setPreference} block />
+        </div>
         <Segmented label={t('set.theme')} options={themes} value={theme.preference} onChange={theme.setPreference} block />
         <Field label={t('set.language')}>
           <Select value={langIsChosen() ? lang : ''} onChange={(e) => setLanguage((e.target.value || undefined) as LangCode | undefined)}>

@@ -834,6 +834,10 @@ const dict: Dict = {
   "cc.tasks_one": "{n} attività aperta per questo corso",
   "cc.tasks_other": "{n} attività aperte per questo corso",
   "cal.day": "Giorno",
+  "set.design": "Design",
+  "set.designClassic": "Classico",
+  "set.designObsidian": "Ossidiana",
+  "set.designHint": "Il design viene salvato su questo dispositivo. Ossidiana è vetro nero in modalità scura, bianco e grafite in modalità chiara.",
 }
 
 export default dict

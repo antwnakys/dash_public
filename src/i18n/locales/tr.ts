@@ -834,6 +834,10 @@ const dict: Dict = {
   "cc.tasks_one": "Bu derse ait {n} açık görev",
   "cc.tasks_other": "Bu derse ait {n} açık görev",
   "cal.day": "Gün",
+  "set.design": "Tasarım",
+  "set.designClassic": "Klasik",
+  "set.designObsidian": "Obsidyen",
+  "set.designHint": "Tasarım bu cihazda saklanır. Obsidyen, koyu modda siyah cam, açık modda beyaz ve grafittir.",
 }
 
 export default dict

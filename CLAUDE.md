@@ -242,6 +242,12 @@ not listed here works as described in the original's `CLAUDE.md`.
   Course cards are sorted by next class, soonest first (`byNextClass` in `lib/schedule.ts`; no times = last).
   Courses → **Workload** (`components/courses/CourseWorkload.tsx`): deadlines, exams and related tasks per course in
   the next 14 days as bars, heaviest first.
+- **Design: Classic or Obsidian** (Nov 10, Antonis's choice: an option, Classic stays the default): Settings →
+  Appearance → Design (`theme.look` in `hooks/useTheme.ts`, per device in `unidash.look.v1`, not synced; applied as
+  `<html data-look="obsidian">`, also before first paint in `index.html`). Obsidian = dash's token overrides at the end of
+  `index.css` (black glass in dark, white/concrete/graphite in light, panel sheen on `.surface`); colours, panels and
+  type only, same layout as Classic (dash's top bar and Dashboard page were not ported). `minutesLabel`/`minutesShort`
+  spell out 0 (Intl.DurationFormat writes nothing for zero).
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -281,8 +287,8 @@ not listed here works as described in the original's `CLAUDE.md`.
 
 - **Ported from dash on Nov 10 (all four stages live)**: backups/Undo, stronger tasks + ⌘K, focus timer + weekly
   review + This week, calendar Day/Week + drag, course colours/notes/links/Workload. Still only in dash: Projects,
-  Goals, the Obsidian/Graphite looks and the Dashboard-style Today. The Obsidian look for unidash was offered as an
-  optional last step; wait for Antonis's choice before changing unidash's design.
+  Goals, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
+  (Classic stays the default, Antonis's choice on Nov 10).
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.
 - Share with classmates, collect feedback. Later: Google verification (needs privacy URL = done, a demo video, likely a

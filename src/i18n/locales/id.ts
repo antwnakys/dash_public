@@ -820,6 +820,10 @@ const dict: Dict = {
   "cc.tasks_one": "{n} tugas terbuka untuk mata kuliah ini",
   "cc.tasks_other": "{n} tugas terbuka untuk mata kuliah ini",
   "cal.day": "Hari",
+  "set.design": "Desain",
+  "set.designClassic": "Klasik",
+  "set.designObsidian": "Obsidian",
+  "set.designHint": "Desain disimpan di perangkat ini. Obsidian berupa kaca hitam di mode gelap, serta putih dan grafit di mode terang.",
 }
 
 export default dict
