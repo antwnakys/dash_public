@@ -34,7 +34,10 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
   // The calendar knows about cancellations and room changes, so it wins over the weekly times.
   const nextItem = agenda.find((i) => i.kind === 'class' && i.courseId === course.id && (i.end ?? i.date) > now)
   const next = nextItem?.date ?? nextMeeting(course, now)
-  const joinUrl = nextItem?.online ? (nextItem.link ?? course.links.find((l) => l.kind === 'meeting')?.url) : undefined
+  // Join button: the next online class's own link first, else the meeting link saved on the course (always shown,
+  // so a course with a Teams link has its button even without a calendar).
+  const savedMeeting = course.links.find((l) => l.kind === 'meeting')?.url
+  const joinUrl = (nextItem?.online ? nextItem.link : undefined) ?? savedMeeting
   const pct = Math.round(course.progress * 100)
   const when = [course.schedule, course.instructor && t('course.with', { name: course.instructor })].filter(Boolean).join(' ')
   // Needs attention: work overdue, or due within three days.
@@ -119,7 +122,7 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
       </div>
 
       <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-line px-3 py-2.5">
-        {course.links.map((link) => (
+        {course.links.filter((l) => l.kind !== 'meeting').map((link) => (
           <a
             key={link.url}
             href={link.url}
