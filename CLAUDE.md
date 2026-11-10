@@ -179,7 +179,8 @@ not listed here works as described in the original's `CLAUDE.md`.
   `examsAwaitingResult` = over in the last 30 days with no result. Exams tab: "How did it go?" list (Add result / Skip)
   → upcoming (empty state only when both are empty) → History (passed · failed). Today shows `ExamResultPrompt` for
   3 days after an exam. `ExamResultForm` (editor `examResult`) guesses passed at ≥ half marks until picked by hand;
-  for a deadline-based exam it also writes the grade to the deadline. Calendar/iCal now read 31 days back so recent
+  for a deadline-based exam it also writes the grade to the deadline. Exam names keep their emoji (`examSubject` only drops the word
+  "exam"); study-event matching uses `cleanTitle`. Calendar/iCal now read 31 days back so recent
   exams can still be graded.
 - **School on a map** (Nov 10, `components/place/SchoolPicker.tsx`, used in setup's "Where do you study?" and Settings →
   You): search as you type with **Photon** (photon.komoot.io, OpenStreetMap data, free, no key; `data/places.ts`
