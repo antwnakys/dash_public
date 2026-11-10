@@ -146,6 +146,10 @@ not listed here works as described in the original's `CLAUDE.md`.
   `H739SB5FKP`; no Google URL scheme yet (no iOS client); `DashTheme` plugin kept, `DashApp` (expiry) removed.
   `scripts/testflight.sh` (`TEAM_ID=H739SB5FKP npm run testflight` on a Mac), `testflight.yml` (needs 4 secrets),
   `ios.yml` compiles on PRs touching native files. Steps in `docs/IPHONE.md`. `npm run ios:sync` = build + cap sync.
+  **On TestFlight since Nov 10**: App Store Connect app "unidash" (SKU `unidash`), API key "unidash GitHub" (Admin,
+  key ID A84Z4FLGZ3) in the 4 repo secrets, so `testflight.yml` uploads by itself (native changes on main, the 1st of
+  each month, or run by hand). Internal group "Me" (automatic distribution); Antonis installed it on his iPhone.
+  Remote Control to his Mac doesn't work from cloud sessions on his account yet (folder listed as `not_available`).
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -282,6 +286,7 @@ not listed here works as described in the original's `CLAUDE.md`.
   Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
+- **Nov 10, 2026 (night)**: iPhone app: `ios/` project, TestFlight upload from GitHub, installed on Antonis's iPhone.
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
   weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,
@@ -301,7 +306,6 @@ not listed here works as described in the original's `CLAUDE.md`.
   for classmates: reminders, home-screen icon, native Google sign-in), then the App Store after feedback + Google
   verification (needed so non-test users and Apple's reviewer can sign in) + a privacy policy page. Risks noted:
   guideline 4.2 (web wrapper; native features help), Sign in with Apple (Google is used only for Calendar/Drive).
-  Options offered: 1 TestFlight first, 2 straight to App Store, 3 wait. **Nov 10: he asked to start** (files prepared,
-  build from a Mac user account through Remote Control: clone to `~/unidash`, Claude builds and uploads).
-  Needs from him: App Store Connect app record, and either an App Store Connect API key in GitHub secrets (CI build)
-  or a build from his Mac with Xcode. Bundle id planned: `com.antwnakys.unidash` (already in `capacitor.config.ts`).
+  **Nov 10: TestFlight done** (see the iPhone project bullet). Next for the app: an iOS OAuth client in the Cloud
+  project "unidash" (Google sign-in in the app), a unidash icon of its own, then external testers (public TestFlight
+  link after Apple's one-time beta review) for classmates, then App Store listing texts, screenshots, privacy answers.
