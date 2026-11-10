@@ -73,6 +73,9 @@ export const fmt = {
   time: new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
   weekday: new Intl.DateTimeFormat(locale, { weekday: 'long' }),
   weekdayShort: new Intl.DateTimeFormat(locale, { weekday: 'short' }),
+  /** One letter or sign per day ("M", "L", "ن"), for narrow columns. */
+  weekdayNarrow: new Intl.DateTimeFormat(locale, { weekday: 'narrow' }),
+  dayMonth: new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }),
   longDate: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
   shortDate: new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short' }),
   monthYear: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),

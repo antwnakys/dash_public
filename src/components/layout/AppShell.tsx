@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } fr
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CommandPalette } from '@/components/command/CommandPalette'
 import { EditorSheet } from '@/components/editor/EditorSheet'
+import { FocusMode, FocusPill } from '@/components/focus/FocusMode'
 import { Onboarding } from '@/components/onboarding/Onboarding'
 import { ToastHost } from '@/components/ui/Toast'
 import { useDashboard } from '@/context/DashboardContext'
@@ -37,7 +38,7 @@ const pageVariants = {
 }
 
 export function AppShell() {
-  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile, palette, setPalette } = useDashboard()
+  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile, palette, setPalette, focusOpen, setFocusOpen } = useDashboard()
   const reduce = useReducedMotion()
   const phone = usePhone()
   // Scale around the middle of what's on screen, not the top of the page.
@@ -75,7 +76,7 @@ export function AppShell() {
     [openEditor, setView],
   )
 
-  // Keyboard: ⌘K (or Ctrl+K) the command palette, / search, N New, T add a task, 1–5 switch sections.
+  // Keyboard: ⌘K (or Ctrl+K) the command palette, / search, N New, T add a task, F focus, 1–5 switch sections.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!profile.onboarded) return
@@ -85,11 +86,14 @@ export function AppShell() {
         setPalette(!palette)
         return
       }
-      if (palette || editor || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return
+      if (palette || focusOpen || editor || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return
       const key = e.key.toLowerCase()
       if (key === 'n') {
         e.preventDefault()
         openEditor({ type: 'new' })
+      } else if (key === 'f') {
+        e.preventDefault()
+        setFocusOpen(true)
       } else if (key === '/') {
         e.preventDefault()
         setPalette(true)
@@ -106,7 +110,7 @@ export function AppShell() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [editor, openEditor, setView, profile.onboarded, palette, setPalette, view])
+  }, [editor, openEditor, setView, profile.onboarded, palette, setPalette, view, focusOpen, setFocusOpen])
 
   const { scrollY } = useScroll()
   const statusFade = useTransform(scrollY, [0, 28], [0, 1])
@@ -164,6 +168,8 @@ export function AppShell() {
       <TabBar />
       <EditorSheet />
       <CommandPalette />
+      <FocusMode />
+      <FocusPill />
       <AnimatePresence>{!profile.onboarded && <Onboarding key="setup" />}</AnimatePresence>
       <ToastHost onDismiss={dismissToast} />
       <Intro skip={!profile.onboarded} />

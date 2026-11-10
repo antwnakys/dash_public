@@ -85,7 +85,7 @@ export function MiniCalendar({ large = false }: { large?: boolean }) {
         <div className="grid grid-cols-7 pb-1 text-center text-caption font-medium text-faint">
           {weekOf(today).map((d) => (
             <span key={d.getDay()} aria-hidden>
-              {fmt.weekdayShort.format(d).slice(0, 1)}
+              {fmt.weekdayNarrow.format(d)}
             </span>
           ))}
         </div>

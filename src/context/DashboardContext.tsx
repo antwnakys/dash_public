@@ -6,6 +6,7 @@ import { useCollection, type Collection } from '@/hooks/useCollection'
 import { useHereLocation } from '@/hooks/useHereLocation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useReminders, type RemindersState } from '@/hooks/useReminders'
+import { useFocusTimer, type FocusTimer } from '@/hooks/useFocusTimer'
 import { useTasks, type TasksApi } from '@/hooks/useTasks'
 import { useTheme } from '@/hooks/useTheme'
 import { useWeather, type WeatherState } from '@/hooks/useWeather'
@@ -15,7 +16,7 @@ import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
-import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
+import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, FocusSession, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
 import { t } from '@/i18n'
 
@@ -38,6 +39,11 @@ interface DashboardValue {
   /** Scores and pass/fail for exams that are over: the exam history. */
   examResults: Collection<ExamResult>
   tasks: TasksApi
+  /** Finished focus sessions (synced) and the timer (this device). */
+  focusSessions: Collection<FocusSession>
+  focus: FocusTimer
+  focusOpen: boolean
+  setFocusOpen: (open: boolean) => void
   calendar: CalendarSync
   /** Syncs this device's data with every other device signed in to the same Google account. */
   cloud: CloudSync
@@ -154,6 +160,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const study = useCollection<StudySession>('unidash.study.v1')
   const examResults = useCollection<ExamResult>('unidash.examResults.v1')
   const tasks = useTasks()
+  const focusSessions = useCollection<FocusSession>('unidash.focus.v1')
   const location = useHereLocation(profile.autoLocation === true)
   const weather = useWeather(location.here ?? profile.place ?? profile.home)
   const calendar = useCalendarSync(profile.calendarUrls)
@@ -161,6 +168,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
   const [editor, setEditor] = useState<EditorTarget | null>(null)
   const [palette, setPalette] = useState(false)
+  const [focusOpen, setFocusOpen] = useState(false)
   const theme = useTheme()
   const [view, setView] = useState<ViewId>('today')
   const [toast, setToast] = useState<Toast | null>(null)
@@ -169,6 +177,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     (message: string, tone: Toast['tone'] = 'default', action?: Toast['action']) => setToast({ id: Date.now(), message, tone, action }),
     [],
   )
+
+  const focus = useFocusTimer(focusSessions, notify)
 
   // iPhone app: follow the website's version; tell the user once a newer one is downloaded.
   useEffect(() => startLiveUpdates(() => notify(t('app.updated'))), [notify])
@@ -210,6 +220,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     study,
     examResults,
     tasks,
+    focusSessions,
+    focus,
+    focusOpen,
+    setFocusOpen,
     calendar,
     cloud,
     weather,

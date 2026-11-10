@@ -10,6 +10,7 @@ import { CourseList } from '@/components/courses/CourseList'
 import { WeatherChip } from '@/components/header/WeatherChip'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TaskList } from '@/components/tasks/TaskList'
+import { WeekCard } from '@/components/today/WeekCard'
 import { Reveal, RevealItem } from '@/components/ui/Reveal'
 import { RollingTime } from '@/components/ui/RollingTime'
 import { useDashboard } from '@/context/DashboardContext'
@@ -87,10 +88,13 @@ export function TodayView() {
           </RevealItem>
         </div>
         <div className="contents xl:flex xl:flex-col xl:gap-8">
-          <RevealItem className="order-4 xl:order-none">
+          <RevealItem className="order-3 xl:order-none">
+            <WeekCard now={now} />
+          </RevealItem>
+          <RevealItem className="order-5 xl:order-none">
             <MiniCalendar />
           </RevealItem>
-          <RevealItem className="order-3 xl:order-none">
+          <RevealItem className="order-4 xl:order-none">
             <CourseList />
           </RevealItem>
         </div>
