@@ -2,7 +2,7 @@ import { Logo } from '@/components/brand/Logo'
 import { lang, languages, locale, setLanguage, t, type Key, type LangCode } from '@/i18n'
 
 /** When the policy last changed (shown on the page; bump it with every change to the text). */
-const UPDATED = new Date(2026, 10, 9)
+const UPDATED = new Date(2026, 10, 10)
 
 function Section({ title, children }: { title: Key; children: React.ReactNode }) {
   return (
@@ -66,7 +66,7 @@ export function PrivacyPage() {
       </Section>
       <Section title="pp.servicesTitle">
         <P k="pp.services" />
-        <List items={['pp.svcWeather', 'pp.svcMap', 'pp.svcPlace', 'pp.svcGoogle', 'pp.svcHost']} />
+        <List items={['pp.svcWeather', 'pp.svcMap', 'pp.svcPhoton', 'pp.svcPlace', 'pp.svcGoogle', 'pp.svcHost']} />
       </Section>
       <Section title="pp.locationTitle">
         <P k="pp.location" />

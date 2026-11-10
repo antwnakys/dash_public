@@ -632,6 +632,14 @@ const dict: Dict = {
   "xf.time": "Prüfungszeit",
   "xf.what": "Welche Prüfung?",
   "xf.whatPh": "Physik-Klausur, Führerscheintheorie…",
+  "place.search": "Finde deine Hochschule",
+  "place.searchPh": "Name oder Adresse",
+  "place.searching": "Suche…",
+  "place.none": "Nichts gefunden. Versuch es mit Straße und Hausnummer oder füll die Felder unten aus.",
+  "place.offline": "Die Karte ist nicht erreichbar. Füll die Felder unten aus.",
+  "place.mapLabel": "Deine Hochschule",
+  "place.dragHint": "Zieh die Stecknadel auf dein Gebäude oder tippe auf die Karte, wo es ist.",
+  "pp.svcPhoton": "Photon von Komoot (OpenStreetMap-Daten), für Vorschläge bei der Suche nach deiner Hochschule: der eingegebene Text und, falls gespeichert, ungefähr wo du wohnst, damit nahe Orte zuerst kommen.",
 }
 
 export default dict

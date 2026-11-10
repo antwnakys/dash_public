@@ -618,6 +618,14 @@ const dict: Dict = {
   "xf.time": "考试时间",
   "xf.what": "是什么考试？",
   "xf.whatPh": "物理期末、驾照理论…",
+  "place.search": "查找你的学校",
+  "place.searchPh": "学校名称或地址",
+  "place.searching": "正在搜索…",
+  "place.none": "没有找到。试试街道和门牌号，或填写下面的字段。",
+  "place.offline": "无法连接地图。请填写下面的字段。",
+  "place.mapLabel": "你的学校",
+  "place.dragHint": "把图钉拖到你的教学楼上，或在地图上点它所在的位置。",
+  "pp.svcPhoton": "Komoot 的 Photon（OpenStreetMap 数据），在你搜索学校时提供建议：你输入的文字，以及你保存过的大致住址，以便先显示附近的地点。",
 }
 
 export default dict

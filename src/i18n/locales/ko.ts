@@ -618,6 +618,14 @@ const dict: Dict = {
   "xf.time": "시험 시간",
   "xf.what": "어떤 시험인가요?",
   "xf.whatPh": "물리 기말고사, 운전면허 필기…",
+  "place.search": "학교 찾기",
+  "place.searchPh": "학교 이름 또는 주소",
+  "place.searching": "검색 중…",
+  "place.none": "찾지 못했어요. 거리와 번지로 해 보거나 아래 칸을 채워 주세요.",
+  "place.offline": "지도에 연결할 수 없어요. 아래 칸을 채워 주세요.",
+  "place.mapLabel": "내 학교",
+  "place.dragHint": "핀을 건물 위로 끌어다 놓거나 지도에서 위치를 탭하세요.",
+  "pp.svcPhoton": "Komoot의 Photon(OpenStreetMap 데이터): 학교를 검색할 때 추천을 보여 주기 위해 입력한 텍스트와, 저장했다면 대략적인 거주지(가까운 곳을 먼저 보여 주기 위해).",
 }
 
 export default dict

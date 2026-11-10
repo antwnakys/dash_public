@@ -321,3 +321,24 @@
 [dir='rtl'] .lucide-arrow-up-right {
   transform: scaleX(-1);
 }
+
+/* School map (components/place/PinMap.tsx): a simple pin, and darker tiles in dark mode. */
+.school-pin span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--accent-fill, #0071e3);
+  box-shadow: 0 0 0 3px #fff, 0 6px 14px rgb(0 0 0 / 0.35);
+}
+.school-map .leaflet-control-attribution {
+  font-size: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .school-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+  }
+}
+:root[data-theme='dark'] .school-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}

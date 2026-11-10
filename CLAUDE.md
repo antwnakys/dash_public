@@ -181,6 +181,14 @@ not listed here works as described in the original's `CLAUDE.md`.
   3 days after an exam. `ExamResultForm` (editor `examResult`) guesses passed at ≥ half marks until picked by hand;
   for a deadline-based exam it also writes the grade to the deadline. Calendar/iCal now read 31 days back so recent
   exams can still be graded.
+- **School on a map** (Nov 10, `components/place/SchoolPicker.tsx`, used in setup's "Where do you study?" and Settings →
+  You): search as you type with **Photon** (photon.komoot.io, OpenStreetMap data, free, no key; `data/places.ts`
+  `searchPlaces`, 350 ms debounce, biased to home/city rounded to 0.1°), pick a result → name + address fields fill in
+  (still editable) and a small **Leaflet** map (`PinMap.tsx`, lazy chunk, OSM tiles, dark mode inverts the tiles) shows a
+  draggable pin; dragging or tapping the map moves it and fills the address there (Nominatim reverse, `addressAt`).
+  The exact position is `profile.school.place`, so it syncs with the profile like everything else. Typing an address by
+  hand still works (looked up on save as before). Privacy page lists Photon (`pp.svcPhoton`). Chosen over Google Maps
+  (needs billing + a public key) on Nov 10.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -209,6 +217,7 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 9, 2026 (evening)**: animations + first-screen fix copied into Antonis's own dash (antwnakys/dash#29). unidash got
   offline support, the Home Screen card, Settings → Feedback and a full Delete all data (device + Drive + revoke).
   Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
+- **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free).
 
 ## Next up
 

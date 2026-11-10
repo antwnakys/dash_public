@@ -618,6 +618,14 @@ const dict: Dict = {
   "xf.time": "Jam ujian",
   "xf.what": "Ujian apa?",
   "xf.whatPh": "UAS Fisika, teori SIM…",
+  "place.search": "Cari kampusmu",
+  "place.searchPh": "Nama kampus atau alamat",
+  "place.searching": "Mencari…",
+  "place.none": "Tidak ditemukan. Coba nama jalan dan nomor, atau isi kolom di bawah.",
+  "place.offline": "Tidak bisa terhubung ke peta. Isi kolom di bawah.",
+  "place.mapLabel": "Kampusmu",
+  "place.dragHint": "Seret pin ke gedungmu, atau ketuk peta di lokasinya.",
+  "pp.svcPhoton": "Photon dari Komoot (data OpenStreetMap), untuk saran saat kamu mencari kampus: teks yang kamu ketik dan, jika disimpan, kira-kira tempat tinggalmu, agar tempat terdekat muncul lebih dulu.",
 }
 
 export default dict
