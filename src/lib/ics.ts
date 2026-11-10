@@ -153,6 +153,7 @@ export function parseIcs(
     const description = ev.DESCRIPTION?.[0] ? unescape(ev.DESCRIPTION[0].value) : undefined
     const link = findMeetingLink(description, location, ev.URL?.[0]?.value)
     const base = {
+      series: `${idPrefix}-${uid}`,
       title: unescape(summary),
       allDay: start.allDay || undefined,
       location,

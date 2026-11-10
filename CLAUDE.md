@@ -236,6 +236,9 @@ not listed here works as described in the original's `CLAUDE.md`.
   links of kind `other` (name + URL; a missing https:// is added) in the course sheet; the card shows the colour dot,
   "N overdue" / "N due soon" (≤ 3 days), a notes preview and "N open tasks for this course" (`matchCourse`).
   A meeting link saved on a course always shows the card's Join button (even with no calendar).
+  Courses follow the calendar (`lib/courseLink.ts`): synced events carry `series` (Google `recurringEventId`, iCal UID);
+  a course keeps `calendarSeries` + `calendarTitle`, and renaming the event renames the course unless it was renamed in
+  unidash; majority of upcoming titles wins; first link only adopts emoji/case/accent differences; `courseOf` links by series.
   Course cards are sorted by next class, soonest first (`byNextClass` in `lib/schedule.ts`; no times = last).
   Courses → **Workload** (`components/courses/CourseWorkload.tsx`): deadlines, exams and related tasks per course in
   the next 14 days as bars, heaviest first.
