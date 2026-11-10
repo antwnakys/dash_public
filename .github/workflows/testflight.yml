@@ -1,0 +1,82 @@
+name: TestFlight
+
+# Signs the iPhone app and uploads it to TestFlight, so it installs from the TestFlight app and never
+# expires. Needs the paid Apple Developer account, the app record "unidash" in App Store Connect
+# (bundle id com.antwnakys.unidash) and four repository secrets (docs/IPHONE.md):
+#   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the whole AuthKey_XXXX.p8 file, Admin role key).
+# Until they exist the job just says "not set up yet" and stays green.
+#
+# Runs when native files change (web changes reach the app by live update), on the 1st of every month so a
+# fresh build is always there (TestFlight builds last 90 days), and by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ios/**
+      - package.json
+      - package-lock.json
+      - capacitor.config.ts
+      - scripts/testflight.sh
+      - .github/workflows/testflight.yml
+  schedule:
+    - cron: '23 4 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: macos-latest
+    env:
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - name: Check the TestFlight secrets
+        id: setup
+        run: |
+          if [ -n "$TEAM_ID" ] && [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] && [ -n "$ASC_KEY_P8" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::TestFlight isn't set up yet: add APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_P8 (see docs/IPHONE.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.setup.outputs.ready == 'true'
+        uses: actions/checkout@v4
+      - if: steps.setup.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.setup.outputs.ready == 'true'
+        run: npm ci
+      - if: steps.setup.outputs.ready == 'true'
+        run: npm run build
+      - if: steps.setup.outputs.ready == 'true'
+        run: npx cap sync ios
+      - name: Archive and upload to TestFlight
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          xcodebuild -version
+          key_dir="$RUNNER_TEMP/asc"
+          mkdir -p "$key_dir"
+          export ASC_KEY_PATH="$key_dir/AuthKey_$ASC_KEY_ID.p8"
+          # Accept the key file as pasted, or base64 of it.
+          if printf '%s' "$ASC_KEY_P8" | grep -q 'BEGIN PRIVATE KEY'; then
+            printf '%s\n' "$ASC_KEY_P8" > "$ASC_KEY_PATH"
+          else
+            printf '%s' "$ASC_KEY_P8" | base64 --decode > "$ASC_KEY_PATH"
+          fi
+          scripts/testflight.sh
+      - if: always()
+        run: rm -rf "$RUNNER_TEMP/asc"
+      - if: steps.setup.outputs.ready == 'true'
+        run: |
+          echo "### Uploaded to TestFlight" >> "$GITHUB_STEP_SUMMARY"
+          echo "Build of ${GITHUB_SHA::7}. App Store Connect takes about 10-20 minutes to process it, then the TestFlight app on the iPhone offers the update." >> "$GITHUB_STEP_SUMMARY"
