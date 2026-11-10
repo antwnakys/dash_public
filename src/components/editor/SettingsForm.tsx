@@ -14,6 +14,9 @@ import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
 import type { Place, ThemePreference } from '@/types'
 import { SchoolPicker } from '@/components/place/SchoolPicker'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
+import { takeSnapshot } from '@/sync/backup'
+import { BackupSection } from './BackupSection'
 import { Field, FormGroup, Select, TextArea, TextInput, Toggle } from './fields'
 import { lang, langIsChosen, languages, locale, setLanguage, t, tn, type LangCode } from '@/i18n'
 
@@ -26,7 +29,7 @@ const themes: Array<{ value: ThemePreference; label: string }> = [
 ]
 
 export function SettingsForm({ onDone, section }: { onDone: () => void; section?: 'calendar' | 'commute' }) {
-  const { profile, setProfile, events, courses, calendar, cloud, reminders, location, loadSample, theme, notify } = useDashboard()
+  const { profile, setProfile, events, courses, tasks, calendar, cloud, reminders, location, loadSample, theme, notify } = useDashboard()
   const [feedback, setFeedback] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [calendarText, setCalendarText] = useState((profile.calendarUrls ?? []).join('\n'))
@@ -464,34 +467,36 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
       </FormGroup>
 
       <FormGroup title={t('set.data')} footer={calendar.google.account ? t('set.dataDrive') : t('set.dataLocal')}>
+        <BackupSection />
         <div className="flex flex-wrap gap-2">
-          <Button
+          {/* Sample data only while there's nothing yet: loading it replaces what's there (and syncs). */}
+          {courses.items.length === 0 && tasks.tasks.length === 0 && (
+            <Button
+              size="sm"
+              onClick={() => {
+                takeSnapshot('before-delete')
+                loadSample()
+                notify(t('set.sampleLoaded'))
+                onDone()
+              }}
+            >
+              {t('set.loadSample')}
+            </Button>
+          )}
+          <ConfirmButton
             size="sm"
-            onClick={() => {
-              if (courses.items.length && !confirm(t('set.confirmSample'))) return
-              loadSample()
-              notify(t('set.sampleLoaded'))
-              onDone()
-            }}
-          >
-            {t('set.loadSample')}
-          </Button>
-          <Button
-            size="sm"
-            variant="danger"
-            onClick={() => {
+            confirmLabel={calendar.google.account ? t('del.againDrive') : t('del.again')}
+            onConfirm={() => {
               const signedIn = Boolean(calendar.google.account)
-              if (!confirm(signedIn ? t('del.confirmDrive') : t('del.confirm'))) return
               setDeleting(true)
               deleteEverything(signedIn ? calendar.google : undefined).catch(() => {
                 setDeleting(false)
                 notify(t('del.failed'), 'error')
               })
             }}
-            disabled={deleting}
           >
             {deleting ? t('del.deleting') : t('set.deleteAll')}
-          </Button>
+          </ConfirmButton>
         </div>
         <p className="px-1 text-caption text-faint">{calendar.google.account ? t('del.hintDrive') : t('del.hint')}</p>
       </FormGroup>

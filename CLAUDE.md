@@ -194,6 +194,12 @@ not listed here works as described in the original's `CLAUDE.md`.
   (`zoneCentre`, read on the device); a **"Search addresses for …"** row (and Enter with no suggestion) runs one Nominatim
   search on request (`searchAddresses`, viewbox ~100 km) for schools OSM doesn't know by name: find the street and
   number, then drag the pin. Nominatim forbids search-as-you-type, so it never runs on each keystroke.
+- **Backups and safety** (Nov 10, ported from dash): Settings → Data → `components/editor/BackupSection.tsx` +
+  `sync/backup.ts`: Export backup (`lib/saveFile.ts`: share sheet / download / clipboard), Restore from file or copied
+  text, copies on this device (`unidash.snapshots.v1`, one a day, last 7, plus before sample data); restore only adds.
+  Toasts can carry one action (`notify(msg, tone, {label, run})`, used for **Undo**). Deleting a course or exam:
+  `components/ui/ConfirmButton.tsx` (press twice) + Undo; Delete all data also presses twice. "Load sample data" only
+  shows while there's no data. Never use `window.confirm()` (the future Mac app ignores it).
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -224,6 +230,7 @@ not listed here works as described in the original's `CLAUDE.md`.
   Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
+- **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete.
 
 ## Next up
 

@@ -13,6 +13,7 @@ import { isClass, isExamTitle, matchCourse } from '@/lib/school'
 import { looksOnline } from '@/lib/meeting'
 import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
+import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
 import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
@@ -22,6 +23,8 @@ export interface Toast {
   id: number
   message: string
   tone?: 'default' | 'error'
+  /** One button on the toast, e.g. Undo. */
+  action?: { label: string; run: () => void }
 }
 
 interface DashboardValue {
@@ -55,7 +58,7 @@ interface DashboardValue {
   theme: { preference: ThemePreference; resolved: 'light' | 'dark'; setPreference: (p: ThemePreference) => void }
   toast: Toast | null
   /** Brief confirmation or error shown above the navigation. */
-  notify: (message: string, tone?: Toast['tone']) => void
+  notify: (message: string, tone?: Toast['tone'], action?: Toast['action']) => void
   dismissToast: () => void
   view: ViewId
   setView: (v: ViewId) => void
@@ -158,10 +161,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<ViewId>('today')
   const [toast, setToast] = useState<Toast | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
-  const notify = useCallback((message: string, tone: Toast['tone'] = 'default') => setToast({ id: Date.now(), message, tone }), [])
+  const notify = useCallback(
+    (message: string, tone: Toast['tone'] = 'default', action?: Toast['action']) => setToast({ id: Date.now(), message, tone, action }),
+    [],
+  )
 
   // iPhone app: follow the website's version; tell the user once a newer one is downloaded.
   useEffect(() => startLiveUpdates(() => notify(t('app.updated'))), [notify])
+  useEffect(() => dailySnapshot(), [])
 
   const setProfile = useCallback(
     (patch: Partial<Profile>) => setStoredProfile((p) => ({ name: '', ...p, ...patch, updatedAt: Date.now() })),

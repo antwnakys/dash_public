@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/Button'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { average, formatGrade, onScale, SCALE } from '@/lib/grades'
@@ -101,10 +102,17 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
   }
 
   const remove = () => {
-    if (!existing || !confirm(t('cf.confirmDelete', { name: existing.name }))) return
+    if (!existing) return
+    const work = assignments.items.filter((a) => a.courseId === existing.id)
     assignments.set((list) => list.filter((a) => a.courseId !== existing.id))
     courses.remove(existing.id)
-    notify(t('cf.deleted'))
+    notify(t('cf.deleted'), 'default', {
+      label: t('common.undo'),
+      run: () => {
+        courses.set((list) => (list.some((c) => c.id === existing.id) ? list : [...list, existing]))
+        assignments.set((list) => [...list, ...work.filter((w) => !list.some((a) => a.id === w.id))])
+      },
+    })
     onDone()
   }
 
@@ -148,9 +156,7 @@ export function CourseForm({ id, onDone }: { id?: string; onDone: () => void }) 
       </Field>
       <div className="mt-1 flex items-center gap-2">
         {existing && (
-          <Button variant="danger" onClick={remove}>
-            {t('common.delete')}
-          </Button>
+          <ConfirmButton onConfirm={remove}>{t('common.delete')}</ConfirmButton>
         )}
         <Button type="submit" variant="primary" className="ms-auto min-w-28">
           {existing ? t('cf.save') : t('cf.add')}
