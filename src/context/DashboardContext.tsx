@@ -97,7 +97,7 @@ function buildAgenda(
       courseId: course?.id,
       link: online ? link : e.link,
       online,
-      context: [course?.code, online ? 'Online' : e.location?.split(',')[0]].filter(Boolean).join(' · '),
+      context: [course?.code, online ? t('course.online') : e.location?.split(',')[0]].filter(Boolean).join(' · '),
     }
   }
   return [

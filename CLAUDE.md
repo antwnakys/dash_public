@@ -225,6 +225,17 @@ not listed here works as described in the original's `CLAUDE.md`.
   Durations: `minutesLabel` (long) and `minutesShort` ("1h 15m", stat tiles) in `lib/setup.ts`. Narrow weekday letters:
   `fmt.weekdayNarrow` (never slice weekday names: Arabic ones all start with the same letter). `RollingTime` is always
   laid out left to right (it reversed the clock in Arabic). Privacy page lists focus time among stored data.
+- **Calendar Day / Week / Month, course extras** (Nov 10, ported from dash): Calendar tab picks Day / Week / Month
+  (kept per device in `unidash.calendarMode.v1`, default Week; ← → move, mirrored on right-to-left pages; Today button).
+  Week = `components/calendar/WeekGrid.tsx` (7 columns on md+, stacked days on phones), Day = `DayTimeline.tsx`
+  (due/all-day items on top, hour lines in the page's 12/24-hour style, overlap lanes, red now-line); both use
+  `dayEntries` (`lib/calendarDay.ts`). **Drag** an own deadline, event, exam or task to another day in Week (computers)
+  → `hooks/useMoveItem.ts` keeps the time of day, toast with Undo; Google events can't move (toast says so).
+  `editTarget`/`isMovable` in `lib/agenda.ts`. Courses: optional `color` (`lib/courseColor.ts`), `notes`, and extra
+  links of kind `other` (name + URL; a missing https:// is added) in the course sheet; the card shows the colour dot,
+  "N overdue" / "N due soon" (≤ 3 days), a notes preview and "N open tasks for this course" (`matchCourse`).
+  Courses → **Workload** (`components/courses/CourseWorkload.tsx`): deadlines, exams and related tasks per course in
+  the next 14 days as bars, heaviest first.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -257,8 +268,8 @@ not listed here works as described in the original's `CLAUDE.md`.
   list, local results first, and "Search addresses" for schools not listed by name.
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
-  weekly review, This week card with the next exam's countdown. Next: (4) calendar Day/Week + drag, course
-  colours/notes/links/Workload.
+  weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,
+  course colours, notes, links and Workload.
 
 ## Next up
 

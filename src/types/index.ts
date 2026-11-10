@@ -44,8 +44,12 @@ export interface FocusSession {
 export interface CourseLink {
   label: string
   url: string
-  kind: 'portal' | 'materials' | 'video' | 'meeting'
+  /** `other`: any other page, shown with its own name. */
+  kind: 'portal' | 'materials' | 'video' | 'meeting' | 'other'
 }
+
+/** A course's colour mark (cards, workload bars). */
+export type CourseColor = 'slate' | 'blue' | 'green' | 'amber' | 'red' | 'violet'
 
 /** One recurring class time: the weekdays it meets (0 = Sunday … 6 = Saturday) and its local times. */
 export interface CourseMeeting {
@@ -69,6 +73,10 @@ export interface Course {
   /** First and last day of classes, "YYYY-MM-DD". */
   term?: { start?: string; end?: string }
   links: CourseLink[]
+  // Optional so older app versions keep syncing these courses.
+  color?: CourseColor
+  /** Free notes: exam format, what the teacher said, office hours… */
+  notes?: string
 }
 
 export interface Assignment {
