@@ -618,6 +618,14 @@ const dict: Dict = {
   "xf.time": "試験の時刻",
   "xf.what": "何の試験ですか？",
   "xf.whatPh": "物理の期末試験、運転免許の学科…",
+  "place.search": "学校を探す",
+  "place.searchPh": "学校名または住所",
+  "place.searching": "検索中…",
+  "place.none": "見つかりませんでした。通りと番地で試すか、下の欄に入力してください。",
+  "place.offline": "地図に接続できませんでした。下の欄に入力してください。",
+  "place.mapLabel": "あなたの学校",
+  "place.dragHint": "ピンを建物までドラッグするか、地図上の場所をタップしてください。",
+  "pp.svcPhoton": "Komoot の Photon（OpenStreetMap のデータ）：学校を検索するときの候補表示のため。入力したテキストと、保存していればおおよその住まいの場所（近くの候補を先に出すため）。",
 }
 
 export default dict

@@ -12,7 +12,8 @@ import { FEEDBACK_EMAIL, FEEDBACK_REPO } from '@/config'
 import { BUILD, BUILT_AT } from '@/lib/liveUpdate'
 import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
-import type { ThemePreference } from '@/types'
+import type { Place, ThemePreference } from '@/types'
+import { SchoolPicker } from '@/components/place/SchoolPicker'
 import { Field, FormGroup, Select, TextArea, TextInput, Toggle } from './fields'
 import { lang, langIsChosen, languages, locale, setLanguage, t, tn, type LangCode } from '@/i18n'
 
@@ -33,6 +34,8 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
   const [city, setCity] = useState(profile.place?.name ?? '')
   const [schoolName, setSchoolName] = useState(profile.school?.name ?? '')
   const [address, setAddress] = useState(profile.school?.address ?? '')
+  // The school's position: from the saved profile, a search pick or a dragged pin.
+  const [schoolPlace, setSchoolPlace] = useState<Place | undefined>(profile.school?.place)
   const [home, setHome] = useState(profile.home?.name ?? '')
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
@@ -79,12 +82,12 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         }
         place = found
       }
-      const schoolPlace = await lookUp(address, { text: profile.school?.address, place: profile.school?.place })
+      const found = schoolPlace && address.trim() ? { place: schoolPlace, found: true } : await lookUp(address, { text: profile.school?.address, place: profile.school?.place })
       const homePlace = home.trim() === profile.home?.name ? { place: profile.home, found: true } : await lookUp(home)
-      const school = schoolName.trim() || address.trim() ? { name: schoolName.trim() || undefined, address: address.trim() || undefined, place: schoolPlace.place } : undefined
+      const school = schoolName.trim() || address.trim() ? { name: schoolName.trim() || undefined, address: address.trim() || undefined, place: found.place } : undefined
       setProfile({ name: name.trim(), place, school, home: homePlace.place })
       if (!homePlace.found) notify(t('set.homeNotFound', { name: home.trim() }), 'error')
-      else if (!schoolPlace.found) notify(t('set.schoolNotFound'))
+      else if (!found.found) notify(t('set.schoolNotFound'))
       else notify(t('set.saved'))
       if (homePlace.found) onDone()
     } catch {
@@ -126,6 +129,25 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           <Field label={t('set.name')} hint={t('set.nameHint')}>
             <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" />
           </Field>
+          <div className="flex flex-col gap-1.5">
+            <span className="px-1 text-subhead font-medium text-muted">{t('place.search')}</span>
+            <SchoolPicker
+              place={schoolPlace}
+              near={schoolPlace ?? profile.home ?? profile.place}
+              onPick={(hit) => {
+                if (hit.name) setSchoolName(hit.name)
+                setAddress(hit.address)
+                setSchoolPlace({ name: hit.area, latitude: hit.latitude, longitude: hit.longitude })
+              }}
+              onMove={(latitude, longitude, hit) => {
+                setSchoolPlace((p) => ({ name: hit?.area || p?.name || '', latitude, longitude }))
+                if (hit) {
+                  setAddress(hit.address)
+                  if (hit.name && !schoolName.trim()) setSchoolName(hit.name)
+                }
+              }}
+            />
+          </div>
           <Field label={t('set.school')} hint={t('set.schoolHint')}>
             <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder={t('set.schoolPh')} autoComplete="organization" />
           </Field>

@@ -8,7 +8,8 @@ import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
 import { blur, ease, ltr, press, spring } from '@/lib/motion'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, passDays } from '@/lib/setup'
-import type { CommuteMode } from '@/types'
+import type { CommuteMode, Place } from '@/types'
+import { SchoolPicker } from '@/components/place/SchoolPicker'
 import { t } from '@/i18n'
 
 type Step = 'welcome' | 'name' | 'school' | 'home' | 'mode' | 'minutes' | 'pass' | 'done'
@@ -156,6 +157,7 @@ export function Onboarding() {
   const [name, setName] = useState(profile.name)
   const [schoolName, setSchoolName] = useState(profile.school?.name ?? '')
   const [address, setAddress] = useState(profile.school?.address ?? '')
+  const [schoolPlace, setSchoolPlace] = useState<Place | undefined>(profile.school?.place)
   const [home, setHome] = useState(profile.home?.name ?? '')
   const [minutes, setMinutes] = useState(profile.commute?.minutes ?? 30)
   const [hasPass, setHasPass] = useState(Boolean(profile.pass?.renewDay))
@@ -186,7 +188,7 @@ export function Onboarding() {
     }
     setBusy(true)
     try {
-      const { place } = await lookUp(a, { text: profile.school?.address, place: profile.school?.place })
+      const { place } = schoolPlace && a ? { place: schoolPlace } : await lookUp(a, { text: profile.school?.address, place: profile.school?.place })
       setProfile({ school: { name: n || undefined, address: a || undefined, place } })
     } catch {
       // Offline: keep the address for matching classes; the map lookup happens next time it's saved.
@@ -278,8 +280,25 @@ export function Onboarding() {
       body = (
         <form onSubmit={submit(saveSchool)}>
           <Screen title={t('ob.school')} lead={t('ob.schoolLead')}>
+            <SchoolPicker
+              autoFocus
+              place={schoolPlace}
+              near={schoolPlace ?? profile.home ?? profile.place}
+              onPick={(hit) => {
+                if (hit.name) setSchoolName(hit.name)
+                setAddress(hit.address)
+                setSchoolPlace({ name: hit.area, latitude: hit.latitude, longitude: hit.longitude })
+              }}
+              onMove={(latitude, longitude, hit) => {
+                setSchoolPlace((p) => ({ name: hit?.area || p?.name || '', latitude, longitude }))
+                if (hit) {
+                  setAddress(hit.address)
+                  if (hit.name && !schoolName.trim()) setSchoolName(hit.name)
+                }
+              }}
+            />
             <Field label={t('ob.schoolName')}>
-              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder={t('ob.schoolPh')} autoFocus />
+              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder={t('ob.schoolPh')} />
             </Field>
             <Field label={t('ob.address')} hint={t('ob.addressHint')}>
               <TextInput value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" placeholder={t('set.addressPh')} />

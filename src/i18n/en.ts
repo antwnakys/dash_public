@@ -633,6 +633,14 @@ export const en = {
   "xf.time": "Exam time",
   "xf.what": "What’s the exam?",
   "xf.whatPh": "Physics final, Driving theory…",
+  "place.search": "Find your school",
+  "place.searchPh": "School name or address",
+  "place.searching": "Searching…",
+  "place.none": "Nothing found. Try the street and number, or fill in the fields below.",
+  "place.offline": "Couldn’t reach the map. Fill in the fields below instead.",
+  "place.mapLabel": "Your school",
+  "place.dragHint": "Drag the pin onto your building, or tap the map where it is.",
+  "pp.svcPhoton": "Photon by Komoot (OpenStreetMap data), for suggestions while you search for your school: the text you type, and roughly where you live if you saved it, so nearby places come first.",
 } as const
 
 export type Key = keyof typeof en

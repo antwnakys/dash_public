@@ -632,6 +632,14 @@ const dict: Dict = {
   "xf.time": "Sınav saati",
   "xf.what": "Hangi sınav?",
   "xf.whatPh": "Fizik finali, ehliyet teorisi…",
+  "place.search": "Okulunu bul",
+  "place.searchPh": "Okul adı veya adres",
+  "place.searching": "Aranıyor…",
+  "place.none": "Bir şey bulunamadı. Sokak ve numarayı dene ya da aşağıdaki alanları doldur.",
+  "place.offline": "Haritaya ulaşılamadı. Aşağıdaki alanları doldur.",
+  "place.mapLabel": "Okulun",
+  "place.dragHint": "İğneyi binanın üzerine sürükle ya da haritada bulunduğu yere dokun.",
+  "pp.svcPhoton": "Komoot'un Photon hizmeti (OpenStreetMap verileri), okulunu ararken öneriler için: yazdığın metin ve kaydettiysen yaklaşık nerede yaşadığın, böylece yakın yerler önce gelir.",
 }
 
 export default dict
