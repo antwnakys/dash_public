@@ -640,6 +640,7 @@ const dict: Dict = {
   "place.mapLabel": "آپ کی یونیورسٹی",
   "place.dragHint": "پن کو اپنی عمارت پر گھسیٹیں، یا نقشے پر اس جگہ ٹیپ کریں۔",
   "pp.svcPhoton": "Komoot کا Photon (OpenStreetMap ڈیٹا)، یونیورسٹی تلاش کرتے وقت تجاویز کے لیے: آپ کا لکھا متن اور، اگر محفوظ کیا ہو تو، آپ کی تقریباً رہائش، تاکہ قریبی جگہیں پہلے دکھیں۔",
+  "place.searchMore": "«{q}» کے پتے تلاش کریں",
 }
 
 export default dict

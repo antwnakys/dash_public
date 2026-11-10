@@ -640,6 +640,7 @@ const dict: Dict = {
   "place.mapLabel": "Okulun",
   "place.dragHint": "İğneyi binanın üzerine sürükle ya da haritada bulunduğu yere dokun.",
   "pp.svcPhoton": "Komoot'un Photon hizmeti (OpenStreetMap verileri), okulunu ararken öneriler için: yazdığın metin ve kaydettiysen yaklaşık nerede yaşadığın, böylece yakın yerler önce gelir.",
+  "place.searchMore": "“{q}” için adres ara",
 }
 
 export default dict

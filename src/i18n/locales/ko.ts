@@ -626,6 +626,7 @@ const dict: Dict = {
   "place.mapLabel": "내 학교",
   "place.dragHint": "핀을 건물 위로 끌어다 놓거나 지도에서 위치를 탭하세요.",
   "pp.svcPhoton": "Komoot의 Photon(OpenStreetMap 데이터): 학교를 검색할 때 추천을 보여 주기 위해 입력한 텍스트와, 저장했다면 대략적인 거주지(가까운 곳을 먼저 보여 주기 위해).",
+  "place.searchMore": "“{q}” 주소 검색",
 }
 
 export default dict

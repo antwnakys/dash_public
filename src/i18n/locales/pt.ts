@@ -640,6 +640,7 @@ const dict: Dict = {
   "place.mapLabel": "A tua universidade",
   "place.dragHint": "Arrasta o marcador para o teu edifício ou toca no mapa onde ele fica.",
   "pp.svcPhoton": "Photon da Komoot (dados do OpenStreetMap), para sugestões enquanto procuras a tua universidade: o texto que escreves e, se o guardaste, mais ou menos onde moras, para mostrar primeiro os sítios perto.",
+  "place.searchMore": "Procurar moradas para «{q}»",
 }
 
 export default dict

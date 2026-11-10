@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { MapPin, Search } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { addressAt, searchPlaces, type PlaceHit } from '@/data/places'
+import { addressAt, searchAddresses, searchPlaces, zoneCentre, type PlaceHit } from '@/data/places'
 import { t } from '@/i18n'
 import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
@@ -36,6 +36,7 @@ export function SchoolPicker({
   const [state, setState] = useState<'idle' | 'searching' | 'none' | 'failed'>('idle')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
+  const where = near ?? zoneCentre()
   const timer = useRef<number | undefined>(undefined)
   const abort = useRef<AbortController | null>(null)
 
@@ -53,7 +54,7 @@ export function SchoolPicker({
       abort.current = ctrl
       setState('searching')
       try {
-        const found = await searchPlaces(query, near, ctrl.signal)
+        const found = await searchPlaces(query, where, ctrl.signal)
         if (ctrl.signal.aborted) return
         setHits(found)
         setActive(0)
@@ -67,6 +68,23 @@ export function SchoolPicker({
     // `near` only biases the order.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
+
+  // Streets and numbers Photon missed: one Nominatim search when asked.
+  const searchMore = async () => {
+    const q = query.trim()
+    if (q.length < 3) return
+    abort.current?.abort()
+    setState('searching')
+    try {
+      const found = await searchAddresses(q, where)
+      setHits(found)
+      setActive(0)
+      setState(found.length ? 'idle' : 'none')
+      setOpen(true)
+    } catch {
+      setState('failed')
+    }
+  }
 
   const pick = (hit: PlaceHit) => {
     onPick(hit)
@@ -85,6 +103,11 @@ export function SchoolPicker({
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => hits.length && setOpen(true)}
             onKeyDown={(e) => {
+              if (e.key === 'Enter' && (!open || !hits.length)) {
+                e.preventDefault()
+                void searchMore()
+                return
+              }
               if (!open || !hits.length) return
               if (e.key === 'ArrowDown') {
                 e.preventDefault()
@@ -113,11 +136,12 @@ export function SchoolPicker({
             <motion.ul
               id="school-results"
               role="listbox"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={spring.snappy}
-              className="surface absolute inset-x-0 top-full z-20 mt-1.5 max-h-72 overflow-y-auto p-1"
+              // In the page's flow under the box (not floating): the setup's animated fields would otherwise paint over it.
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={spring.smooth}
+              className="surface mt-1.5 max-h-80 overflow-y-auto p-1"
             >
               {hits.map((h, i) => (
                 <li key={`${h.latitude},${h.longitude},${i}`} role="option" aria-selected={i === active}>
@@ -129,16 +153,29 @@ export function SchoolPicker({
                   >
                     <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted" />
                     <span className="min-w-0">
-                      <span className="block truncate text-body text-ink">{h.name ?? h.address}</span>
+                      <span className="line-clamp-2 block text-body text-ink">{h.name ?? h.address}</span>
                       {h.name && <span className="block truncate text-caption text-muted">{h.address}</span>}
                     </span>
                   </button>
                 </li>
               ))}
+              <li>
+                <button type="button" onClick={searchMore} className="flex w-full items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-left text-subhead font-medium text-accent hover:bg-fill">
+                  <Search aria-hidden className="size-4 shrink-0" />
+                  <span className="truncate">{t('place.searchMore', { q: query.trim() })}</span>
+                </button>
+              </li>
             </motion.ul>
           )}
         </AnimatePresence>
-        {state === 'none' && <p className="mt-1.5 px-1 text-caption text-muted">{t('place.none')}</p>}
+        {state === 'none' && (
+          <p className="mt-1.5 px-1 text-caption text-muted">
+            {t('place.none')}{' '}
+            <button type="button" onClick={searchMore} className="font-medium text-accent hover:underline">
+              {t('place.searchMore', { q: query.trim() })}
+            </button>
+          </p>
+        )}
         {state === 'failed' && <p className="mt-1.5 px-1 text-caption text-danger">{t('place.offline')}</p>}
       </div>
       {place && (
