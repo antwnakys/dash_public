@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
-import { Plus, Settings } from 'lucide-react'
+import { Plus, Search, Settings } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
+import { paletteKey } from '@/lib/keys'
 import { spring } from '@/lib/motion'
 import { views } from '@/views'
 import { t } from '@/i18n'
@@ -13,7 +14,7 @@ const item =
 
 /** Floating glass sidebar for screens 1024px and wider. */
 export function Sidebar() {
-  const { view, setView, openEditor } = useDashboard()
+  const { view, setView, openEditor, setPalette } = useDashboard()
 
   return (
     <nav
@@ -25,10 +26,18 @@ export function Sidebar() {
         <span className="text-headline tracking-tight text-ink">unidash</span>
       </div>
 
-      <Button variant="primary" onClick={() => openEditor({ type: 'new' })} className="mb-4 w-full" title={`${t('nav.new')} (N)`}>
+      <Button variant="primary" onClick={() => openEditor({ type: 'new' })} className="mb-2 w-full" title={`${t('nav.new')} (N)`}>
         <Plus aria-hidden className="size-4" strokeWidth={2.4} />
         {t('nav.new')}
       </Button>
+      <button
+        onClick={() => setPalette(true)}
+        className="mb-4 flex h-9 w-full items-center gap-2.5 rounded-[var(--radius-control)] bg-fill px-2.5 text-subhead text-muted transition-colors hover:bg-fill-strong hover:text-ink"
+      >
+        <Search aria-hidden className="size-4" strokeWidth={2} />
+        <span className="flex-1 text-start">{t('pal.search')}</span>
+        <kbd className="rounded-[0.35rem] bg-surface px-1.5 py-0.5 text-caption">{paletteKey}</kbd>
+      </button>
 
       <ul className="flex flex-col gap-0.5">
         {views.map(({ id, label, icon: Icon }, i) => {

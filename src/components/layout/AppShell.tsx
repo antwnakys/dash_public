@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { CommandPalette } from '@/components/command/CommandPalette'
 import { EditorSheet } from '@/components/editor/EditorSheet'
 import { Onboarding } from '@/components/onboarding/Onboarding'
 import { ToastHost } from '@/components/ui/Toast'
@@ -36,7 +37,7 @@ const pageVariants = {
 }
 
 export function AppShell() {
-  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile } = useDashboard()
+  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile, palette, setPalette } = useDashboard()
   const reduce = useReducedMotion()
   const phone = usePhone()
   // Scale around the middle of what's on screen, not the top of the page.
@@ -74,20 +75,38 @@ export function AppShell() {
     [openEditor, setView],
   )
 
-  // Keyboard: N opens New, 1–4 switch sections.
+  // Keyboard: ⌘K (or Ctrl+K) the command palette, / search, N New, T add a task, 1–5 switch sections.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (editor || !profile.onboarded || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return
-      if (e.key === 'n' || e.key === 'N') {
+      if (!profile.onboarded) return
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (editor) return
+        e.preventDefault()
+        setPalette(!palette)
+        return
+      }
+      if (palette || editor || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return
+      const key = e.key.toLowerCase()
+      if (key === 'n') {
         e.preventDefault()
         openEditor({ type: 'new' })
+      } else if (key === '/') {
+        e.preventDefault()
+        setPalette(true)
+      } else if (key === 't') {
+        e.preventDefault()
+        // Today and Tasks have a quick-add box; elsewhere go to Tasks first.
+        const target = view === 'today' ? 'today' : 'tasks'
+        if (target !== view) setView(target)
+        setTimeout(() => document.querySelector<HTMLInputElement>(`[data-page="${target}"] [data-quick-add]`)?.focus(), target === view ? 0 : 400)
+      } else {
+        const index = Number(e.key) - 1
+        if (views[index]) setView(views[index].id)
       }
-      const index = Number(e.key) - 1
-      if (views[index]) setView(views[index].id)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [editor, openEditor, setView, profile.onboarded])
+  }, [editor, openEditor, setView, profile.onboarded, palette, setPalette, view])
 
   const { scrollY } = useScroll()
   const statusFade = useTransform(scrollY, [0, 28], [0, 1])
@@ -128,6 +147,7 @@ export function AppShell() {
           <AnimatePresence mode="popLayout" custom={nav.dir}>
             <motion.div
               key={view}
+              data-page={view}
               custom={nav.dir}
               variants={pageVariants}
               initial="enter"
@@ -143,6 +163,7 @@ export function AppShell() {
       </motion.main>
       <TabBar />
       <EditorSheet />
+      <CommandPalette />
       <AnimatePresence>{!profile.onboarded && <Onboarding key="setup" />}</AnimatePresence>
       <ToastHost onDismiss={dismissToast} />
       <Intro skip={!profile.onboarded} />

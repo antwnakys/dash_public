@@ -50,6 +50,9 @@ interface DashboardValue {
   agenda: AgendaItem[]
   selectedDate: Date
   setSelectedDate: (d: Date) => void
+  /** The ⌘K command palette. */
+  palette: boolean
+  setPalette: (open: boolean) => void
   editor: EditorTarget | null
   openEditor: (target: EditorTarget) => void
   closeEditor: () => void
@@ -157,6 +160,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const cloud = useCloudSync(Boolean(calendar.google.account))
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
   const [editor, setEditor] = useState<EditorTarget | null>(null)
+  const [palette, setPalette] = useState(false)
   const theme = useTheme()
   const [view, setView] = useState<ViewId>('today')
   const [toast, setToast] = useState<Toast | null>(null)
@@ -214,6 +218,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     agenda,
     selectedDate,
     setSelectedDate,
+    palette,
+    setPalette,
     editor,
     openEditor: setEditor,
     closeEditor: () => setEditor(null),

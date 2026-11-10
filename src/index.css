@@ -115,6 +115,8 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
   --radius-card: 1.375rem;
   --radius-control: 0.75rem;
+  --radius-button: 999px;
+  --radius-chrome: 1.5rem;
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 

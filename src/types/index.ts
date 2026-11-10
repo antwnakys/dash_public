@@ -1,5 +1,15 @@
 export type TaskCategory = 'college' | 'personal' | 'projects'
 
+/** 1 = high, 2 = medium, 3 = low; missing = no priority. */
+export type TaskPriority = 1 | 2 | 3
+export type TaskRepeat = 'daily' | 'weekdays' | 'weekly' | 'monthly'
+
+export interface Subtask {
+  id: string
+  title: string
+  done: boolean
+}
+
 export interface Task {
   id: string
   title: string
@@ -9,6 +19,16 @@ export interface Task {
   /** When it's due (ISO); with `dueAllDay` only the date counts. */
   due?: string
   dueAllDay?: boolean
+  // Everything below is optional so older app versions keep syncing these tasks.
+  priority?: TaskPriority
+  notes?: string
+  subtasks?: Subtask[]
+  /** Ticking a repeating task files it as done and adds the next one. */
+  repeat?: TaskRepeat
+  /** When it was ticked off (ISO). */
+  completedAt?: string
+  /** Free tags, lower case, without # ("reading", "lab"). */
+  tags?: string[]
 }
 
 export interface CourseLink {
