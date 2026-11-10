@@ -10,7 +10,8 @@ import { useFocusTimer, type FocusTimer } from '@/hooks/useFocusTimer'
 import { useTasks, type TasksApi } from '@/hooks/useTasks'
 import { useTheme } from '@/hooks/useTheme'
 import { useWeather, type WeatherState } from '@/hooks/useWeather'
-import { isClass, isExamTitle, matchCourse } from '@/lib/school'
+import { isClass, isExamTitle } from '@/lib/school'
+import { courseCalendarPatches, courseOf } from '@/lib/courseLink'
 import { looksOnline } from '@/lib/meeting'
 import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
@@ -87,7 +88,7 @@ function buildAgenda(
   // Events at the saved school address are classes: marked as a course and linked to one when the title matches.
   const asClass = (e: CalendarEvent): Partial<AgendaItem> | null => {
     if (!isClass(e, school)) return null
-    const course = matchCourse(e.title, courses)
+    const course = courseOf(e, courses)
     const link = e.link ?? course?.links.find((l) => l.kind === 'meeting')?.url
     const online = e.online || looksOnline(e.link, e.title) || undefined
     return {
@@ -188,6 +189,11 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     (patch: Partial<Profile>) => setStoredProfile((p) => ({ name: '', ...p, ...patch, updatedAt: Date.now() })),
     [setStoredProfile],
   )
+
+  // Courses follow their calendar classes' names (lib/courseLink.ts); only changes are written, so this settles.
+  useEffect(() => {
+    for (const { id, patch } of courseCalendarPatches(courses.items, calendar.events, profile.school)) courses.update(id, patch)
+  }, [courses, calendar.events, profile.school])
 
   const agenda = useMemo(
     () => buildAgenda(courses.items, assignments.items, events.items, calendar.events, tasks.tasks, profile.school),
