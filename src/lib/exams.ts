@@ -14,7 +14,7 @@ const LOOKBACK_DAYS = 60
 
 export interface Exam {
   id: string
-  /** What the exam is about, without emoji or the word "exam": "Physics", "ΦΥΣΙΚΗ". */
+  /** What the exam is about, without the word "exam" (emoji kept): "Physics", "ΦΥΣΙΚΗ". */
   subject: string
   date: Date
   allDay?: boolean
@@ -32,10 +32,11 @@ export const cleanTitle = (t: string) =>
 
 const EXAM_WORD = /\b(final exams?|exams?|midterms?|finals?|exam)\b|εξ[εέ]ταση|εξ[εέ]τασεις|εξετάσεις/giu
 
-/** "🚨 ΕΞΕΤΑΣΗ ΦΥΣΙΚΗ" → "ΦΥΣΙΚΗ"; "Databases exam" → "Databases". */
+/** "🚨 ΕΞΕΤΑΣΗ ΦΥΣΙΚΗ" → "🚨 ΦΥΣΙΚΗ"; "Databases exam 👾" → "Databases 👾". */
 export function examSubject(title: string): string {
-  const s = cleanTitle(title).replace(EXAM_WORD, '').replace(/^[\s:–—-]+|[\s:–—-]+$/g, '').replace(/\s+/g, ' ').trim()
-  return s || cleanTitle(title)
+  // Emoji stay in what's shown ("👾 Databases"); matching with study events uses `cleanTitle` of it.
+  const s = title.replace(EXAM_WORD, '').replace(/^[\s:–—-]+|[\s:–—-]+$/g, '').replace(/\s+/g, ' ').trim()
+  return cleanTitle(s) ? s : title.replace(/\s+/g, ' ').trim()
 }
 
 const asExam = (i: AgendaItem): Exam => ({
@@ -115,7 +116,7 @@ export interface SessionView {
 
 /** Study events in the calendar for this exam: same subject in the title, in the weeks before it. */
 export function calendarSessions(exam: Exam, events: CalendarEvent[], marks: Map<string, StudySession>): SessionView[] {
-  const key = normalize(exam.subject)
+  const key = normalize(cleanTitle(exam.subject))
   if (key.length < 3) return []
   const from = exam.date.getTime() - LOOKBACK_DAYS * DAY
   return events
@@ -129,7 +130,7 @@ export function calendarSessions(exam: Exam, events: CalendarEvent[], marks: Map
         id: e.id,
         start,
         end: e.end ? new Date(e.end) : new Date(start.getTime() + 60 * 60_000),
-        topic: topicOf(e.title, exam.subject),
+        topic: topicOf(e.title, cleanTitle(exam.subject)),
         done: marks.get(e.id)?.done ?? false,
         fromCalendar: true,
       }
