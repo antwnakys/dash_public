@@ -9,7 +9,7 @@ export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
 
   useEffect(() => {
     if (!toast) return
-    const t = window.setTimeout(onDismiss, toast.tone === 'error' ? 5000 : 2600)
+    const t = window.setTimeout(onDismiss, toast.tone === 'error' || toast.action ? 5000 : 2600)
     return () => window.clearTimeout(t)
   }, [toast, onDismiss])
 
@@ -20,7 +20,7 @@ export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
     >
       <AnimatePresence>
         {toast && (
-          <motion.p
+          <motion.div
             key={toast.id}
             role={toast.tone === 'error' ? 'alert' : 'status'}
             // Pops up from below with a little bounce; swipe it down (or sideways) to dismiss.
@@ -33,12 +33,25 @@ export function ToastHost({ onDismiss }: { onDismiss: () => void }) {
             dragElastic={0.6}
             onDragEnd={(_, info) => (info.offset.y > 30 || Math.abs(info.offset.x) > 80) && onDismiss()}
             className={cn(
-              'material pointer-events-auto max-w-sm cursor-grab touch-none rounded-full px-4 py-2.5 text-subhead font-medium active:cursor-grabbing',
+              'material pointer-events-auto flex max-w-sm cursor-grab touch-none items-center gap-3 rounded-full px-4 py-2.5 text-subhead font-medium active:cursor-grabbing',
+              toast.action && 'py-1.5 pe-1.5',
               toast.tone === 'error' ? 'text-danger' : 'text-ink',
             )}
           >
-            {toast.message}
-          </motion.p>
+            <span>{toast.message}</span>
+            {toast.action && (
+              <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => {
+                  toast.action?.run()
+                  onDismiss()
+                }}
+                className="shrink-0 rounded-full bg-fill px-3 py-1.5 font-semibold text-accent hover:bg-fill-strong"
+              >
+                {toast.action.label}
+              </button>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
