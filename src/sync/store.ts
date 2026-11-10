@@ -5,7 +5,7 @@
  */
 import type { SyncDoc, SyncRecord, Tombstones } from './merge'
 
-export const COLLECTION_KEYS = ['unidash.courses.v1', 'unidash.assignments.v1', 'unidash.events.v1', 'unidash.tasks.v1', 'unidash.study.v1', 'unidash.examResults.v1'] as const
+export const COLLECTION_KEYS = ['unidash.courses.v1', 'unidash.assignments.v1', 'unidash.events.v1', 'unidash.tasks.v1', 'unidash.study.v1', 'unidash.examResults.v1', 'unidash.focus.v1'] as const
 export const PROFILE_KEY = 'unidash.profile.v1'
 export const TOMBSTONES_KEY = 'unidash.deleted.v1'
 const SYNCED = new Set<string>([...COLLECTION_KEYS, PROFILE_KEY, TOMBSTONES_KEY])

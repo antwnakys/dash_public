@@ -28,6 +28,17 @@ export const minutesLabel = (m: number) => {
   return h ? [hours.format(h), rest ? minutes.format(rest) : ''].filter(Boolean).join(' ') : minutes.format(m)
 }
 
+const narrowDuration = Duration ? new Duration(locale, { style: 'narrow' }) : undefined
+const narrowUnit = (u: 'hour' | 'minute') => new Intl.NumberFormat(locale, { style: 'unit', unit: u, unitDisplay: 'narrow' })
+
+/** "1h 15m", for tight spots like stat tiles. */
+export const minutesShort = (m: number) => {
+  const h = Math.floor(m / 60)
+  const rest = m % 60
+  if (narrowDuration) return narrowDuration.format(h ? { hours: h, ...(rest ? { minutes: rest } : {}) } : { minutes: m })
+  return h ? [narrowUnit('hour').format(h), rest ? narrowUnit('minute').format(rest) : ''].filter(Boolean).join(' ') : narrowUnit('minute').format(m)
+}
+
 /** Days a monthly pass can run out on (29–31 don't exist every month). */
 export const passDays = Array.from({ length: 28 }, (_, i) => i + 1)
 

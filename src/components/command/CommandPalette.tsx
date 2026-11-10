@@ -10,6 +10,8 @@ import {
   Plus,
   Search,
   Settings,
+  Timer,
+  NotebookPen,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -47,6 +49,7 @@ const SHORTCUTS: Array<[string, string]> = [
   [paletteKey, t('pal.palette')],
   ['N', t('pal.new')],
   ['T', t('pal.addTask')],
+  ['F', t('focus.title')],
   [`1–${views.length}`, t('nav.sections')],
   ['/', t('pal.search')],
   ['Esc', t('common.close')],
@@ -57,7 +60,7 @@ const SHORTCUTS: Array<[string, string]> = [
  * or add a task straight from what you typed (read with quick add, shown before Enter).
  */
 export function CommandPalette() {
-  const { palette, setPalette, tasks, courses, agenda, setView, openEditor, notify } = useDashboard()
+  const { palette, setPalette, tasks, courses, agenda, setView, openEditor, notify, setFocusOpen } = useDashboard()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const input = useRef<HTMLInputElement>(null)
@@ -118,6 +121,10 @@ export function CommandPalette() {
     views.forEach((v, i) => {
       if (matches(q, v.label, `go open show ${v.id}`)) out.push({ id: `go-${v.id}`, group: t('pal.gGo'), label: v.label, icon: v.icon, keys: String(i + 1), run: () => go(v.id) })
     })
+    if (matches(q, t('focus.title'), t('pal.focusWords'), 'focus timer pomodoro study'))
+      out.push({ id: 'focus', group: t('pal.gGo'), label: t('focus.title'), icon: Timer, keys: 'F', run: () => (close(), setFocusOpen(true)) })
+    if (matches(q, t('rev.title'), 'weekly review week plan'))
+      out.push({ id: 'review', group: t('pal.gGo'), label: t('rev.title'), icon: NotebookPen, run: () => open({ type: 'review' }) })
     if (matches(q, t('nav.settings'), t('pal.settingsWords'), 'settings preferences backup language theme'))
       out.push({ id: 'settings', group: t('pal.gGo'), label: t('nav.settings'), icon: Settings, run: () => open({ type: 'settings' }) })
     if (q) {

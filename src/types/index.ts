@@ -31,6 +31,16 @@ export interface Task {
   tags?: string[]
 }
 
+/** A finished stretch of focus time (Focus timer); synced. */
+export interface FocusSession {
+  id: string
+  /** ISO timestamp of the start. */
+  start: string
+  minutes: number
+  taskId?: string
+  courseId?: string
+}
+
 export interface CourseLink {
   label: string
   url: string
@@ -214,6 +224,7 @@ export type EditorTarget =
   | { type: 'exam'; id?: string }
   | { type: 'examResult'; id: string; subject: string; date: string; allDay?: boolean; courseId?: string; source?: 'assignment' | 'event' | 'calendar' | 'task' }
   | { type: 'task'; id?: string }
+  | { type: 'review' }
   | { type: 'new' }
   | { type: 'settings'; section?: 'calendar' | 'commute' }
 

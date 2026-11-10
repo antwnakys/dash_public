@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Plus, Search, Settings } from 'lucide-react'
+import { Plus, Search, Settings, Timer } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
@@ -14,7 +14,7 @@ const item =
 
 /** Floating glass sidebar for screens 1024px and wider. */
 export function Sidebar() {
-  const { view, setView, openEditor, setPalette } = useDashboard()
+  const { view, setView, openEditor, setPalette, setFocusOpen, focus } = useDashboard()
 
   return (
     <nav
@@ -65,7 +65,11 @@ export function Sidebar() {
         })}
       </ul>
 
-      <button onClick={() => openEditor({ type: 'settings' })} className={cn(item, 'mt-auto text-muted hover:bg-fill hover:text-ink')}>
+      <button onClick={() => setFocusOpen(true)} title={`${t('focus.title')} (F)`} className={cn(item, 'mt-auto text-muted hover:bg-fill hover:text-ink')}>
+        <Timer aria-hidden className={cn('size-[18px]', focus.running && 'text-accent')} strokeWidth={2} />
+        {t('focus.title')}
+      </button>
+      <button onClick={() => openEditor({ type: 'settings' })} className={cn(item, 'text-muted hover:bg-fill hover:text-ink')}>
         <Settings aria-hidden className="size-[18px]" strokeWidth={2} />
         {t('nav.settings')}
       </button>

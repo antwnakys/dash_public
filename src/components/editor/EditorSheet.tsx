@@ -11,6 +11,7 @@ import { NewChooser } from './NewChooser'
 import { SettingsForm } from './SettingsForm'
 import { Sheet } from './Sheet'
 import { TaskForm } from './TaskForm'
+import { WeeklyReview } from '@/components/today/WeeklyReview'
 import { t } from '@/i18n'
 
 const titles = {
@@ -53,6 +54,8 @@ export function EditorSheet() {
           ? target && idOf(target) ? t('editor.editTask') : t('editor.newTask')
           : type === 'examResult'
             ? t('res.title')
+            : type === 'review'
+              ? t('rev.title')
             : type
             ? titles[type][target && idOf(target) ? 1 : 0]
             : ''
@@ -65,6 +68,7 @@ export function EditorSheet() {
             <Segmented label={t('editor.whatToAdd')} options={newKinds} value={newKind} onChange={setNewKind} block />
           )}
           {type === 'new' && <NewChooser />}
+          {type === 'review' && <WeeklyReview onDone={closeEditor} />}
           {type === 'task' && <TaskForm id={target.type === 'task' ? target.id : undefined} onDone={closeEditor} />}
           {type === 'course' && <CourseForm id={idOf(target)} onDone={closeEditor} />}
           {type === 'deadline' && (

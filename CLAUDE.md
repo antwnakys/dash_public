@@ -214,6 +214,17 @@ not listed here works as described in the original's `CLAUDE.md`.
   the typed line. Shortcuts in AppShell: N new, T focus the quick-add box (`[data-page] [data-quick-add]`), 1–5 sections.
   `lib/keys.ts` `paletteKey` shows ⌘K on Apple devices, Ctrl K elsewhere. `--radius-button`/`--radius-chrome` added to
   `index.css` for the copied components.
+- **Focus timer, weekly review, This week** (Nov 10, ported from dash): `components/focus/FocusMode.tsx` (full-screen
+  timer 25/5, 50/10, 90/15 or custom; optional task + course; Space starts/pauses) + `FocusPill` while closed;
+  `hooks/useFocusTimer.ts` (state per device in `unidash.focusTimer.v1`, survives reloads; finished focus ≥ 5 min goes to
+  the synced `unidash.focus.v1` collection, `FocusSession`); chime + toast at the end of a phase (`lib/focusNotify.ts`,
+  also iPhone/Mac alerts for later). Opened with F, the sidebar's Focus timer, ⌘K, or This week → Focus timer.
+  `components/today/WeekCard.tsx` on Today: done this week, due by Sunday, focus time, **next exam with its countdown**,
+  Mon–Sun load strip; Review opens `components/today/WeeklyReview.tsx` (editor target `review`: done, handed in, focus,
+  past-due tasks → tomorrow / Monday / tick, unsubmitted deadlines → Handed in, next week, Plan next week → Calendar).
+  Durations: `minutesLabel` (long) and `minutesShort` ("1h 15m", stat tiles) in `lib/setup.ts`. Narrow weekday letters:
+  `fmt.weekdayNarrow` (never slice weekday names: Arabic ones all start with the same letter). `RollingTime` is always
+  laid out left to right (it reversed the clock in Arabic). Privacy page lists focus time among stored data.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -245,8 +256,9 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
-  tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. Next: (3) focus
-  timer, weekly review, exam countdowns; (4) calendar Day/Week + drag, course colours/notes/links/Workload.
+  tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
+  weekly review, This week card with the next exam's countdown. Next: (4) calendar Day/Week + drag, course
+  colours/notes/links/Workload.
 
 ## Next up
 
