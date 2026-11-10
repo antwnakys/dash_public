@@ -820,6 +820,10 @@ const dict: Dict = {
   "cc.tasks_one": "この科目の未完了タスク {n} 件",
   "cc.tasks_other": "この科目の未完了タスク {n} 件",
   "cal.day": "日",
+  "set.design": "デザイン",
+  "set.designClassic": "クラシック",
+  "set.designObsidian": "オブシディアン",
+  "set.designHint": "デザインはこのデバイスに保存されます。オブシディアンはダークモードで黒いガラス、ライトモードで白とグラファイトです。",
 }
 
 export default dict

@@ -243,3 +243,5 @@ export type EditorTarget =
   | { type: 'settings'; section?: 'calendar' | 'commute' }
 
 export type ThemePreference = 'system' | 'light' | 'dark'
+/** The design, per device: Classic (default) or Obsidian (black glass / white and graphite). */
+export type LookPreference = 'classic' | 'obsidian'

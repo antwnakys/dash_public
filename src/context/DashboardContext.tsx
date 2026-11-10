@@ -17,7 +17,7 @@ import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
-import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, FocusSession, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
+import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, FocusSession, LookPreference, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
 import { t } from '@/i18n'
 
@@ -65,7 +65,12 @@ interface DashboardValue {
   closeEditor: () => void
   loadSample: () => void
   clearAll: () => void
-  theme: { preference: ThemePreference; resolved: 'light' | 'dark'; setPreference: (p: ThemePreference) => void }
+  theme: {
+    preference: ThemePreference
+    resolved: 'light' | 'dark'
+    setPreference: (p: ThemePreference) => void
+    look: { preference: LookPreference; setPreference: (p: LookPreference) => void }
+  }
   toast: Toast | null
   /** Brief confirmation or error shown above the navigation. */
   notify: (message: string, tone?: Toast['tone'], action?: Toast['action']) => void

@@ -18,6 +18,10 @@
         var t = JSON.parse(localStorage.getItem('unidash.theme.v1'))
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
       } catch (e) {}
+      // The design (Settings → Appearance), per device: Classic unless Obsidian was chosen.
+      try {
+        if (JSON.parse(localStorage.getItem('unidash.look.v1')) === 'obsidian') document.documentElement.dataset.look = 'obsidian'
+      } catch (e) {}
     </script>
     <title>unidash</title>
   </head>

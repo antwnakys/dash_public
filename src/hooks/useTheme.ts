@@ -2,7 +2,7 @@ import { registerPlugin } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { useEffect, useState } from 'react'
 import { isNative } from '@/lib/native'
-import type { ThemePreference } from '@/types'
+import type { LookPreference, ThemePreference } from '@/types'
 import { useLocalStorage } from './useLocalStorage'
 
 /** Native side in ios/App/App/SceneDelegate.swift: matches iOS's colours behind the page to dash's theme. */
@@ -10,7 +10,10 @@ const DashTheme = registerPlugin<{ set(options: { style: ThemePreference }): Pro
 
 const media = () => window.matchMedia('(prefers-color-scheme: dark)')
 
-/** Light/dark preference: applied to <html data-theme> and the iOS status bar. */
+/**
+ * Light/dark preference: applied to <html data-theme> and the iOS status bar. Plus the design (`look`): Classic (the
+ * default) or Obsidian, per device (not synced), applied as <html data-look="obsidian">.
+ */
 export function useTheme() {
   const [stored, setStored] = useLocalStorage<ThemePreference>('unidash.theme.v1')
   const preference = stored ?? 'system'
@@ -22,6 +25,13 @@ export function useTheme() {
     m.addEventListener('change', onChange)
     return () => m.removeEventListener('change', onChange)
   }, [])
+
+  const [storedLook, setStoredLook] = useLocalStorage<LookPreference>('unidash.look.v1')
+  const look: LookPreference = storedLook === 'obsidian' ? 'obsidian' : 'classic'
+  useEffect(() => {
+    if (look === 'obsidian') document.documentElement.dataset.look = 'obsidian'
+    else delete document.documentElement.dataset.look
+  }, [look])
 
   const resolved: 'light' | 'dark' = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference
 
@@ -36,5 +46,10 @@ export function useTheme() {
     }
   }, [preference, resolved])
 
-  return { preference, resolved, setPreference: (p: ThemePreference) => setStored(p) }
+  return {
+    preference,
+    resolved,
+    setPreference: (p: ThemePreference) => setStored(p),
+    look: { preference: look, setPreference: (p: LookPreference) => setStoredLook(p) },
+  }
 }

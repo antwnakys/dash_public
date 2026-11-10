@@ -834,6 +834,10 @@ const dict: Dict = {
   "cc.tasks_one": "इस विषय का {n} बाकी काम",
   "cc.tasks_other": "इस विषय के {n} बाकी काम",
   "cal.day": "दिन",
+  "set.design": "डिज़ाइन",
+  "set.designClassic": "क्लासिक",
+  "set.designObsidian": "ऑब्सिडियन",
+  "set.designHint": "डिज़ाइन इसी डिवाइस पर सेव होता है। ऑब्सिडियन डार्क मोड में काला काँच और लाइट मोड में सफ़ेद व ग्रेफ़ाइट है।",
 }
 
 export default dict

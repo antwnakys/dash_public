@@ -834,6 +834,10 @@ const dict: Dict = {
   "cc.tasks_one": "{n} ανοιχτή εργασία για το μάθημα",
   "cc.tasks_other": "{n} ανοιχτές εργασίες για το μάθημα",
   "cal.day": "Ημέρα",
+  "set.design": "Σχεδίαση",
+  "set.designClassic": "Κλασική",
+  "set.designObsidian": "Obsidian",
+  "set.designHint": "Η σχεδίαση αποθηκεύεται σε αυτή τη συσκευή. Το Obsidian είναι μαύρο γυαλί στο σκούρο θέμα και λευκό με γραφίτη στο φωτεινό.",
 }
 
 export default dict

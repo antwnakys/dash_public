@@ -820,6 +820,10 @@ const dict: Dict = {
   "cc.tasks_one": "이 과목의 남은 할 일 {n}개",
   "cc.tasks_other": "이 과목의 남은 할 일 {n}개",
   "cal.day": "일",
+  "set.design": "디자인",
+  "set.designClassic": "클래식",
+  "set.designObsidian": "옵시디언",
+  "set.designHint": "디자인은 이 기기에 저장돼요. 옵시디언은 다크 모드에서 검은 유리, 라이트 모드에서 흰색과 흑연색이에요.",
 }
 
 export default dict

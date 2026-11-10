@@ -835,6 +835,10 @@ export const en = {
   "cc.tasks_one": "{n} open task for this course",
   "cc.tasks_other": "{n} open tasks for this course",
   "cal.day": "Day",
+  "set.design": "Design",
+  "set.designClassic": "Classic",
+  "set.designObsidian": "Obsidian",
+  "set.designHint": "The design is saved on this device. Obsidian is black glass in dark mode and white and graphite in light mode.",
 } as const
 
 export type Key = keyof typeof en

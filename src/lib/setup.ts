@@ -24,7 +24,8 @@ const duration = Duration ? new Duration(locale, { style: 'short' }) : undefined
 export const minutesLabel = (m: number) => {
   const h = Math.floor(m / 60)
   const rest = m % 60
-  if (duration) return duration.format(h ? { hours: h, ...(rest ? { minutes: rest } : {}) } : { minutes: m })
+  // DurationFormat writes nothing for zero, so 0 is spelled out.
+  if (duration && m > 0) return duration.format(h ? { hours: h, ...(rest ? { minutes: rest } : {}) } : { minutes: m })
   return h ? [hours.format(h), rest ? minutes.format(rest) : ''].filter(Boolean).join(' ') : minutes.format(m)
 }
 
@@ -35,7 +36,7 @@ const narrowUnit = (u: 'hour' | 'minute') => new Intl.NumberFormat(locale, { sty
 export const minutesShort = (m: number) => {
   const h = Math.floor(m / 60)
   const rest = m % 60
-  if (narrowDuration) return narrowDuration.format(h ? { hours: h, ...(rest ? { minutes: rest } : {}) } : { minutes: m })
+  if (narrowDuration && m > 0) return narrowDuration.format(h ? { hours: h, ...(rest ? { minutes: rest } : {}) } : { minutes: m })
   return h ? [narrowUnit('hour').format(h), rest ? narrowUnit('minute').format(rest) : ''].filter(Boolean).join(' ') : narrowUnit('minute').format(m)
 }
 
