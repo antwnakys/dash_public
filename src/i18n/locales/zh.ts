@@ -626,6 +626,7 @@ const dict: Dict = {
   "place.mapLabel": "你的学校",
   "place.dragHint": "把图钉拖到你的教学楼上，或在地图上点它所在的位置。",
   "pp.svcPhoton": "Komoot 的 Photon（OpenStreetMap 数据），在你搜索学校时提供建议：你输入的文字，以及你保存过的大致住址，以便先显示附近的地点。",
+  "place.searchMore": "搜索地址“{q}”",
 }
 
 export default dict

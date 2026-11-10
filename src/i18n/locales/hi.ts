@@ -640,6 +640,7 @@ const dict: Dict = {
   "place.mapLabel": "आपका कॉलेज",
   "place.dragHint": "पिन को अपनी इमारत पर खींचें, या मानचित्र पर उस जगह टैप करें।",
   "pp.svcPhoton": "Komoot का Photon (OpenStreetMap डेटा), कॉलेज खोजते समय सुझावों के लिए: आपका लिखा टेक्स्ट और, अगर सहेजा है तो, आप लगभग कहाँ रहते हैं, ताकि पास की जगहें पहले दिखें।",
+  "place.searchMore": "“{q}” के पते खोजें",
 }
 
 export default dict

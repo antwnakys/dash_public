@@ -641,6 +641,7 @@ export const en = {
   "place.mapLabel": "Your school",
   "place.dragHint": "Drag the pin onto your building, or tap the map where it is.",
   "pp.svcPhoton": "Photon by Komoot (OpenStreetMap data), for suggestions while you search for your school: the text you type, and roughly where you live if you saved it, so nearby places come first.",
+  "place.searchMore": "Search addresses for “{q}”",
 } as const
 
 export type Key = keyof typeof en

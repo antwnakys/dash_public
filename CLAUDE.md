@@ -189,6 +189,11 @@ not listed here works as described in the original's `CLAUDE.md`.
   The exact position is `profile.school.place`, so it syncs with the profile like everything else. Typing an address by
   hand still works (looked up on save as before). Privacy page lists Photon (`pp.svcPhoton`). Chosen over Google Maps
   (needs billing + a public key) on Nov 10.
+  Fixes after the first try (Nov 10): suggestions sit in the page flow under the box (a floating list was painted over by
+  the setup's animated fields); with nothing saved, results are biased to the main city of the device's time zone
+  (`zoneCentre`, read on the device); a **"Search addresses for …"** row (and Enter with no suggestion) runs one Nominatim
+  search on request (`searchAddresses`, viewbox ~100 km) for schools OSM doesn't know by name: find the street and
+  number, then drag the pin. Nominatim forbids search-as-you-type, so it never runs on each keystroke.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -217,7 +222,8 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 9, 2026 (evening)**: animations + first-screen fix copied into Antonis's own dash (antwnakys/dash#29). unidash got
   offline support, the Home Screen card, Settings → Feedback and a full Delete all data (device + Drive + revoke).
   Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
-- **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free).
+- **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
+  list, local results first, and "Search addresses" for schools not listed by name.
 
 ## Next up
 

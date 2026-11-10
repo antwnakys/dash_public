@@ -626,6 +626,7 @@ const dict: Dict = {
   "place.mapLabel": "Kampusmu",
   "place.dragHint": "Seret pin ke gedungmu, atau ketuk peta di lokasinya.",
   "pp.svcPhoton": "Photon dari Komoot (data OpenStreetMap), untuk saran saat kamu mencari kampus: teks yang kamu ketik dan, jika disimpan, kira-kira tempat tinggalmu, agar tempat terdekat muncul lebih dulu.",
+  "place.searchMore": "Cari alamat untuk “{q}”",
 }
 
 export default dict

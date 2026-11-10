@@ -640,6 +640,7 @@ const dict: Dict = {
   "place.mapLabel": "Ton établissement",
   "place.dragHint": "Fais glisser l’épingle sur ton bâtiment, ou touche la carte à son emplacement.",
   "pp.svcPhoton": "Photon de Komoot (données OpenStreetMap), pour les suggestions pendant que tu cherches ton établissement : le texte saisi et, si tu l’as enregistré, à peu près où tu habites, pour afficher d’abord les lieux proches.",
+  "place.searchMore": "Chercher les adresses pour « {q} »",
 }
 
 export default dict
