@@ -9,7 +9,10 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "icons": "node scripts/icons.mjs",
-    "i18n:check": "node scripts/check-i18n.mjs"
+    "i18n:check": "node scripts/check-i18n.mjs",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "testflight": "scripts/testflight.sh"
   },
   "dependencies": {
     "@capacitor/core": "^8.6.0",

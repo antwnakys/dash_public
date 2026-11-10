@@ -142,7 +142,11 @@ not listed here works as described in the original's `CLAUDE.md`.
 - `src/config.ts`: `SITE_URL` and the Google client IDs. Web client ID set (Cloud project "unidash", Testing mode,
   origin `https://antwnakys.github.io`, redirect `https://antwnakys.github.io/dash_public/`, Calendar + Drive APIs on).
   iOS client ID empty until there's an iPhone app (Google buttons hide when the ID for the platform is empty).
-- Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac/iPhone build files.
+- **iPhone project** (Nov 10, `ios/`, copied from dash): bundle id `com.antwnakys.unidash`, display name unidash, team
+  `H739SB5FKP`; no Google URL scheme yet (no iOS client); `DashTheme` plugin kept, `DashApp` (expiry) removed.
+  `scripts/testflight.sh` (`TEAM_ID=H739SB5FKP npm run testflight` on a Mac), `testflight.yml` (needs 4 secrets),
+  `ios.yml` compiles on PRs touching native files. Steps in `docs/IPHONE.md`. `npm run ios:sync` = build + cap sync.
+- Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
 - **Languages** (`src/i18n/`): 16 languages: en (source, `en.ts`), el, es, fr, de, it, pt, ru, tr, zh, ja, ko, hi, id,
@@ -297,6 +301,7 @@ not listed here works as described in the original's `CLAUDE.md`.
   for classmates: reminders, home-screen icon, native Google sign-in), then the App Store after feedback + Google
   verification (needed so non-test users and Apple's reviewer can sign in) + a privacy policy page. Risks noted:
   guideline 4.2 (web wrapper; native features help), Sign in with Apple (Google is used only for Calendar/Drive).
-  Options offered: 1 TestFlight first, 2 straight to App Store, 3 wait. **He'll decide later**; don't start until he does.
+  Options offered: 1 TestFlight first, 2 straight to App Store, 3 wait. **Nov 10: he asked to start** (files prepared,
+  build from a Mac user account through Remote Control: clone to `~/unidash`, Claude builds and uploads).
   Needs from him: App Store Connect app record, and either an App Store Connect API key in GitHub secrets (CI build)
   or a build from his Mac with Xcode. Bundle id planned: `com.antwnakys.unidash` (already in `capacitor.config.ts`).
