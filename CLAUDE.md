@@ -200,6 +200,20 @@ not listed here works as described in the original's `CLAUDE.md`.
   Toasts can carry one action (`notify(msg, tone, {label, run})`, used for **Undo**). Deleting a course or exam:
   `components/ui/ConfirmButton.tsx` (press twice) + Undo; Delete all data also presses twice. "Load sample data" only
   shows while there's no data. Never use `window.confirm()` (the future Mac app ignores it).
+- **Tasks and ⌘K** (Nov 10, ported from dash): optional `Task` fields `priority` (1 high … 3 low), `notes`, `subtasks`,
+  `repeat`, `completedAt`, `tags` (no projects in unidash). **Quick add** (`lib/quickAdd.ts`): dates, times, `!`/`!!`/`!!!`,
+  `#college`, repeats and `#tags` read from the typed line, shown as chips before Enter (× keeps a phrase in the title).
+  English and Greek have their own rules; every other language also gets its today/tomorrow/day-after and weekday
+  names from `Intl` (`localRules`; CJK words match without spaces; Hindi/Urdu "kal" is skipped because it also means
+  yesterday). So `tasks.addHint` examples in each language must use that language's full weekday name + "18:00".
+  Ticking a repeating task files it and adds the next (`nextOccurrence` in `hooks/useTasks.ts`). Tasks tab =
+  `TaskList full`: Inbox / Open / Today / Upcoming / Done, search (title, notes, steps, `#tag`), category, sort
+  (`lib/taskViews.ts`); deleting gives Undo (`hooks/useTaskActions.ts`). Task sheet: priority, repeat, steps, tags, notes.
+  **Command palette** (`components/command/CommandPalette.tsx`, `palette`/`setPalette` in context): ⌘K/Ctrl K or `/`,
+  the sidebar Search box, 🔍 in the page header on phones; searches tasks, courses, agenda; Create; Go to; Add task from
+  the typed line. Shortcuts in AppShell: N new, T focus the quick-add box (`[data-page] [data-quick-add]`), 1–5 sections.
+  `lib/keys.ts` `paletteKey` shows ⌘K on Apple devices, Ctrl K elsewhere. `--radius-button`/`--radius-chrome` added to
+  `index.css` for the copied components.
 - **Motion** (`src/lib/motion.ts`): shared springs `snappy` (taps, toggles, highlights), `smooth` (pages, sheets, lists,
   no overshoot), `gentle` (entrances), `bouncy` (delight: checkbox, + button, setup finish); `blur()` only on pointer
   devices; `press` for tap feedback. CSS twins `--spring-snappy/--spring-smooth` (`linear()`) in `index.css`, used by
@@ -230,7 +244,9 @@ not listed here works as described in the original's `CLAUDE.md`.
   Also exam results: score + passed/failed, a history, and finished exams leave the upcoming list.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
-- **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete.
+- **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
+  tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. Next: (3) focus
+  timer, weekly review, exam countdowns; (4) calendar Day/Week + drag, course colours/notes/links/Workload.
 
 ## Next up
 

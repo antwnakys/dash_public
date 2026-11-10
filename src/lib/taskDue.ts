@@ -1,4 +1,4 @@
-import { dayDiff, fmt } from './date'
+import { addDays, dayDiff, fmt, isSameDay } from './date'
 import type { Task } from '@/types'
 import { t } from '@/i18n'
 
@@ -22,4 +22,11 @@ export function overdueFirst(tasks: Task[], now: Date): Task[] {
   const late = tasks.filter((t) => !t.done && dueInfo(t, now)?.state === 'overdue').sort((a, b) => a.due!.localeCompare(b.due!))
   const ids = new Set(late.map((t) => t.id))
   return [...late, ...tasks.filter((t) => !ids.has(t.id))]
+}
+
+/** "Tomorrow 18:00", "Fri 13 Nov", "Today". */
+export function dueText(due: string, allDay?: boolean, now = new Date()): string {
+  const d = new Date(due)
+  const day = isSameDay(d, now) ? t('due.today') : isSameDay(d, addDays(now, 1)) ? t('due.tomorrow') : fmt.shortDate.format(d)
+  return allDay ? day : `${day} ${fmt.time.format(d)}`
 }
