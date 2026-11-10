@@ -273,6 +273,10 @@ not listed here works as described in the original's `CLAUDE.md`.
 
 ## Next up
 
+- **Ported from dash on Nov 10 (all four stages live)**: backups/Undo, stronger tasks + ⌘K, focus timer + weekly
+  review + This week, calendar Day/Week + drag, course colours/notes/links/Workload. Still only in dash: Projects,
+  Goals, the Obsidian/Graphite looks and the Dashboard-style Today. The Obsidian look for unidash was offered as an
+  optional last step; wait for Antonis's choice before changing unidash's design.
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.
 - Share with classmates, collect feedback. Later: Google verification (needs privacy URL = done, a demo video, likely a
