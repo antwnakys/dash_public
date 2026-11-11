@@ -101,7 +101,15 @@ needs_app_groups=$(grep -l application-groups "$ROOT"/ios/App/*/*.entitlements 2
 if [ -n "${ASC_KEY_ID:-}" ]; then
   # CI: an unsigned archive, signed in the cloud while exporting (no development certificate piles up per run).
   # If Xcode won't export it, fall back to a normal signed archive.
-  if archive CODE_SIGNING_ALLOWED=NO; then
+  # With an App Group the archive is signed "to run locally" (no certificate needed) so the entitlements file is
+  # written into the binary; the cloud-signed export then asks Apple for a profile with those entitlements. An
+  # unsigned archive has none, and the export quietly signs without the App Group.
+  if [ -n "$needs_app_groups" ]; then
+    unsigned=(CODE_SIGN_IDENTITY=- AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER= PROVISIONING_PROFILE=)
+  else
+    unsigned=(CODE_SIGNING_ALLOWED=NO)
+  fi
+  if archive "${unsigned[@]}"; then
     if [ -n "$needs_app_groups" ] && ! check_app_groups; then
       echo "::error::Not uploaded: the App Group is missing from the signature (see above)."
       exit 1
