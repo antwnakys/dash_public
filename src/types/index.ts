@@ -235,6 +235,27 @@ export interface Profile {
 }
 
 /** What the editor sheet is showing. A missing id means "create new". */
+/** A file on a class note. The bytes live on each device (IndexedDB) and in Google Drive's app folder (`driveId`). */
+export interface NoteFile {
+  id: string
+  name: string
+  type: string
+  /** Bytes, after shrinking photos. */
+  size: number
+  /** Set once uploaded to Google Drive, so other devices can fetch it. */
+  driveId?: string
+}
+
+/** Notes and files for one lecture of a course (`lib/classFiles.ts`, synced as `unidash.classNotes.v1`). */
+export interface ClassNote {
+  id: string
+  courseId: string
+  /** The class day, "YYYY-MM-DD". */
+  date: string
+  text?: string
+  files?: NoteFile[]
+}
+
 export type EditorTarget =
   | { type: 'course'; id?: string }
   | { type: 'deadline'; id?: string; courseId?: string }
@@ -243,6 +264,8 @@ export type EditorTarget =
   | { type: 'examResult'; id: string; subject: string; date: string; allDay?: boolean; courseId?: string; source?: 'assignment' | 'event' | 'calendar' | 'task' }
   | { type: 'task'; id?: string }
   | { type: 'review' }
+  | { type: 'classNotes'; courseId: string }
+  | { type: 'classNote'; courseId: string; id?: string }
   | { type: 'new' }
   | { type: 'settings'; section?: 'calendar' | 'commute' }
 

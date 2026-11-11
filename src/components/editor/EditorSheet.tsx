@@ -12,6 +12,8 @@ import { SettingsForm } from './SettingsForm'
 import { Sheet } from './Sheet'
 import { TaskForm } from './TaskForm'
 import { WeeklyReview } from '@/components/today/WeeklyReview'
+import { ClassNoteForm } from '@/components/notes/ClassNoteForm'
+import { ClassNotesList } from '@/components/notes/ClassNotesList'
 import { t } from '@/i18n'
 
 const titles = {
@@ -19,6 +21,8 @@ const titles = {
   deadline: [t('editor.newDeadline'), t('editor.editDeadline')],
   event: [t('editor.newEvent'), t('editor.editEvent')],
   exam: [t('editor.newExam'), t('editor.editExam')],
+  classNote: [t('notes.new'), t('notes.edit')],
+  classNotes: [t('notes.title'), t('notes.title')],
 } as const
 
 const newKinds = [
@@ -69,6 +73,8 @@ export function EditorSheet() {
           )}
           {type === 'new' && <NewChooser />}
           {type === 'review' && <WeeklyReview onDone={closeEditor} />}
+          {target.type === 'classNotes' && <ClassNotesList courseId={target.courseId} />}
+          {target.type === 'classNote' && <ClassNoteForm courseId={target.courseId} id={target.id} />}
           {type === 'task' && <TaskForm id={target.type === 'task' ? target.id : undefined} onDone={closeEditor} />}
           {type === 'course' && <CourseForm id={idOf(target)} onDone={closeEditor} />}
           {type === 'deadline' && (

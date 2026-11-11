@@ -6,6 +6,7 @@ import { useCollection, type Collection } from '@/hooks/useCollection'
 import { useHereLocation } from '@/hooks/useHereLocation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useReminders, type RemindersState } from '@/hooks/useReminders'
+import { useClassFileUploads } from '@/hooks/useClassFileUploads'
 import { useWidget } from '@/hooks/useWidget'
 import { useFocusTimer, type FocusTimer } from '@/hooks/useFocusTimer'
 import { useTasks, type TasksApi } from '@/hooks/useTasks'
@@ -18,7 +19,7 @@ import { startOfDay } from '@/lib/date'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
-import type { AgendaItem, Assignment, CalendarEvent, Course, EditorTarget, ExamResult, FocusSession, LookPreference, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
+import type { AgendaItem, Assignment, CalendarEvent, ClassNote, Course, EditorTarget, ExamResult, FocusSession, LookPreference, Place, Profile, School, StudySession, Task, ThemePreference } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
 import { t } from '@/i18n'
 
@@ -43,6 +44,8 @@ interface DashboardValue {
   tasks: TasksApi
   /** Finished focus sessions (synced) and the timer (this device). */
   focusSessions: Collection<FocusSession>
+  /** Notes and files per lecture (synced; file bytes per device + Google Drive, `lib/classFiles.ts`). */
+  classNotes: Collection<ClassNote>
   focus: FocusTimer
   focusOpen: boolean
   setFocusOpen: (open: boolean) => void
@@ -168,6 +171,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const examResults = useCollection<ExamResult>('unidash.examResults.v1')
   const tasks = useTasks()
   const focusSessions = useCollection<FocusSession>('unidash.focus.v1')
+  const classNotes = useCollection<ClassNote>('unidash.classNotes.v1')
   const location = useHereLocation(profile.autoLocation === true)
   const weather = useWeather(location.here ?? profile.place ?? profile.home)
   const calendar = useCalendarSync(profile.calendarUrls)
@@ -208,6 +212,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
   const reminders = useReminders(agenda, courses.items, profile)
   useWidget(agenda, courses.items, profile.commute)
+  // Class-note files added offline or before connecting go up to Drive once signed in.
+  useClassFileUploads(classNotes, Boolean(calendar.google.account))
 
   const loadSample = useCallback(() => {
     const s = sampleData()
@@ -234,6 +240,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     examResults,
     tasks,
     focusSessions,
+    classNotes,
     focus,
     focusOpen,
     setFocusOpen,

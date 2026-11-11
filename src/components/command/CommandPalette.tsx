@@ -20,7 +20,7 @@ import { cn } from '@/lib/cn'
 import { paletteKey } from '@/lib/keys'
 import { blur, spring } from '@/lib/motion'
 import { parseQuickAdd, priorityLabel, quickFields, repeatLabel } from '@/lib/quickAdd'
-import { countdown } from '@/lib/date'
+import { countdown, fmt } from '@/lib/date'
 import { dueText } from '@/lib/taskDue'
 import { views, type ViewId } from '@/views'
 import type { EditorTarget } from '@/types'
@@ -60,7 +60,7 @@ const SHORTCUTS: Array<[string, string]> = [
  * or add a task straight from what you typed (read with quick add, shown before Enter).
  */
 export function CommandPalette() {
-  const { palette, setPalette, tasks, courses, agenda, setView, openEditor, notify, setFocusOpen } = useDashboard()
+  const { palette, setPalette, tasks, courses, agenda, setView, openEditor, notify, setFocusOpen, classNotes } = useDashboard()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const input = useRef<HTMLInputElement>(null)
@@ -143,6 +143,17 @@ export function CommandPalette() {
         })
       for (const c of courses.items.filter((c) => matches(q, c.name, c.code)).slice(0, 4))
         out.push({ id: `course-${c.id}`, group: t('nav.courses'), label: c.name, detail: c.code || undefined, icon: GraduationCap, run: () => open({ type: 'course', id: c.id }) })
+      for (const n of classNotes.items.filter((n) => matches(q, n.text, ...(n.files ?? []).map((f) => f.name))).slice(0, 4)) {
+        const course = courses.items.find((c) => c.id === n.courseId)
+        out.push({
+          id: `note-${n.id}`,
+          group: t('notes.title'),
+          label: n.text?.split('\n')[0].slice(0, 80) || n.files?.[0]?.name || t('notes.title'),
+          detail: [course?.name, fmt.shortDate.format(new Date(`${n.date}T12:00`))].filter(Boolean).join(' · '),
+          icon: NotebookPen,
+          run: () => open({ type: 'classNote', courseId: n.courseId, id: n.id }),
+        })
+      }
       const seen = new Set<string>()
       for (const a of agenda.filter((a) => a.kind !== 'task' && matches(q, a.title, a.context))) {
         if (seen.has(a.title) || seen.size >= 5) continue
