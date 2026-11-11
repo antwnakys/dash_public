@@ -828,6 +828,7 @@ const dict: Dict = {
   "widget.due": "마감 {time}",
   "widget.nothing": "예정된 일정 없음",
   "widget.now": "지금",
+  "cc.handedIn": "‘{title}’을(를) 제출함으로 표시했어요",
 }
 
 export default dict

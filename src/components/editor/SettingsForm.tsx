@@ -118,12 +118,17 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
   return (
     <div className="flex flex-col gap-8">
-      <FormGroup title={t('set.appearance')} footer={t('set.designHint')}>
+      <FormGroup title={t('set.appearance')}>
         <div className="flex flex-col gap-1.5">
           <span className="px-1 text-subhead font-medium text-muted">{t('set.design')}</span>
           <Segmented label={t('set.design')} options={looks} value={theme.look.preference} onChange={theme.look.setPreference} block />
+          {/* The note belongs to the Design choice, not to the language below. */}
+          <p className="px-1 text-caption text-muted">{t('set.designHint')}</p>
         </div>
-        <Segmented label={t('set.theme')} options={themes} value={theme.preference} onChange={theme.setPreference} block />
+        <div className="flex flex-col gap-1.5">
+          <span className="px-1 text-subhead font-medium text-muted">{t('set.theme')}</span>
+          <Segmented label={t('set.theme')} options={themes} value={theme.preference} onChange={theme.setPreference} block />
+        </div>
         <Field label={t('set.language')}>
           <Select value={langIsChosen() ? lang : ''} onChange={(e) => setLanguage((e.target.value || undefined) as LangCode | undefined)}>
             <option value="">{t('set.languageAuto', { name: languages.find((l) => l.code === lang)?.name ?? lang })}</option>

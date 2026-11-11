@@ -828,6 +828,7 @@ const dict: Dict = {
   "widget.due": "締切 {time}",
   "widget.nothing": "予定はありません",
   "widget.now": "今",
+  "cc.handedIn": "「{title}」を提出済みにしました",
 }
 
 export default dict

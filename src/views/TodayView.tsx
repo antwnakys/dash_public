@@ -33,7 +33,7 @@ function useSummary(now: Date) {
       {deadline && (
         <>
           {' '}
-          {t('today.nextDue')} <span className="text-ink">{deadline.title}</span>, {countdown(deadline.date, now)}.
+          {t('today.nextDue')} <span className="text-ink">{deadline.title}</span>, {countdown(deadline.date, now).replace(/\.$/, '')}.
         </>
       )}
     </>

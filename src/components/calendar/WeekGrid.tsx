@@ -4,6 +4,7 @@ import { useMoveItem } from '@/hooks/useMoveItem'
 import { editTarget, isMovable, kindLabel } from '@/lib/agenda'
 import { dayEntries, type CalEntry } from '@/lib/calendarDay'
 import { cn } from '@/lib/cn'
+import { courseTint } from '@/lib/courseColor'
 import { fmt, isSameDay } from '@/lib/date'
 import { locale, t } from '@/i18n'
 
@@ -19,7 +20,8 @@ const entryTone: Record<CalEntry['kind'], string> = {
 
 /** One item in a day: time, title, a coloured edge by kind. Own items can be dragged to another day (computers). */
 export function EntryChip({ entry, compact }: { entry: CalEntry; compact?: boolean }) {
-  const { openEditor } = useDashboard()
+  const { openEditor, courses } = useDashboard()
+  const tint = entry.kind === 'class' ? courseTint(courses.items, entry.courseId) : undefined
   const target = entry.item ? editTarget(entry.item) : entry.courseId ? ({ type: 'course', id: entry.courseId } as const) : null
   const draggable = Boolean(entry.item && isMovable(entry.item))
   const due = entry.kind === 'assignment' || entry.kind === 'task' || entry.kind === 'quiz'
@@ -35,6 +37,7 @@ export function EntryChip({ entry, compact }: { entry: CalEntry; compact?: boole
       disabled={!target}
       onClick={() => target && openEditor(target)}
       title={`${kindLabel[entry.kind]}: ${entry.title}${draggable ? ` ${t('wk.dragHint')}` : ''}`}
+      style={tint}
       className={cn(
         'w-full rounded-[0.4rem] border-s-[3px] px-2 py-1 text-start transition-colors enabled:hover:brightness-95 dark:enabled:hover:brightness-125',
         entryTone[entry.kind],

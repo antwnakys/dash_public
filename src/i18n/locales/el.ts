@@ -842,6 +842,7 @@ const dict: Dict = {
   "widget.due": "Παράδοση {time}",
   "widget.nothing": "Τίποτα για τώρα",
   "widget.now": "Τώρα",
+  "cc.handedIn": "Το «{title}» σημειώθηκε ως παραδομένο",
 }
 
 export default dict

@@ -29,7 +29,7 @@ function whenLabel(d: Date, now: Date) {
 }
 
 export function CourseCard({ course, pending, now }: CourseCardProps) {
-  const { openEditor, agenda, assignments, tasks, courses, setView } = useDashboard()
+  const { openEditor, agenda, assignments, tasks, courses, setView, notify } = useDashboard()
   const grades = average(assignments.items.filter((a) => a.courseId === course.id))
   const { item: nextItem, date: next } = nextClass(course, agenda, now)
   // Join button: the next online class's own link first, else the meeting link saved on the course (always shown,
@@ -40,7 +40,7 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
   const when = [course.schedule, course.instructor && t('course.with', { name: course.instructor })].filter(Boolean).join(' ')
   // Needs attention: work overdue, or due within three days.
   const overdue = assignments.items.filter((a) => a.courseId === course.id && !a.submitted && new Date(a.due) <= now).length
-  const soon = pending.filter((a) => dayDiff(now, new Date(a.due)) <= ATTENTION_DAYS).length
+  const soon = pending.filter((a) => new Date(a.due) > now && dayDiff(now, new Date(a.due)) <= ATTENTION_DAYS).length
   const attention = overdue > 0 ? tn('cc.overdue', overdue) : soon > 0 ? tn('cc.soon', soon) : undefined
   // Open tasks that name this course ("Macro reading", "ECO210 notes").
   const related = tasks.tasks.filter((x) => !x.done && matchCourse(x.title, courses.items)?.id === course.id).length
@@ -104,17 +104,31 @@ export function CourseCard({ course, pending, now }: CourseCardProps) {
           <p className="px-5 py-3 text-subhead text-muted">{t('courses.nothingDue')}</p>
         ) : (
           <ul className="separated">
-            {pending.slice(0, 3).map((a) => (
-              <li key={a.id}>
-                <button
-                  onClick={() => openEditor({ type: 'deadline', id: a.id })}
-                  className="flex w-full items-center gap-3 px-5 py-2.5 text-start transition-colors hover:bg-fill"
-                >
-                  <span className="min-w-0 flex-1 truncate text-body text-ink">{a.title}</span>
-                  <Countdown date={new Date(a.due)} now={now} />
-                </button>
-              </li>
-            ))}
+            {pending.slice(0, 3).map((a) => {
+              const late = new Date(a.due) <= now
+              return (
+                <li key={a.id} className="flex items-center">
+                  <button
+                    onClick={() => openEditor({ type: 'deadline', id: a.id })}
+                    className="flex min-w-0 flex-1 items-center gap-3 py-2.5 ps-5 pe-3 text-start transition-colors hover:bg-fill"
+                  >
+                    <span className="min-w-0 flex-1 truncate text-body text-ink">{a.title}</span>
+                    <Countdown date={new Date(a.due)} now={now} />
+                  </button>
+                  {late && (
+                    <button
+                      onClick={() => {
+                        assignments.update(a.id, { submitted: true })
+                        notify(t('cc.handedIn', { title: a.title }), 'default', { label: t('common.undo'), run: () => assignments.update(a.id, { submitted: false }) })
+                      }}
+                      className="me-3 shrink-0 rounded-full bg-fill px-3 py-1.5 text-subhead font-medium text-ink transition-colors hover:bg-fill-strong"
+                    >
+                      {t('rev.handIn')}
+                    </button>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>

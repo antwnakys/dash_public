@@ -828,6 +828,7 @@ const dict: Dict = {
   "widget.due": "截止 {time}",
   "widget.nothing": "暂无安排",
   "widget.now": "现在",
+  "cc.handedIn": "已将“{title}”标记为已提交",
 }
 
 export default dict

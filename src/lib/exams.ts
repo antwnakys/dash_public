@@ -33,15 +33,28 @@ export const cleanTitle = (t: string) =>
 const EXAM_WORD = /\b(final exams?|exams?|midterms?|finals?|exam)\b|εξ[εέ]ταση|εξ[εέ]τασεις|εξετάσεις/giu
 
 /** "🚨 ΕΞΕΤΑΣΗ ΦΥΣΙΚΗ" → "🚨 ΦΥΣΙΚΗ"; "Databases exam 👾" → "Databases 👾". */
-export function examSubject(title: string): string {
+// Just the word "exam" (not "midterm"/"final"), for names made only of exam words.
+const PLAIN_EXAM_WORD = /\bexams?\b|εξ[εέ]ταση|εξ[εέ]τασεις|εξετάσεις/giu
+
+/**
+ * What an exam is about, without the word "exam": "Physics final exam" → "Physics". A name made only of exam words
+ * keeps the kind ("Midterm exam" → "Midterm"); a bare "Exam" becomes `fallback` (the course), so the Today card
+ * reads "Midterm exam in 5 days", not "Midterm exam exam in 5 days".
+ */
+export function examSubject(title: string, fallback?: string): string {
   // Emoji stay in what's shown ("👾 Databases"); matching with study events uses `cleanTitle` of it.
-  const s = title.replace(EXAM_WORD, '').replace(/^[\s:–—-]+|[\s:–—-]+$/g, '').replace(/\s+/g, ' ').trim()
-  return cleanTitle(s) ? s : title.replace(/\s+/g, ' ').trim()
+  const strip = (re: RegExp) => title.replace(re, '').replace(/^[\s:–—-]+|[\s:–—-]+$/g, '').replace(/\s+/g, ' ').trim()
+  const subject = strip(EXAM_WORD)
+  if (cleanTitle(subject)) return subject
+  const kind = strip(PLAIN_EXAM_WORD)
+  if (cleanTitle(kind)) return kind
+  return fallback || title.replace(/\s+/g, ' ').trim()
 }
 
 const asExam = (i: AgendaItem): Exam => ({
   id: i.id,
-  subject: examSubject(i.title),
+  // A course deadline named just "Exam" takes the course code.
+  subject: examSubject(i.title, i.source === 'assignment' ? i.context : undefined),
   date: i.date,
   allDay: i.allDay,
   context: i.context,

@@ -166,6 +166,14 @@ not listed here works as described in the original's `CLAUDE.md`.
   (`CODE_SIGN_IDENTITY=-`, so the entitlements are in the binary; an unsigned archive lost the group in the cloud-signed
   export, and a fully signed archive in CI failed with "Authentication failed … bearer token"), then the .ipa is exported
   and `codesign` must show the group in the app and the widget before the upload. First widget build: Nov 11.
+- **Review fixes** (Nov 11, after Antonis asked for a fault hunt): overdue deadlines stay listed on the course card
+  (first, red, **Handed in** + Undo; `usePendingByCourse` keeps unsubmitted past work, `Countdown` is red when late);
+  `examSubject(title, fallback)` keeps "Midterm"/"Final" when the name is only exam words and uses the course code for
+  a bare "Exam" (no more "Midterm exam exam"); classes in the calendar and timetable take the course colour
+  (`courseTint` in `lib/courseColor.ts`); the timetable hides this week's empty days that are over; English short
+  countdowns are narrow ("in 12h", no double full stop); Settings → Appearance: the design note sits under Design and
+  the theme row is labelled; task meta lines wrap instead of cutting; phones show "Add a task" as the quick-add hint;
+  the widget snapshot covers 14 days.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.

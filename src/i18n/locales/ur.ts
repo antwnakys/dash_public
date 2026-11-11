@@ -842,6 +842,7 @@ const dict: Dict = {
   "widget.due": "جمع {time}",
   "widget.nothing": "کچھ آنے والا نہیں",
   "widget.now": "ابھی",
+  "cc.handedIn": "“{title}” کو جمع شدہ نشان زد کر دیا",
 }
 
 export default dict

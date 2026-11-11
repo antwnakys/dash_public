@@ -876,6 +876,7 @@ const dict: Dict = {
   "widget.due": "Срок {time}",
   "widget.nothing": "Ничего не запланировано",
   "widget.now": "Сейчас",
+  "cc.handedIn": "«{title}» отмечено как сданное",
 }
 
 export default dict
