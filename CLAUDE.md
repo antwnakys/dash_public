@@ -160,8 +160,12 @@ not listed here works as described in the original's `CLAUDE.md`.
   when the app is hidden (only when the content changed). Extension target `Widget` (`ios/App/Widget/AppWidget.swift`,
   bundle id `com.antwnakys.unidash.widget`) picks what to show at each moment itself (timeline entry at every
   start/end/leave time and midnight): leave-by from 16 h before the first class until it starts, else the next item;
-  medium adds the next 3. `scripts/testflight.sh` uses a signed archive when an entitlements file has App Groups (so
-  Xcode registers them). The target was added with the `xcodeproj` Ruby gem.
+  medium adds the next 3. The target was added with the `xcodeproj` Ruby gem. Apple IDs set up by hand on Nov 11
+  (CI can't register bundle IDs): App Group `group.com.antwnakys.unidash`, App ID `com.antwnakys.unidash.widget`, App
+  Groups ticked and linked on both IDs. `scripts/testflight.sh`: with App Groups the archive is ad-hoc signed
+  (`CODE_SIGN_IDENTITY=-`, so the entitlements are in the binary; an unsigned archive lost the group in the cloud-signed
+  export, and a fully signed archive in CI failed with "Authentication failed … bearer token"), then the .ipa is exported
+  and `codesign` must show the group in the app and the widget before the upload. First widget build: Nov 11.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.

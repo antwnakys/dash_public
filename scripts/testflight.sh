@@ -26,7 +26,9 @@ fi
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
-cat > "$OUT/ExportOptions.plist" <<PLIST
+# ExportOptions-upload.plist sends the build to App Store Connect; ExportOptions-export.plist only writes the .ipa.
+for dest in upload export; do
+  cat > "$OUT/ExportOptions-$dest.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -34,7 +36,7 @@ cat > "$OUT/ExportOptions.plist" <<PLIST
 	<key>method</key>
 	<string>app-store-connect</string>
 	<key>destination</key>
-	<string>upload</string>
+	<string>$dest</string>
 	<key>signingStyle</key>
 	<string>automatic</string>
 	<key>teamID</key>
@@ -46,6 +48,7 @@ cat > "$OUT/ExportOptions.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+done
 
 archive() {
   rm -rf "$ARCHIVE"
@@ -61,24 +64,60 @@ archive() {
     "$@"
 }
 
-upload() {
+export_to() {
   xcodebuild -exportArchive \
     -archivePath "$ARCHIVE" \
-    -exportOptionsPlist "$OUT/ExportOptions.plist" \
-    -exportPath "$OUT/export" \
+    -exportOptionsPlist "$OUT/ExportOptions-$1.plist" \
+    -exportPath "$OUT/$1" \
     "${auth[@]}"
 }
 
+upload() { export_to upload; }
+
+# The widget reads what the app writes through an App Group; both must carry it in their signature, or the widget
+# stays empty. Exports the signed .ipa and looks inside before anything is uploaded.
+check_app_groups() {
+  export_to export || return 1
+  local dir="$OUT/ipa-check"
+  rm -rf "$dir" && mkdir -p "$dir"
+  unzip -q "$OUT"/export/*.ipa -d "$dir" || return 1
+  local ok=1 found=0
+  while IFS= read -r bundle; do
+    if codesign -d --entitlements :- "$bundle" 2>/dev/null | grep -q application-groups; then
+      found=$((found + 1))
+      echo "App Group signed into $(basename "$bundle")"
+    else
+      echo "::error::$(basename "$bundle") was signed without its App Group. Entitlements:"
+      codesign -d --entitlements :- "$bundle" 2>/dev/null || true
+      ok=0
+    fi
+  done < <(find "$dir/Payload" -maxdepth 4 \( -name '*.app' -o -name '*.appex' \))
+  [ "$ok" = 1 ] && [ "$found" -ge 2 ]
+}
+
 echo "unidash build $BUILD_NUMBER for team $TEAM_ID"
-# App Groups (the widget shares data with the app) must be in the signature, and only a signed archive is sure to
-# register them with Apple and carry them; a cloud-signed export of an unsigned archive could quietly drop them.
-needs_signed_archive=$(grep -l application-groups "$ROOT"/ios/App/*/*.entitlements 2>/dev/null || true)
-if [ -n "${ASC_KEY_ID:-}" ] && [ -z "$needs_signed_archive" ]; then
+# A project with a widget uses an App Group (in its .entitlements files).
+needs_app_groups=$(grep -l application-groups "$ROOT"/ios/App/*/*.entitlements 2>/dev/null || true)
+if [ -n "${ASC_KEY_ID:-}" ]; then
   # CI: an unsigned archive, signed in the cloud while exporting (no development certificate piles up per run).
   # If Xcode won't export it, fall back to a normal signed archive.
-  if archive CODE_SIGNING_ALLOWED=NO && upload; then
-    echo "Uploaded build $BUILD_NUMBER (cloud signed)."
-    exit 0
+  # With an App Group the archive is signed "to run locally" (no certificate needed) so the entitlements file is
+  # written into the binary; the cloud-signed export then asks Apple for a profile with those entitlements. An
+  # unsigned archive has none, and the export quietly signs without the App Group.
+  if [ -n "$needs_app_groups" ]; then
+    unsigned=(CODE_SIGN_IDENTITY=- AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER= PROVISIONING_PROFILE=)
+  else
+    unsigned=(CODE_SIGNING_ALLOWED=NO)
+  fi
+  if archive "${unsigned[@]}"; then
+    if [ -n "$needs_app_groups" ] && ! check_app_groups; then
+      echo "::error::Not uploaded: the App Group is missing from the signature (see above)."
+      exit 1
+    fi
+    if upload; then
+      echo "Uploaded build $BUILD_NUMBER (cloud signed)."
+      exit 0
+    fi
   fi
   echo "::warning::Unsigned archive couldn't be exported; trying a signed archive."
 fi
