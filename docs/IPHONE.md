@@ -31,9 +31,8 @@ With an App Store Connect API key instead of an Xcode sign-in, also set `ASC_KEY
 Manager role). Until then it says "not set up yet" and stays green. `ios.yml` compiles the project on every pull
 request that touches native files.
 
-## Not done yet
+## Google sign-in
 
-- Google sign-in in the app needs an **iOS OAuth client** in the Cloud project "unidash" (bundle id above); its ID
-  goes in `GOOGLE_IOS_CLIENT_ID` (`src/config.ts`) and its reversed form as a URL scheme + `GIDClientID` in
-  `ios/App/App/Info.plist`. Until then the Google buttons are hidden in the app.
-- The app icon is the same as dash's.
+The iOS OAuth client "unidash iPhone" (Cloud project "unidash", bundle ID `com.antwnakys.unidash`) is in
+`GOOGLE_IOS_CLIENT_ID` (`src/config.ts`); `ios/App/App/Info.plist` has it as `GIDClientID` and its reversed form as a URL
+scheme. While the consent screen is in Testing, only test users can sign in (Google Auth Platform → Audience).

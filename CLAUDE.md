@@ -141,9 +141,10 @@ not listed here works as described in the original's `CLAUDE.md`.
   iCal-link section only in a native app.
 - `src/config.ts`: `SITE_URL` and the Google client IDs. Web client ID set (Cloud project "unidash", Testing mode,
   origin `https://antwnakys.github.io`, redirect `https://antwnakys.github.io/dash_public/`, Calendar + Drive APIs on).
-  iOS client ID empty until there's an iPhone app (Google buttons hide when the ID for the platform is empty).
+  iOS client "unidash iPhone" (Nov 11) set too, with its reversed ID as a URL scheme + `GIDClientID` in Info.plist.
+  Google buttons hide when the ID for the platform is empty.
 - **iPhone project** (Nov 10, `ios/`, copied from dash): bundle id `com.antwnakys.unidash`, display name unidash, team
-  `H739SB5FKP`; no Google URL scheme yet (no iOS client); `DashTheme` plugin kept, `DashApp` (expiry) removed.
+  `H739SB5FKP`; Google sign-in URL scheme in Info.plist; `DashTheme` plugin kept, `DashApp` (expiry) removed.
   `scripts/testflight.sh` (`TEAM_ID=H739SB5FKP npm run testflight` on a Mac), `testflight.yml` (needs 4 secrets),
   `ios.yml` compiles on PRs touching native files. Steps in `docs/IPHONE.md`. `npm run ios:sync` = build + cap sync.
   **On TestFlight since Nov 10**: App Store Connect app "unidash" (SKU `unidash`), API key "unidash GitHub" (Admin,
@@ -287,6 +288,9 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
 - **Nov 10, 2026 (night)**: iPhone app: `ios/` project, TestFlight upload from GitHub, installed on Antonis's iPhone.
+- **Nov 11, 2026**: Google sign-in in the iPhone app (iOS client) and unidash's own icon: a **u** mark (same speed lines as
+  dash's d), white on blue for the default iPhone icon and the web icons, navy in dark mode (`assets/*.svg`,
+  `npm run icons`, `components/brand/Logo.tsx`).
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
   weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,
@@ -306,6 +310,6 @@ not listed here works as described in the original's `CLAUDE.md`.
   for classmates: reminders, home-screen icon, native Google sign-in), then the App Store after feedback + Google
   verification (needed so non-test users and Apple's reviewer can sign in) + a privacy policy page. Risks noted:
   guideline 4.2 (web wrapper; native features help), Sign in with Apple (Google is used only for Calendar/Drive).
-  **Nov 10: TestFlight done** (see the iPhone project bullet). Next for the app: an iOS OAuth client in the Cloud
-  project "unidash" (Google sign-in in the app), a unidash icon of its own, then external testers (public TestFlight
+  **Nov 10: TestFlight done** (see the iPhone project bullet); Nov 11: iOS OAuth client + unidash's own icon. Next:
+  external testers (public TestFlight
   link after Apple's one-time beta review) for classmates, then App Store listing texts, screenshots, privacy answers.
