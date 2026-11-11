@@ -180,8 +180,14 @@ not listed here works as described in the original's `CLAUDE.md`.
   **Absences** (`lib/absences.ts`, optional `Course.absences`/`absenceLimit`): course card row + **Missed a class** (only
   for courses with classes, Undo), course sheet section. **Spaced study plans** (`parseTopics`, `studySteps`,
   `planStudy` in `lib/exams.ts`: up to 14 sessions at x^0.7, learn 90 / review 60 / test 90 min, `!` = hard topic).
-  Keys `sem.*`, `abs.*`, `study.learn/review/reviewAgain` in all 16 languages. Class notes and quick add from anywhere
-  are still only in dash.
+  Keys `sem.*`, `abs.*`, `study.learn/review/reviewAgain` in all 16 languages. Quick add from anywhere is still only in dash.
+- **Class notes** (Nov 11, from dash): course card → Class notes (editor `classNotes`, list by date) → note (editor
+  `classNote`: class day = latest class, text, photos/files). Synced collection `unidash.classNotes.v1` (`ClassNote`,
+  `NoteFile`). File bytes aren't in the sync file: a data URL in IndexedDB `unidash-files` and, when signed in, a text
+  file `unidash-file-<id>` in the Drive appDataFolder (`driveId`); other devices download on first open
+  (`lib/classFiles.ts`, `hooks/useClassFileUploads.ts`). Photos shrink to 2000 px JPEG; 8 MB cap. ⌘K searches note text
+  and file names. Delete all data also removes every `unidash-file-*` in Drive and the IndexedDB (`deleteAllFiles`).
+  Privacy page: `pp.files` (updated Nov 11). Keys `notes.*` in all 16 languages.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -332,7 +338,7 @@ not listed here works as described in the original's `CLAUDE.md`.
 
 - **Ported from dash on Nov 10 (all four stages live)**: backups/Undo, stronger tasks + ⌘K, focus timer + weekly
   review + This week, calendar Day/Week + drag, course colours/notes/links/Workload. Still only in dash: Projects,
-  Goals, class notes, quick add from anywhere, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
+  Goals, quick add from anywhere, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
   (Classic stays the default, Antonis's choice on Nov 10).
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.

@@ -1,11 +1,12 @@
 /**
  * Settings → Data → Delete all data: everything unidash keeps, everywhere.
- * With Google connected: the Drive copy is deleted and unidash's access to the account is revoked first;
+ * With Google connected: the Drive copy (and class-note files) is deleted and unidash's access to the account is revoked first;
  * if Drive can't be reached nothing is deleted, so the person can retry rather than end up half-deleted.
  * Then every unidash.* key on this device is removed and the app restarts at the first-open setup.
  */
 import { googleAccessToken } from '@/data/google'
 import { findFile, removeFile } from '@/sync/drive'
+import { deleteAllFiles } from './classFiles'
 
 export async function deleteEverything(google?: { disconnect: () => Promise<void> }): Promise<void> {
   if (google) {
@@ -14,11 +15,15 @@ export async function deleteEverything(google?: { disconnect: () => Promise<void
     await google.disconnect().catch(() => {})
     const file = await findFile(token)
     if (file) await removeFile(token, file.id)
+    // Class-note photos and files in the same hidden folder, and the copies on this device.
+    await deleteAllFiles(token)
     await fetch('https://oauth2.googleapis.com/revoke', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ token }),
     }).catch(() => {})
+  } else {
+    await deleteAllFiles().catch(() => {})
   }
   try {
     for (const key of Object.keys(localStorage)) if (key.startsWith('unidash.')) localStorage.removeItem(key)
