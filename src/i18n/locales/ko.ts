@@ -824,6 +824,10 @@ const dict: Dict = {
   "set.designClassic": "클래식",
   "set.designObsidian": "옵시디언",
   "set.designHint": "디자인은 이 기기에 저장돼요. 옵시디언은 다크 모드에서 검은 유리, 라이트 모드에서 흰색과 흑연색이에요.",
+  "widget.upNext": "다음 일정",
+  "widget.due": "마감 {time}",
+  "widget.nothing": "예정된 일정 없음",
+  "widget.now": "지금",
 }
 
 export default dict

@@ -1,7 +1,8 @@
 # unidash for iPhone
 
 The iPhone app is the website inside a Capacitor shell (`ios/`). Bundle id `com.antwnakys.unidash`, team
-`H739SB5FKP`, iOS 15+. Web changes reach installed apps by live update (`src/lib/liveUpdate.ts`, files published by
+`H739SB5FKP`, iOS 16+. The widget extension is `com.antwnakys.unidash.widget`; both share the App Group
+`group.com.antwnakys.unidash`. Web changes reach installed apps by live update (`src/lib/liveUpdate.ts`, files published by
 `deploy.yml`), so a new upload is only needed when something native changes (plugins, `Info.plist`, icons, Swift).
 
 ## One-time setup (needs Antonis)

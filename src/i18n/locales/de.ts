@@ -838,6 +838,10 @@ const dict: Dict = {
   "set.designClassic": "Klassisch",
   "set.designObsidian": "Obsidian",
   "set.designHint": "Das Design wird auf diesem Gerät gespeichert. Obsidian ist schwarzes Glas im dunklen Modus und Weiß mit Graphit im hellen.",
+  "widget.upNext": "Als Nächstes",
+  "widget.due": "Fällig {time}",
+  "widget.nothing": "Nichts geplant",
+  "widget.now": "Jetzt",
 }
 
 export default dict

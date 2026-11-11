@@ -151,6 +151,17 @@ not listed here works as described in the original's `CLAUDE.md`.
   key ID A84Z4FLGZ3) in the 4 repo secrets, so `testflight.yml` uploads by itself (native changes on main, the 1st of
   each month, or run by hand). Internal group "Me" (automatic distribution); Antonis installed it on his iPhone.
   Remote Control to his Mac doesn't work from cloud sessions on his account yet (folder listed as `not_available`).
+- **Widgets** (Nov 11, iPhone, iOS 16+; the whole app is iOS 16+ now): "Up next" in small and medium on the Home
+  Screen, rectangular and inline on the Lock Screen. `src/lib/widget.ts` `buildWidgetData` (next 7 days of classes
+  from `classesOn` + other agenda items, each day's leave-by from `planTrip`, all labels already translated:
+  `widget.*`, `leave.by`, `due.today/tomorrow`, `kind.exam`) → `updateWidget` → native `WidgetData` plugin
+  (`SceneDelegate.swift`) stores the JSON in the App Group `group.com.antwnakys.unidash` (Info.plist key `AppGroup`,
+  `App/App.entitlements`) and reloads timelines. `hooks/useWidget.ts` pushes 1.5 s after data changes, every 30 min and
+  when the app is hidden (only when the content changed). Extension target `Widget` (`ios/App/Widget/AppWidget.swift`,
+  bundle id `com.antwnakys.unidash.widget`) picks what to show at each moment itself (timeline entry at every
+  start/end/leave time and midnight): leave-by from 16 h before the first class until it starts, else the next item;
+  medium adds the next 3. `scripts/testflight.sh` uses a signed archive when an entitlements file has App Groups (so
+  Xcode registers them). The target was added with the `xcodeproj` Ruby gem.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -288,6 +299,7 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 10, 2026**: school search with suggestions and a map pin (OpenStreetMap/Photon, free); then fixed the see-through
   list, local results first, and "Search addresses" for schools not listed by name.
 - **Nov 10, 2026 (night)**: iPhone app: `ios/` project, TestFlight upload from GitHub, installed on Antonis's iPhone.
+- **Nov 11, 2026**: iPhone widgets (Home Screen + Lock Screen "Up next"), also wanted in dash.
 - **Nov 11, 2026**: Google sign-in in the iPhone app (iOS client) and unidash's own icon: a **u** mark (same speed lines as
   dash's d), white on blue for the default iPhone icon and the web icons, navy in dark mode (`assets/*.svg`,
   `npm run icons`, `components/brand/Logo.tsx`).

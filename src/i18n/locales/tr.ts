@@ -838,6 +838,10 @@ const dict: Dict = {
   "set.designClassic": "Klasik",
   "set.designObsidian": "Obsidyen",
   "set.designHint": "Tasarım bu cihazda saklanır. Obsidyen, koyu modda siyah cam, açık modda beyaz ve grafittir.",
+  "widget.upNext": "Sıradaki",
+  "widget.due": "Son teslim {time}",
+  "widget.nothing": "Yaklaşan bir şey yok",
+  "widget.now": "Şimdi",
 }
 
 export default dict

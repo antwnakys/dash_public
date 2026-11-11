@@ -6,6 +6,7 @@ import { useCollection, type Collection } from '@/hooks/useCollection'
 import { useHereLocation } from '@/hooks/useHereLocation'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useReminders, type RemindersState } from '@/hooks/useReminders'
+import { useWidget } from '@/hooks/useWidget'
 import { useFocusTimer, type FocusTimer } from '@/hooks/useFocusTimer'
 import { useTasks, type TasksApi } from '@/hooks/useTasks'
 import { useTheme } from '@/hooks/useTheme'
@@ -206,6 +207,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   )
 
   const reminders = useReminders(agenda, courses.items, profile)
+  useWidget(agenda, courses.items, profile.commute)
 
   const loadSample = useCallback(() => {
     const s = sampleData()

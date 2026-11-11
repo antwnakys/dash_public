@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import WidgetKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -36,6 +37,7 @@ class DashViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(DashThemePlugin())
+        bridge?.registerPluginInstance(WidgetDataPlugin())
         view.backgroundColor = dashBackground
         guard let webView = webView else { return }
         webView.backgroundColor = dashBackground
@@ -77,5 +79,30 @@ class DashThemePlugin: CAPPlugin, CAPBridgedPlugin {
             self?.bridge?.viewController?.view.window?.overrideUserInterfaceStyle = style
             call.resolve()
         }
+    }
+}
+
+/// Hands the widget its snapshot (src/lib/widget.ts): stored in the App Group named in Info.plist ("AppGroup"),
+/// which the widget extension reads, then the widgets are asked to redraw.
+@objc(WidgetDataPlugin)
+class WidgetDataPlugin: CAPPlugin, CAPBridgedPlugin {
+    let identifier = "WidgetDataPlugin"
+    let jsName = "WidgetData"
+    let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "set", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func set(_ call: CAPPluginCall) {
+        guard
+            let json = call.getString("json"),
+            let group = Bundle.main.object(forInfoDictionaryKey: "AppGroup") as? String,
+            let defaults = UserDefaults(suiteName: group)
+        else {
+            call.reject("No widget storage")
+            return
+        }
+        defaults.set(json, forKey: "widget")
+        WidgetCenter.shared.reloadAllTimelines()
+        call.resolve()
     }
 }
