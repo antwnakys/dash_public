@@ -838,6 +838,10 @@ const dict: Dict = {
   "set.designClassic": "क्लासिक",
   "set.designObsidian": "ऑब्सिडियन",
   "set.designHint": "डिज़ाइन इसी डिवाइस पर सेव होता है। ऑब्सिडियन डार्क मोड में काला काँच और लाइट मोड में सफ़ेद व ग्रेफ़ाइट है।",
+  "widget.upNext": "आगे",
+  "widget.due": "जमा {time}",
+  "widget.nothing": "कुछ भी आने वाला नहीं",
+  "widget.now": "अभी",
 }
 
 export default dict

@@ -824,6 +824,10 @@ const dict: Dict = {
   "set.designClassic": "クラシック",
   "set.designObsidian": "オブシディアン",
   "set.designHint": "デザインはこのデバイスに保存されます。オブシディアンはダークモードで黒いガラス、ライトモードで白とグラファイトです。",
+  "widget.upNext": "次の予定",
+  "widget.due": "締切 {time}",
+  "widget.nothing": "予定はありません",
+  "widget.now": "今",
 }
 
 export default dict

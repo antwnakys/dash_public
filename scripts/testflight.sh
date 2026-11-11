@@ -70,7 +70,10 @@ upload() {
 }
 
 echo "unidash build $BUILD_NUMBER for team $TEAM_ID"
-if [ -n "${ASC_KEY_ID:-}" ]; then
+# App Groups (the widget shares data with the app) must be in the signature, and only a signed archive is sure to
+# register them with Apple and carry them; a cloud-signed export of an unsigned archive could quietly drop them.
+needs_signed_archive=$(grep -l application-groups "$ROOT"/ios/App/*/*.entitlements 2>/dev/null || true)
+if [ -n "${ASC_KEY_ID:-}" ] && [ -z "$needs_signed_archive" ]; then
   # CI: an unsigned archive, signed in the cloud while exporting (no development certificate piles up per run).
   # If Xcode won't export it, fall back to a normal signed archive.
   if archive CODE_SIGNING_ALLOWED=NO && upload; then

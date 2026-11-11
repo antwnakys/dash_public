@@ -824,6 +824,10 @@ const dict: Dict = {
   "set.designClassic": "Klasik",
   "set.designObsidian": "Obsidian",
   "set.designHint": "Desain disimpan di perangkat ini. Obsidian berupa kaca hitam di mode gelap, serta putih dan grafit di mode terang.",
+  "widget.upNext": "Berikutnya",
+  "widget.due": "Tenggat {time}",
+  "widget.nothing": "Tidak ada jadwal",
+  "widget.now": "Sekarang",
 }
 
 export default dict

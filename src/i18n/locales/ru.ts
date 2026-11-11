@@ -872,6 +872,10 @@ const dict: Dict = {
   "set.designClassic": "Классическое",
   "set.designObsidian": "Обсидиан",
   "set.designHint": "Оформление сохраняется на этом устройстве. Обсидиан — чёрное стекло в тёмной теме и белый с графитом в светлой.",
+  "widget.upNext": "Далее",
+  "widget.due": "Срок {time}",
+  "widget.nothing": "Ничего не запланировано",
+  "widget.now": "Сейчас",
 }
 
 export default dict

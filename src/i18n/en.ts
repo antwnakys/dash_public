@@ -839,6 +839,10 @@ export const en = {
   "set.designClassic": "Classic",
   "set.designObsidian": "Obsidian",
   "set.designHint": "The design is saved on this device. Obsidian is black glass in dark mode and white and graphite in light mode.",
+  "widget.upNext": "Up next",
+  "widget.due": "Due {time}",
+  "widget.nothing": "Nothing coming up",
+  "widget.now": "Now",
 } as const
 
 export type Key = keyof typeof en

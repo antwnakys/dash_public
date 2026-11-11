@@ -838,6 +838,10 @@ const dict: Dict = {
   "set.designClassic": "Κλασική",
   "set.designObsidian": "Obsidian",
   "set.designHint": "Η σχεδίαση αποθηκεύεται σε αυτή τη συσκευή. Το Obsidian είναι μαύρο γυαλί στο σκούρο θέμα και λευκό με γραφίτη στο φωτεινό.",
+  "widget.upNext": "Επόμενο",
+  "widget.due": "Παράδοση {time}",
+  "widget.nothing": "Τίποτα για τώρα",
+  "widget.now": "Τώρα",
 }
 
 export default dict
