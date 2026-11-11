@@ -19,7 +19,7 @@ export function CoursesView() {
   const { courses, assignments, agenda, openEditor, loadSample } = useDashboard()
   const grades = average(assignments.items)
   const now = useNow(60_000)
-  const pending = usePendingByCourse(now)
+  const pending = usePendingByCourse()
   // The course with the next class comes first.
   const ordered = byNextClass(courses.items, agenda, now)
   const open = [...pending.values()].reduce((n, l) => n + l.length, 0)

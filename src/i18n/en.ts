@@ -843,6 +843,7 @@ export const en = {
   "widget.due": "Due {time}",
   "widget.nothing": "Nothing coming up",
   "widget.now": "Now",
+  "cc.handedIn": "“{title}” marked as handed in",
 } as const
 
 export type Key = keyof typeof en

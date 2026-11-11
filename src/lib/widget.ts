@@ -1,6 +1,6 @@
 /**
  * The Home Screen and Lock Screen widgets (iPhone). The app writes a small snapshot of what's coming up (the next
- * week of classes, deadlines, exams, events and dated tasks, plus each day's leave-by time) into storage it shares
+ * two weeks of classes, deadlines, exams, events and dated tasks, plus each day's leave-by time) into storage it shares
  * with the widget (an App Group); the widget picks what to show at each moment by itself, so it stays right without
  * the app being open. All text comes from here, already in the page's language.
  */
@@ -45,8 +45,9 @@ export interface WidgetData {
   }
 }
 
-const DAYS = 7
-const MAX_ITEMS = 40
+// Two weeks, so the widget still has things to show when the app hasn't been opened for a while.
+const DAYS = 14
+const MAX_ITEMS = 60
 
 // Widgets can't read the page's CSS, so the colours are spelled out (they read in light and dark).
 const ACCENT = '#0a84ff'

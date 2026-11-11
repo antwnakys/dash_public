@@ -86,7 +86,7 @@ export function TaskItem({ task, showCategory, due, reorderable = true, onToggle
             />
           </span>
           {meta && (
-            <span className="flex min-w-0 items-center gap-2.5 text-subhead text-muted">
+            <span className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5 text-subhead text-muted">
               {due && (
                 <span className={cn('inline-flex shrink-0 items-center gap-1 tabular-nums', dueTone[due.state])}>
                   <CalendarClock aria-hidden className="size-3.5" strokeWidth={2.2} />

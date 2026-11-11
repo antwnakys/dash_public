@@ -28,7 +28,8 @@ export function isSameDay(a: Date, b: Date): boolean {
 
 // Each language's own words for "in 3 days", "tomorrow", "2 hours ago" (built into the browser).
 const relative = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-const relativeShort = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: 'short' })
+// English reads best as "in 12h" (narrow); other languages keep the short style (French narrow writes "+12 h").
+const relativeShort = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: locale.startsWith('en') ? 'narrow' : 'short' })
 
 /** Human countdown: "in 3 hr", "tomorrow", "in 2 days", "3 days ago". */
 export function countdown(target: Date, now: Date = new Date()): string {

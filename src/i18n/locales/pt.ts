@@ -842,6 +842,7 @@ const dict: Dict = {
   "widget.due": "Entrega {time}",
   "widget.nothing": "Nada a seguir",
   "widget.now": "Agora",
+  "cc.handedIn": "“{title}” marcado como entregue",
 }
 
 export default dict
