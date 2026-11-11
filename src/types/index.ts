@@ -81,6 +81,10 @@ export interface Course {
   calendarSeries?: string[]
   /** The calendar name the course last took: renaming the course in unidash makes it differ, and then stays. */
   calendarTitle?: string
+  /** Days missed ("YYYY-MM-DD"), counted against `absenceLimit` (`lib/absences.ts`). */
+  absences?: string[]
+  /** How many absences are allowed; unset = just counting. */
+  absenceLimit?: number
 }
 
 export interface Assignment {

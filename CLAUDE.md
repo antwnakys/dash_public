@@ -174,6 +174,14 @@ not listed here works as described in the original's `CLAUDE.md`.
   countdowns are narrow ("in 12h", no double full stop); Settings → Appearance: the design note sits under Design and
   the theme row is labelled; task meta lines wrap instead of cutting; phones show "Add a task" as the quick-add hint;
   the widget snapshot covers 14 days.
+- **Ported from dash on Nov 11**: Calendar → **Semester** (`components/calendar/SemesterView.tsx`: one row per week until
+  the latest course `term.end`, else 16 weeks; exams + deadlines as chips, busy weeks ≥3 in red, days off from holiday
+  calendars or all-day events named like a break, in several languages; tap a week → Week view; mode `term`).
+  **Absences** (`lib/absences.ts`, optional `Course.absences`/`absenceLimit`): course card row + **Missed a class** (only
+  for courses with classes, Undo), course sheet section. **Spaced study plans** (`parseTopics`, `studySteps`,
+  `planStudy` in `lib/exams.ts`: up to 14 sessions at x^0.7, learn 90 / review 60 / test 90 min, `!` = hard topic).
+  Keys `sem.*`, `abs.*`, `study.learn/review/reviewAgain` in all 16 languages. Class notes and quick add from anywhere
+  are still only in dash.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -324,7 +332,7 @@ not listed here works as described in the original's `CLAUDE.md`.
 
 - **Ported from dash on Nov 10 (all four stages live)**: backups/Undo, stronger tasks + ⌘K, focus timer + weekly
   review + This week, calendar Day/Week + drag, course colours/notes/links/Workload. Still only in dash: Projects,
-  Goals, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
+  Goals, class notes, quick add from anywhere, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
   (Classic stays the default, Antonis's choice on Nov 10).
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.

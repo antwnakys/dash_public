@@ -175,17 +175,67 @@ const SLOTS = [
   [16, 30],
   [11, 0],
 ] as const
-const SESSION_MINUTES = 90
 /** Travel to a class when the trip time isn't set. */
 const TRAVEL_MINUTES = 60
-const MAX_SESSIONS = 6
+const MAX_SESSIONS = 14
+const MINUTES = { learn: 90, review: 60, test: 90 } as const
+
+/** "Regression!" or "Regression*" marks a hard topic: it gets an extra review. */
+export function parseTopics(text: string): Array<{ name: string; hard: boolean }> {
+  return text
+    .split(/[\n,;،、]+/)
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .map((t) => ({ name: t.replace(/\s*[!*]+$/, '').trim(), hard: /[!*]$/.test(t) }))
+    .filter((t) => t.name)
+}
+
+type Step = { topic: string; kind: keyof typeof MINUTES }
 
 /**
- * A study plan on free time before the exam: one 90-minute session a day (evenings first, then afternoon or
- * late morning), avoiding anything in the agenda, spread evenly over the days left, at most six.
- * Topics are shared out in order; the last session is a full practice test.
+ * What to study, in order: every topic once ("Learn"), then reviews (hard topics twice, the rest once), spread so a
+ * topic comes back a few sessions after it was learnt, and a full practice test last. Squeezed to `room` sessions:
+ * reviews go first, then topics are paired up; the practice test always stays.
  */
-export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: string[], travelMinutes = TRAVEL_MINUTES): StudySession[] {
+function studySteps(topics: Array<{ name: string; hard: boolean }>, room: number): Step[] {
+  if (room <= 0) return []
+  const test: Step = { topic: t('study.practiceTest'), kind: 'test' }
+  if (!topics.length) {
+    const n = Math.max(1, room)
+    return n > 1 ? [...Array.from({ length: n - 1 }, (_, i): Step => ({ topic: t('study.session', { n: i + 1 }), kind: 'learn' })), test] : [{ topic: t('study.session', { n: 1 }), kind: 'learn' }]
+  }
+  const learn: Step[] = topics.map((x) => ({ topic: t('study.learn', { topic: x.name }), kind: 'learn' }))
+  const hard = topics.filter((x) => x.hard)
+  const reviews: Step[] = [
+    ...hard.map((x): Step => ({ topic: t('study.review', { topic: x.name }), kind: 'review' })),
+    ...topics.filter((x) => !x.hard).map((x): Step => ({ topic: t('study.review', { topic: x.name }), kind: 'review' })),
+    ...hard.map((x): Step => ({ topic: t('study.reviewAgain', { topic: x.name }), kind: 'review' })),
+  ]
+  if (room === 1) return [test]
+  if (room - 1 < learn.length) {
+    // Not enough days to learn one topic per session: pair them up.
+    const per = Math.ceil(learn.length / (room - 1))
+    const grouped: Step[] = []
+    for (let i = 0; i < topics.length; i += per) grouped.push({ topic: t('study.learn', { topic: topics.slice(i, i + per).map((x) => x.name).join(' + ') }), kind: 'learn' })
+    return [...grouped, test]
+  }
+  // Interleave: after the first two topics are learnt, a review comes in after every new topic.
+  const queue = reviews.slice(0, room - 1 - learn.length)
+  const out: Step[] = []
+  learn.forEach((step, i) => {
+    out.push(step)
+    if (i >= 1 && queue.length && queue.length > learn.length - 1 - i) out.push(queue.shift()!)
+  })
+  return [...out, ...queue, test]
+}
+
+/**
+ * A study plan on free time before the exam, like spaced revision: sessions sit further apart at first and closer
+ * together as the exam gets near; each topic is learnt, then reviewed later (hard topics twice), and the last
+ * session is a full practice test. One session a day at most (evenings first, then afternoon or late morning),
+ * never over anything in the agenda or the trip to a class at school. Up to fourteen sessions.
+ */
+export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: Array<{ name: string; hard: boolean }>, travelMinutes = TRAVEL_MINUTES): StudySession[] {
   const first = startOfDay(now)
   const days: Date[] = []
   for (let d = first; d < startOfDay(exam.date); d = addDays(d, 1)) days.push(d)
@@ -199,26 +249,50 @@ export function planStudy(exam: Exam, agenda: AgendaItem[], now: Date, topics: s
         return [i.date.getTime() - travel, (i.end ?? new Date(i.date.getTime() + 60 * 60_000)).getTime()] as const
       })
 
+  // The first slot each day that fits a full 90-minute session.
   const free = days
     .map((day) => {
       const taken = busy(day)
       for (const [h, m] of SLOTS) {
         const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m)
-        const end = start.getTime() + SESSION_MINUTES * 60_000
+        const end = start.getTime() + MINUTES.learn * 60_000
         if (start.getTime() < now.getTime() + 30 * 60_000) continue
         if (taken.every(([a, b]) => end <= a || start.getTime() >= b)) return start
       }
       return undefined
     })
     .filter((d): d is Date => Boolean(d))
+  if (!free.length) return []
 
-  const count = Math.min(MAX_SESSIONS, free.length)
-  const picked = Array.from({ length: count }, (_, i) => free[Math.round((i * (free.length - 1)) / Math.max(1, count - 1))])
-  const unique = [...new Map(picked.map((d) => [d.getTime(), d])).values()]
+  const hardCount = topics.filter((x) => x.hard).length
+  const wanted = topics.length ? topics.length + hardCount * 2 + (topics.length - hardCount) + 1 : Math.ceil(free.length / 2)
+  const count = Math.max(1, Math.min(MAX_SESSIONS, free.length, Math.max(topics.length ? 2 : 3, wanted)))
+  const steps = studySteps(topics, count)
 
-  return unique.map((start, i) => {
-    const last = i === unique.length - 1 && unique.length > 1
-    const topic = last ? t('study.practiceTest') : topics.length ? topics[i % topics.length] : t('study.session', { n: i + 1 })
-    return { id: `${exam.id}@${start.toISOString()}`, examId: exam.id, start: start.toISOString(), minutes: SESSION_MINUTES, topic, done: false }
+  // Spread over the free days, denser near the exam: position = x^0.7 of the way along.
+  const used = new Set<number>()
+  const picked: Date[] = []
+  for (let i = 0; i < steps.length; i++) {
+    const x = steps.length === 1 ? 1 : i / (steps.length - 1)
+    let at = Math.round(Math.pow(x, 0.7) * (free.length - 1))
+    // Nearest free day that isn't taken yet, looking later first, then earlier.
+    for (let off = 0; off < free.length; off++) {
+      if (at + off < free.length && !used.has(at + off)) {
+        at += off
+        break
+      }
+      if (at - off >= 0 && !used.has(at - off)) {
+        at -= off
+        break
+      }
+    }
+    used.add(at)
+    picked.push(free[at])
+  }
+  picked.sort((a, b) => a.getTime() - b.getTime())
+
+  return steps.map((step, i) => {
+    const start = picked[i]
+    return { id: `${exam.id}@${start.toISOString()}`, examId: exam.id, start: start.toISOString(), minutes: MINUTES[step.kind], topic: step.topic, done: false }
   })
 }

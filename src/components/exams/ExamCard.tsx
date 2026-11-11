@@ -10,7 +10,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import type { ExamWithPlan } from '@/hooks/useExams'
 import { cn } from '@/lib/cn'
 import { dayDiff, fmt, isSameDay } from '@/lib/date'
-import { planStudy, resultTarget, type SessionView } from '@/lib/exams'
+import { parseTopics, planStudy, resultTarget, type SessionView } from '@/lib/exams'
 import { t, tn } from '@/i18n'
 
 /** "Today", "Tomorrow", "6 days". */
@@ -68,11 +68,7 @@ export function ExamCard({ exam, now, open: startOpen }: { exam: ExamWithPlan; n
     })
 
   const makePlan = () => {
-    const list = topics
-      .split(/[\n,;]+/)
-      .map((t) => t.trim())
-      .filter(Boolean)
-    const plan = planStudy(exam, agenda, now, list, profile.commute?.minutes)
+    const plan = planStudy(exam, agenda, now, parseTopics(topics), profile.commute?.minutes)
     if (!plan.length) return notify(t('exam.noTime'), 'error')
     study.set((items) => [...items.filter((i) => !(i.examId === exam.id && !i.fromCalendar)), ...plan])
     notify(tn('exam.planned', plan.length))
