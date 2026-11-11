@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Agenda } from '@/components/calendar/Agenda'
 import { DayTimeline } from '@/components/calendar/DayTimeline'
 import { MiniCalendar } from '@/components/calendar/MiniCalendar'
+import { SemesterView } from '@/components/calendar/SemesterView'
 import { WeekGrid } from '@/components/calendar/WeekGrid'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
@@ -14,12 +15,13 @@ import { useNow } from '@/hooks/useNow'
 import { addDays, fmt, isSameDay, startOfDay, weekOf } from '@/lib/date'
 import { locale, t } from '@/i18n'
 
-type Mode = 'month' | 'week' | 'day'
+type Mode = 'month' | 'week' | 'day' | 'term'
 
 const modes = [
   { value: 'day' as const, label: t('cal.day') },
   { value: 'week' as const, label: t('cal.week') },
   { value: 'month' as const, label: t('cal.month') },
+  { value: 'term' as const, label: t('sem.label') },
 ]
 
 // Remembered per device: a phone and a laptop often want different views.
@@ -27,7 +29,7 @@ const MODE_KEY = 'unidash.calendarMode.v1'
 const savedMode = (): Mode => {
   try {
     const m = localStorage.getItem(MODE_KEY)
-    return m === 'day' || m === 'week' || m === 'month' ? m : 'week'
+    return m === 'day' || m === 'week' || m === 'month' || m === 'term' ? m : 'week'
   } catch {
     return 'week'
   }
@@ -64,7 +66,7 @@ export function CalendarView() {
 
   // ← and → move by a day or a week (not while typing or with a sheet open).
   useEffect(() => {
-    if (mode === 'month') return
+    if (mode === 'month' || mode === 'term') return
     const onKey = (e: KeyboardEvent) => {
       const el = e.target instanceof HTMLElement ? e.target : null
       if (e.metaKey || e.ctrlKey || e.altKey || el?.closest('input, textarea, select, [contenteditable], [role=dialog]')) return
@@ -92,7 +94,7 @@ export function CalendarView() {
       />
       <RevealItem className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Segmented label={t('cal.view')} options={modes} value={mode} onChange={setMode} />
-        {mode !== 'month' && (
+        {(mode === 'week' || mode === 'day') && (
           <div className="flex items-center gap-1">
             <span className="me-1 text-headline text-ink tabular-nums">{mode === 'week' ? weekTitle(days) : fmt.longDate.format(selectedDate)}</span>
             <Button variant="plain" size="sm" disabled={onToday} onClick={() => setSelectedDate(startOfDay(now))}>
@@ -112,6 +114,17 @@ export function CalendarView() {
       {mode === 'day' && (
         <RevealItem className="mx-auto max-w-[44rem]">
           <DayTimeline day={selectedDate} now={now} />
+        </RevealItem>
+      )}
+      {mode === 'term' && (
+        <RevealItem>
+          <SemesterView
+            now={now}
+            onOpenWeek={(d) => {
+              setSelectedDate(d)
+              setMode('week')
+            }}
+          />
         </RevealItem>
       )}
       {mode === 'month' && (
