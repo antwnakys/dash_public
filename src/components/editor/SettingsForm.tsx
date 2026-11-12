@@ -141,6 +141,18 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         </Field>
       </FormGroup>
 
+      {/* Quick add from anywhere: an iPhone Shortcut opens unidash://add?text=… (lib/addLink.ts). */}
+      {isNative && (
+        <FormGroup title={t('set.share')}>
+          <p className="px-1 text-subhead text-muted">{t('set.shareHint')}</p>
+          <ol className="list-decimal space-y-1 ps-6 text-subhead text-muted">
+            <li>{t('set.share1')}</li>
+            <li>{t('set.share2')}</li>
+            <li>{t('set.share3')}</li>
+          </ol>
+        </FormGroup>
+      )}
+
       <form onSubmit={save}>
         <FormGroup title={t('set.you')}>
           <Field label={t('set.name')} hint={t('set.nameHint')}>

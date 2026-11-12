@@ -902,6 +902,11 @@ export const en = {
   "notes.addBtn": "Add note",
   "notes.share": "Share or save",
   "pp.files": "Photos and files you add to class notes are kept on your device too. If you sign in with Google, a copy goes to the same private app folder in your own Drive, so your other devices can open them. Delete all data removes them from both places.",
+  "set.share": "Add from other apps",
+  "set.shareHint": "Share text from any app to add it as a task; a date or time in it is read for you. Set it up once with a Shortcut:",
+  "set.share1": "Open the Shortcuts app and tap + to make a new shortcut.",
+  "set.share2": "Add the action “Open URLs”, type unidash://add?text= and insert “Shortcut Input” after it.",
+  "set.share3": "Tap ⓘ, turn on “Show in Share Sheet” and name it “Add to unidash”. Then: select text → Share → Add to unidash.",
 } as const
 
 export type Key = keyof typeof en

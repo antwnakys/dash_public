@@ -30,6 +30,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.230135727140-6pbttokq0rnme7kncs5dba3ucrab6t8g</string>
+				<string>unidash</string>
 			</array>
 		</dict>
 	</array>

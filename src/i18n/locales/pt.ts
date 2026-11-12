@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Adicionar nota",
   "notes.share": "Partilhar ou guardar",
   "pp.files": "As fotos e ficheiros que adiciona às notas de aula também ficam no seu dispositivo. Se iniciar sessão com o Google, uma cópia vai para a mesma pasta privada da app no seu próprio Drive, para os seus outros dispositivos os poderem abrir. Apagar todos os dados remove-os dos dois sítios.",
+  "set.share": "Adicionar a partir de outras apps",
+  "set.shareHint": "Partilhe texto de qualquer app para o adicionar como tarefa; a data ou hora nele é lida automaticamente. Configure uma vez com um Atalho:",
+  "set.share1": "Abra a app Atalhos e toque em + para criar um atalho.",
+  "set.share2": "Adicione a ação “Abrir URL”, escreva unidash://add?text= e insira “Entrada do atalho” a seguir.",
+  "set.share3": "Toque em ⓘ, ative “Mostrar na folha de partilha” e chame-lhe “Adicionar ao unidash”. Depois: selecione texto → Partilhar → Adicionar ao unidash.",
 }
 
 export default dict
