@@ -40,6 +40,8 @@
 	<string>230135727140-6pbttokq0rnme7kncs5dba3ucrab6t8g.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>unidash only uses your location while the app is open, to show the local weather. It never tracks you in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>unidash uses your location to show the local weather.</string>
 	<key>UIApplicationSceneManifest</key>
