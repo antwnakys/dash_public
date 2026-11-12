@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Aggiungi appunto",
   "notes.share": "Condividi o salva",
   "pp.files": "Le foto e i file che aggiungi agli appunti di lezione restano anche sul tuo dispositivo. Se accedi con Google, una copia va nella stessa cartella privata dell’app nel tuo Drive, così gli altri dispositivi possono aprirli. Elimina tutti i dati li rimuove da entrambi i posti.",
+  "set.share": "Aggiungi da altre app",
+  "set.shareHint": "Condividi del testo da qualsiasi app per aggiungerlo come attività; data o ora al suo interno vengono lette da sole. Configuralo una volta con un Comando rapido:",
+  "set.share1": "Apri l’app Comandi e tocca + per crearne uno nuovo.",
+  "set.share2": "Aggiungi l’azione «Apri URL», scrivi unidash://add?text= e inserisci «Input comando rapido» subito dopo.",
+  "set.share3": "Tocca ⓘ, attiva «Mostra nel foglio di condivisione» e chiamalo «Aggiungi a unidash». Poi: seleziona il testo → Condividi → Aggiungi a unidash.",
 }
 
 export default dict

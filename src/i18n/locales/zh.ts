@@ -887,6 +887,11 @@ const dict: Dict = {
   "notes.addBtn": "添加笔记",
   "notes.share": "分享或保存",
   "pp.files": "你添加到课堂笔记中的照片和文件也会保存在你的设备上。如果你用 Google 登录，副本会存到你自己云端硬盘中同一个私有应用文件夹，方便你的其他设备打开。“删除所有数据”会把它们从两处都删除。",
+  "set.share": "从其他 App 添加",
+  "set.shareHint": "在任何 App 中分享文字即可添加为任务，其中的日期或时间会自动识别。用“快捷指令”设置一次：",
+  "set.share1": "打开“快捷指令”App，轻点 + 新建快捷指令。",
+  "set.share2": "添加“打开 URL”操作，输入 unidash://add?text= 并在其后插入“快捷指令输入”。",
+  "set.share3": "轻点 ⓘ，打开“在共享表单中显示”，命名为“添加到 unidash”。之后：选中文字 → 共享 → 添加到 unidash。",
 }
 
 export default dict

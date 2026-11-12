@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Not ekle",
   "notes.share": "Paylaş ya da kaydet",
   "pp.files": "Ders notlarına eklediğin fotoğraflar ve dosyalar cihazında da tutulur. Google ile giriş yaparsan, bir kopyası kendi Drive’ındaki aynı özel uygulama klasörüne gider, böylece diğer cihazların da açabilir. Tüm verileri sil, onları iki yerden de kaldırır.",
+  "set.share": "Diğer uygulamalardan ekle",
+  "set.shareHint": "Herhangi bir uygulamadan metni paylaşarak görev olarak ekle; içindeki tarih ya da saat otomatik okunur. Bir kez bir Kestirme ile kur:",
+  "set.share1": "Kestirmeler uygulamasını aç ve yeni kestirme için + simgesine dokun.",
+  "set.share2": "“URL’leri Aç” eylemini ekle, unidash://add?text= yaz ve arkasına “Kestirme Girdisi”ni ekle.",
+  "set.share3": "ⓘ simgesine dokun, “Paylaşma Sayfasında Göster”i aç ve adını “unidash’e Ekle” koy. Sonra: metni seç → Paylaş → unidash’e Ekle.",
 }
 
 export default dict

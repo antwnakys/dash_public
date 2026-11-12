@@ -180,7 +180,11 @@ not listed here works as described in the original's `CLAUDE.md`.
   **Absences** (`lib/absences.ts`, optional `Course.absences`/`absenceLimit`): course card row + **Missed a class** (only
   for courses with classes, Undo), course sheet section. **Spaced study plans** (`parseTopics`, `studySteps`,
   `planStudy` in `lib/exams.ts`: up to 14 sessions at x^0.7, learn 90 / review 60 / test 90 min, `!` = hard topic).
-  Keys `sem.*`, `abs.*`, `study.learn/review/reviewAgain` in all 16 languages. Quick add from anywhere is still only in dash.
+  Keys `sem.*`, `abs.*`, `study.learn/review/reviewAgain` in all 16 languages.
+- **Quick add from anywhere** (Nov 12, from dash; `lib/addLink.ts`): text → the ⌘K box filled in (`paletteSeed` in
+  context), so quick add reads dates and Enter adds. iPhone: `unidash://add?text=…` (URL scheme `unidash` in
+  Info.plist, `@capacitor/app` appUrlOpen + launch URL) from an iOS Shortcut in the Share menu; Settings shows the
+  three setup steps in the app (`set.share*`). Website: `?add=…` (removed from the address after reading).
 - **Class notes** (Nov 11, from dash): course card → Class notes (editor `classNotes`, list by date) → note (editor
   `classNote`: class day = latest class, text, photos/files). Synced collection `unidash.classNotes.v1` (`ClassNote`,
   `NoteFile`). File bytes aren't in the sync file: a data URL in IndexedDB `unidash-files` and, when signed in, a text
@@ -338,7 +342,7 @@ not listed here works as described in the original's `CLAUDE.md`.
 
 - **Ported from dash on Nov 10 (all four stages live)**: backups/Undo, stronger tasks + ⌘K, focus timer + weekly
   review + This week, calendar Day/Week + drag, course colours/notes/links/Workload. Still only in dash: Projects,
-  Goals, quick add from anywhere, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
+  Goals, the Graphite look, dash's top bar and the Dashboard-style Today. Obsidian is now an option in Settings
   (Classic stays the default, Antonis's choice on Nov 10).
 - Antonis adds himself and classmates as test users (Google Auth Platform → Audience → Test users, max 100), then
   tries sign-in on the live site. Test users' sign-in expires every 7 days while the app is in Testing.

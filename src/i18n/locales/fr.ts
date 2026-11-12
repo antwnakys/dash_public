@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Ajouter la note",
   "notes.share": "Partager ou enregistrer",
   "pp.files": "Les photos et fichiers que tu ajoutes aux notes de cours sont aussi gardés sur ton appareil. Si tu te connectes avec Google, une copie va dans le même dossier privé de l’app dans ton propre Drive, pour que tes autres appareils puissent les ouvrir. Supprimer toutes les données les efface des deux endroits.",
+  "set.share": "Ajouter depuis d’autres apps",
+  "set.shareHint": "Partage du texte depuis n’importe quelle app pour l’ajouter en tâche ; la date ou l’heure qu’il contient est lue pour toi. À configurer une fois avec un Raccourci :",
+  "set.share1": "Ouvre l’app Raccourcis et touche + pour créer un raccourci.",
+  "set.share2": "Ajoute l’action « Ouvrir les URL », tape unidash://add?text= puis insère « Entrée du raccourci » après.",
+  "set.share3": "Touche ⓘ, active « Afficher dans la feuille de partage » et nomme-le « Ajouter à unidash ». Ensuite : sélectionne du texte → Partager → Ajouter à unidash.",
 }
 
 export default dict

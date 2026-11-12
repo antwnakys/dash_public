@@ -60,7 +60,7 @@ const SHORTCUTS: Array<[string, string]> = [
  * or add a task straight from what you typed (read with quick add, shown before Enter).
  */
 export function CommandPalette() {
-  const { palette, setPalette, tasks, courses, agenda, setView, openEditor, notify, setFocusOpen, classNotes } = useDashboard()
+  const { palette, setPalette, paletteSeed, setPaletteSeed, tasks, courses, agenda, setView, openEditor, notify, setFocusOpen, classNotes } = useDashboard()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const input = useRef<HTMLInputElement>(null)
@@ -179,9 +179,18 @@ export function CommandPalette() {
     return out
   })()
 
+  // Opening with text from outside unidash (Share menu Shortcut, ?add= link) fills the box.
   useEffect(() => {
-    if (palette) requestAnimationFrame(() => input.current?.focus())
-  }, [palette])
+    if (!palette) return
+    requestAnimationFrame(() => {
+      if (paletteSeed) {
+        setQuery(paletteSeed)
+        setActive(0)
+        setPaletteSeed('')
+      }
+      input.current?.focus()
+    })
+  }, [palette, paletteSeed, setPaletteSeed])
 
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: 'nearest' })

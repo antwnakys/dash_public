@@ -6,6 +6,7 @@ import { FocusMode, FocusPill } from '@/components/focus/FocusMode'
 import { Onboarding } from '@/components/onboarding/Onboarding'
 import { ToastHost } from '@/components/ui/Toast'
 import { useDashboard } from '@/context/DashboardContext'
+import { listenForAddLinks } from '@/lib/addLink'
 import { onMenuBar } from '@/lib/macApp'
 import { blur, ease, ltr, spring } from '@/lib/motion'
 import { isNative } from '@/lib/native'
@@ -38,7 +39,7 @@ const pageVariants = {
 }
 
 export function AppShell() {
-  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile, palette, setPalette, focusOpen, setFocusOpen } = useDashboard()
+  const { view, setView, editor, openEditor, closeEditor, dismissToast, calendar, cloud, profile, palette, setPalette, setPaletteSeed, focusOpen, setFocusOpen } = useDashboard()
   const reduce = useReducedMotion()
   const phone = usePhone()
   // Scale around the middle of what's on screen, not the top of the page.
@@ -74,6 +75,17 @@ export function AppShell() {
         setView(choice)
       }),
     [openEditor, setView],
+  )
+
+  // Text shared to unidash from outside (iPhone Share menu Shortcut, ?add= links): the ⌘K box opens with it.
+  useEffect(
+    () =>
+      listenForAddLinks((text) => {
+        closeRef.current()
+        setPaletteSeed(text)
+        setPalette(true)
+      }),
+    [setPalette, setPaletteSeed],
   )
 
   // Keyboard: ⌘K (or Ctrl+K) the command palette, / search, N New, T add a task, F focus, 1–5 switch sections.

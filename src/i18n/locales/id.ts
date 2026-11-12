@@ -887,6 +887,11 @@ const dict: Dict = {
   "notes.addBtn": "Tambah catatan",
   "notes.share": "Bagikan atau simpan",
   "pp.files": "Foto dan file yang kamu tambahkan ke catatan kelas juga disimpan di perangkatmu. Jika masuk dengan Google, salinannya masuk ke folder aplikasi pribadi yang sama di Drive-mu sendiri, agar perangkatmu yang lain bisa membukanya. Hapus semua data menghapusnya dari kedua tempat.",
+  "set.share": "Tambah dari aplikasi lain",
+  "set.shareHint": "Bagikan teks dari aplikasi apa pun untuk menambahkannya sebagai tugas; tanggal atau jam di dalamnya dibaca otomatis. Atur sekali dengan Pintasan:",
+  "set.share1": "Buka app Pintasan dan ketuk + untuk membuat pintasan baru.",
+  "set.share2": "Tambahkan tindakan “Buka URL”, ketik unidash://add?text= lalu sisipkan “Input Pintasan” setelahnya.",
+  "set.share3": "Ketuk ⓘ, nyalakan “Tampilkan di Lembar Bagikan” dan beri nama “Tambah ke unidash”. Lalu: pilih teks → Bagikan → Tambah ke unidash.",
 }
 
 export default dict

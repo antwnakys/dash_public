@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Añadir apunte",
   "notes.share": "Compartir o guardar",
   "pp.files": "Las fotos y archivos que añades a los apuntes de clase también se guardan en tu dispositivo. Si inicias sesión con Google, una copia va a la misma carpeta privada de la app en tu propio Drive, para que tus otros dispositivos puedan abrirlos. Borrar todos los datos los elimina de ambos sitios.",
+  "set.share": "Añadir desde otras apps",
+  "set.shareHint": "Comparte texto desde cualquier app para añadirlo como tarea; la fecha u hora que tenga se lee sola. Configúralo una vez con un Atajo:",
+  "set.share1": "Abre la app Atajos y toca + para crear un atajo.",
+  "set.share2": "Añade la acción «Abrir URL», escribe unidash://add?text= y pon «Entrada del atajo» detrás.",
+  "set.share3": "Toca ⓘ, activa «Mostrar en la hoja de compartir» y llámalo «Añadir a unidash». Después: selecciona texto → Compartir → Añadir a unidash.",
 }
 
 export default dict

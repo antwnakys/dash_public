@@ -901,6 +901,11 @@ const dict: Dict = {
   "notes.addBtn": "Notiz hinzufügen",
   "notes.share": "Teilen oder sichern",
   "pp.files": "Fotos und Dateien, die du zu Mitschriften hinzufügst, werden auch auf deinem Gerät gespeichert. Wenn du dich mit Google anmeldest, kommt eine Kopie in denselben privaten App-Ordner in deinem eigenen Drive, damit deine anderen Geräte sie öffnen können. „Alle Daten löschen“ entfernt sie an beiden Orten.",
+  "set.share": "Aus anderen Apps hinzufügen",
+  "set.shareHint": "Teile Text aus einer beliebigen App, um ihn als Aufgabe hinzuzufügen; Datum oder Uhrzeit darin werden erkannt. Einmal einrichten mit einem Kurzbefehl:",
+  "set.share1": "Öffne die App Kurzbefehle und tippe auf +, um einen neuen Kurzbefehl zu erstellen.",
+  "set.share2": "Füge die Aktion „URLs öffnen“ hinzu, tippe unidash://add?text= und setze „Kurzbefehleingabe“ dahinter.",
+  "set.share3": "Tippe auf ⓘ, aktiviere „Im Share-Sheet anzeigen“ und nenne ihn „Zu unidash hinzufügen“. Dann: Text markieren → Teilen → Zu unidash hinzufügen.",
 }
 
 export default dict

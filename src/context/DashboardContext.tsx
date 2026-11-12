@@ -64,6 +64,9 @@ interface DashboardValue {
   /** The ⌘K command palette. */
   palette: boolean
   setPalette: (open: boolean) => void
+  /** Text to start the ⌘K box with (quick add from outside unidash), taken once when it opens. */
+  paletteSeed: string
+  setPaletteSeed: (text: string) => void
   editor: EditorTarget | null
   openEditor: (target: EditorTarget) => void
   closeEditor: () => void
@@ -179,6 +182,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
   const [editor, setEditor] = useState<EditorTarget | null>(null)
   const [palette, setPalette] = useState(false)
+  const [paletteSeed, setPaletteSeed] = useState('')
   const [focusOpen, setFocusOpen] = useState(false)
   const theme = useTheme()
   const [view, setView] = useState<ViewId>('today')
@@ -254,6 +258,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setSelectedDate,
     palette,
     setPalette,
+    paletteSeed,
+    setPaletteSeed,
     editor,
     openEditor: setEditor,
     closeEditor: () => setEditor(null),
