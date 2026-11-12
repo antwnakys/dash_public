@@ -333,6 +333,9 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 11, 2026**: Google sign-in in the iPhone app (iOS client) and unidash's own icon: a **u** mark (same speed lines as
   dash's d), white on blue for the default iPhone icon and the web icons, navy in dark mode (`assets/*.svg`,
   `npm run icons`, `components/brand/Logo.tsx`).
+- **Nov 12, 2026**: bug sweep (setup, tasks, courses, notes, exams, focus, calendar drag, Arabic/Greek layouts): a class
+  note's default day used the UTC date (wrong just after midnight); "next friday" now means next week's Friday (Monday-
+  first weeks) and "tonight at 9" means 21:00; the Today clock kept the space before AM/PM (`RollingTime`).
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
   weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,

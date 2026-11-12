@@ -5,7 +5,7 @@
  *
  * Understood (English, with the common Greek words for days):
  * - days: today, tonight, tomorrow (tmr), day after tomorrow, monday…sunday (mon–fri also short; "sat"/"sun" must be
- *   written out), "next friday", "in 3 days", "in 2 weeks", 12/11, 12-11, 12/11/2026, 12.11.2026, "12 nov", "nov 12"
+ *   written out), "next friday" (the Friday of next week), "in 3 days", "in 2 weeks", 12/11, 12-11, 12/11/2026, 12.11.2026, "12 nov", "nov 12"
  *   (day first, as in Greece); Greek: σήμερα, αύριο, μεθαύριο, Δευτέρα…Κυριακή
  * - times: "at 18:00", 18:00, 18.30, 6pm, 6:30pm, "at 6" (with a day or "at")
  * - priority: !, !!, !!! (low, medium, high) or p1/p2/p3 (high, medium, low)
@@ -15,7 +15,7 @@
  * - in the other languages also that language's today, tomorrow, the day after and weekday names, taken from
  *   the browser's own date names (`localRules`), so "Ensayo viernes 18:00" works in Spanish
  */
-import { addDays, startOfDay } from './date'
+import { addDays, startOfDay, weekOf } from './date'
 import { lang, locale, t } from '@/i18n'
 import type { Task, TaskCategory, TaskPriority, TaskRepeat } from '@/types'
 
@@ -56,11 +56,11 @@ const monthOf = (word: string) => {
   return i >= 0 && /^[a-z]+$/i.test(word) ? i : undefined
 }
 
-/** Next date (today counts) that falls on `weekday`; `next` skips this week's. */
-function nextWeekday(now: Date, weekday: number, skipToday = false): Date {
-  let d = startOfDay(now)
-  for (let i = 0; i < 8; i++) {
-    if (d.getDay() === weekday && !(skipToday && i === 0)) return d
+/** Next date (today counts) that falls on `weekday`; `nextWeek` picks that day in next week (Monday to Sunday). */
+function nextWeekday(now: Date, weekday: number, nextWeek = false): Date {
+  let d = nextWeek ? addDays(weekOf(now)[0], 7) : startOfDay(now)
+  for (let i = 0; i < 7; i++) {
+    if (d.getDay() === weekday) return d
     d = addDays(d, 1)
   }
   return d
@@ -88,6 +88,8 @@ interface Draft {
   day?: Date
   /** The day came from a weekday name, so "monday" said on a Monday evening means next week once the time has passed. */
   weekday?: boolean
+  /** "tonight": a time like "at 9" means 21:00. */
+  tonight?: boolean
   time?: [number, number]
   priority?: TaskPriority
   category?: TaskCategory
@@ -138,7 +140,7 @@ const RULES: Rule[] = [
     kind: 'due',
     apply: (_, o, now) => {
       o.day = startOfDay(now)
-      o.time ??= [20, 0]
+      o.tonight = true
       return true
     },
   },
@@ -336,11 +338,11 @@ export function parseQuickAdd(input: string, now = new Date(), ignore: QuickPart
     // A time alone that has already passed today means tomorrow.
     if (!draft.day && draft.time && (draft.time[0] < now.getHours() || (draft.time[0] === now.getHours() && draft.time[1] <= now.getMinutes())))
       day = addDays(day, 1)
-    const [h, m] = draft.time ?? [23, 59]
+    const [h, m] = draft.tonight ? (draft.time ? [draft.time[0] < 12 ? draft.time[0] + 12 : draft.time[0], draft.time[1]] : [20, 0]) : (draft.time ?? [23, 59])
     let due = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m)
     if (draft.weekday && due < now) due = addDays(due, 7)
     out.due = due.toISOString()
-    out.dueAllDay = draft.time ? undefined : true
+    out.dueAllDay = draft.time || draft.tonight ? undefined : true
   }
   if (draft.repeat) {
     out.repeat = draft.repeat
