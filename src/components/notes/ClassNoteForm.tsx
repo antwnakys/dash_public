@@ -6,7 +6,7 @@ import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { useDashboard } from '@/context/DashboardContext'
 import { lastClassDay } from '@/lib/absences'
 import { addFile, dataUrlToFile, deleteFile, FileTooBigError, localFile, openFile, sizeLabel } from '@/lib/classFiles'
-import { formatDate } from '@/lib/schedule'
+import { formatDate, ymd } from '@/lib/schedule'
 import type { NoteFile } from '@/types'
 import { Field, PickerPill, TextArea } from '@/components/editor/fields'
 import { t } from '@/i18n'
@@ -35,7 +35,7 @@ export function ClassNoteForm({ courseId, id }: { courseId: string; id?: string 
   const { classNotes, courses, agenda, notify, calendar, openEditor } = useDashboard()
   const existing = classNotes.items.find((n) => n.id === id)
   const course = courses.items.find((c) => c.id === courseId)
-  const [date, setDate] = useState(() => existing?.date ?? (course ? lastClassDay(course, agenda, new Date()) : new Date().toISOString().slice(0, 10)))
+  const [date, setDate] = useState(() => existing?.date ?? (course ? lastClassDay(course, agenda, new Date()) : ymd(new Date())))
   const [text, setText] = useState(existing?.text ?? '')
   const [files, setFiles] = useState<NoteFile[]>(existing?.files ?? [])
   const [busy, setBusy] = useState(false)

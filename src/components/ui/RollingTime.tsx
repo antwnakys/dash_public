@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { blur, spring } from '@/lib/motion'
 
 /** Each digit rolls up when it changes, like a mechanical counter. Always laid out left to right (the digits are
- * separate boxes, so a right-to-left page would otherwise reverse them). */
+ * separate boxes, so a right-to-left page would otherwise reverse them). Spaces ("8:16 PM") become no-break spaces:
+ * a box holding only a space collapses to nothing. */
 export function RollingTime({ text, className }: { text: string; className?: string }) {
   return (
     <span dir="ltr" className={className} aria-label={text} role="text">
@@ -17,7 +18,7 @@ export function RollingTime({ text, className }: { text: string; className?: str
               exit={{ y: '-100%', opacity: 0, ...blur(4) }}
               transition={spring.smooth}
             >
-              {ch}
+              {/\s/.test(ch) ? '\u00a0' : ch}
             </motion.span>
           </AnimatePresence>
         </span>
