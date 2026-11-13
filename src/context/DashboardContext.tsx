@@ -16,6 +16,7 @@ import { isClass, isExamTitle } from '@/lib/school'
 import { courseCalendarPatches, courseOf } from '@/lib/courseLink'
 import { looksOnline } from '@/lib/meeting'
 import { startOfDay } from '@/lib/date'
+import { scheduleOf, showsView } from '@/lib/role'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
@@ -35,6 +36,8 @@ interface DashboardValue {
   profile: Profile
   setProfile: (patch: Partial<Profile>) => void
   courses: Collection<Course>
+  /** Weekly times that count as classes (`scheduleOf`): the courses, or the usual days at work when not a student. */
+  schedule: Course[]
   assignments: Collection<Assignment>
   events: Collection<CalendarEvent>
   /** Study sessions planned by unidash, and ticks on study events from the calendar. */
@@ -185,7 +188,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [paletteSeed, setPaletteSeed] = useState('')
   const [focusOpen, setFocusOpen] = useState(false)
   const theme = useTheme()
-  const [view, setView] = useState<ViewId>('today')
+  const [view, setViewState] = useState<ViewId>('today')
+  // A section that isn't shown (Courses or Exams when not a student) opens the calendar instead.
+  const setView = useCallback((v: ViewId) => setViewState(showsView(v) ? v : 'calendar'), [])
   const [toast, setToast] = useState<Toast | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const notify = useCallback(
@@ -214,8 +219,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     [courses.items, assignments.items, events.items, calendar.events, tasks.tasks, profile.school],
   )
 
-  const reminders = useReminders(agenda, courses.items, profile)
-  useWidget(agenda, courses.items, profile.commute)
+  // Weekly times that count as classes: courses, or the usual days at work when not a student.
+  const schedule = useMemo(() => scheduleOf(profile.role, profile.routine, courses.items), [profile.role, profile.routine, courses.items])
+  const reminders = useReminders(agenda, schedule, profile)
+  useWidget(agenda, schedule, profile.commute)
   // Class-note files added offline or before connecting go up to Drive once signed in.
   useClassFileUploads(classNotes, Boolean(calendar.google.account))
 
@@ -238,6 +245,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     profile,
     setProfile,
     courses,
+    schedule,
     assignments,
     events,
     study,

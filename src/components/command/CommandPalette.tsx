@@ -23,6 +23,7 @@ import { parseQuickAdd, priorityLabel, quickFields, repeatLabel } from '@/lib/qu
 import { countdown, fmt } from '@/lib/date'
 import { dueText } from '@/lib/taskDue'
 import { views, type ViewId } from '@/views'
+import { student } from '@/lib/role'
 import type { EditorTarget } from '@/types'
 import { categoryLabel } from '@/components/tasks/categories'
 import { t } from '@/i18n'
@@ -116,6 +117,7 @@ export function CommandPalette() {
     // Each item also matches its English words, so "new task" finds it in any language.
     const en = ['task', 'exam', 'deadline', 'event', 'course']
     create.forEach(([label, icon, target], i) => {
+      if (!student && en[i] !== 'task' && en[i] !== 'event') return
       if (matches(q, label, `new add create ${en[i]}`)) out.push({ id: `new-${en[i]}`, group: t('pal.gCreate'), label, icon, run: () => open(target) })
     })
     views.forEach((v, i) => {

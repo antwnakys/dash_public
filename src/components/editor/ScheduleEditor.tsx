@@ -23,11 +23,21 @@ export function ScheduleEditor({
   onMeetings,
   term,
   onTerm,
+  startLabel = t('se.classStarts'),
+  endLabel = t('se.classEnds'),
+  blank = newMeeting,
+  addLabel = t('se.addTime'),
 }: {
   meetings: CourseMeeting[]
   onMeetings: (m: CourseMeeting[]) => void
-  term: Term
-  onTerm: (t: Term) => void
+  /** First and last class; left out for the usual days at work. */
+  term?: Term
+  onTerm?: (t: Term) => void
+  startLabel?: string
+  endLabel?: string
+  /** A new time row. */
+  blank?: () => CourseMeeting
+  addLabel?: string
 }) {
   const change = (i: number, m: CourseMeeting) => onMeetings(meetings.map((x, j) => (j === i ? m : x)))
   const toggle = (i: number, day: number) => {
@@ -70,12 +80,12 @@ export function ScheduleEditor({
             )}
           </div>
           <Row label={t('se.starts')}>
-            <PickerPill type="time" label={t('se.classStarts')} value={m.start} display={formatTime} onChange={(v) => v && change(i, shiftEnd(m, v))} />
+            <PickerPill type="time" label={startLabel} value={m.start} display={formatTime} onChange={(v) => v && change(i, shiftEnd(m, v))} />
           </Row>
           <Row label={t('se.ends')}>
             <PickerPill
               type="time"
-              label={t('se.classEnds')}
+              label={endLabel}
               value={m.end ?? ''}
               display={formatTime}
               onChange={(v) => change(i, { ...m, end: v || undefined })}
@@ -86,13 +96,14 @@ export function ScheduleEditor({
 
       <button
         type="button"
-        onClick={() => onMeetings([...meetings, newMeeting()])}
+        onClick={() => onMeetings([...meetings, blank()])}
         className="inline-flex h-9 w-fit items-center gap-1.5 rounded-full px-2 text-subhead font-medium text-accent transition-colors hover:bg-fill"
       >
         <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-        {t('se.addTime')}
+        {meetings.length ? t('se.addTime') : addLabel}
       </button>
 
+      {term && onTerm && (
       <div className="separated overflow-hidden rounded-[var(--radius-control)] bg-fill/60">
         <Row label={t('se.firstClass')}>
           <PickerPill type="date" label={t('se.firstClass')} value={term.start ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, start: v || undefined })} />
@@ -101,6 +112,7 @@ export function ScheduleEditor({
           <PickerPill type="date" label={t('se.lastClass')} value={term.end ?? ''} display={formatDate} onChange={(v) => onTerm({ ...term, end: v || undefined })} />
         </Row>
       </div>
+      )}
     </div>
   )
 }

@@ -38,8 +38,8 @@ function lanes(items: CalEntry[]): Array<{ entry: CalEntry; lane: number; of: nu
 
 /** Day view: due items and all-day things on top, then an hour-by-hour timeline with a line at the current time. */
 export function DayTimeline({ day, now }: { day: Date; now: Date }) {
-  const { agenda, courses } = useDashboard()
-  const entries = dayEntries(day, agenda, courses.items)
+  const { agenda, schedule } = useDashboard()
+  const entries = dayEntries(day, agenda, schedule)
   const due = (e: CalEntry) => e.allDay || ((e.kind === 'assignment' || e.kind === 'task' || e.kind === 'quiz') && !e.end)
   const top = entries.filter(due)
   const timed = entries.filter((e) => !due(e))

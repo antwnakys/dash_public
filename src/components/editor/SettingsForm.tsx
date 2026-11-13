@@ -14,6 +14,8 @@ import { isMacApp } from '@/lib/macApp'
 import { isNative } from '@/lib/native'
 import type { Place, LookPreference, ThemePreference } from '@/types'
 import { SchoolPicker } from '@/components/place/SchoolPicker'
+import { byRole, newWorkTimes, reloadForRole, student } from '@/lib/role'
+import { ScheduleEditor } from './ScheduleEditor'
 import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { takeSnapshot } from '@/sync/backup'
 import { BackupSection } from './BackupSection'
@@ -95,7 +97,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
       const school = schoolName.trim() || address.trim() ? { name: schoolName.trim() || undefined, address: address.trim() || undefined, place: found.place } : undefined
       setProfile({ name: name.trim(), place, school, home: homePlace.place })
       if (!homePlace.found) notify(t('set.homeNotFound', { name: home.trim() }), 'error')
-      else if (!found.found) notify(t('set.schoolNotFound'))
+      else if (!found.found) notify(byRole('set.schoolNotFound', 'set.workNotFound'))
       else notify(t('set.saved'))
       if (homePlace.found) onDone()
     } catch {
@@ -155,11 +157,29 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
       <form onSubmit={save}>
         <FormGroup title={t('set.you')}>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="px-1 text-subhead font-medium text-muted">{t('set.role')}</span>
+            <Segmented
+              label={t('set.role')}
+              options={[
+                { value: 'student' as const, label: t('set.roleStudent') },
+                { value: 'other' as const, label: t('set.roleOther') },
+              ]}
+              value={student ? 'student' : 'other'}
+              onChange={(role) => {
+                if ((role === 'student') === student) return
+                setProfile({ role })
+                reloadForRole()
+              }}
+              block
+            />
+            <span className="px-1 text-caption text-faint">{t('set.roleHint')}</span>
+          </div>
           <Field label={t('set.name')} hint={t('set.nameHint')}>
             <TextInput value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" />
           </Field>
           <div className="flex flex-col gap-1.5">
-            <span className="px-1 text-subhead font-medium text-muted">{t('place.search')}</span>
+            <span className="px-1 text-subhead font-medium text-muted">{byRole('place.search', 'place.searchWork')}</span>
             <SchoolPicker
               place={schoolPlace}
               near={schoolPlace ?? profile.home ?? profile.place}
@@ -177,10 +197,10 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               }}
             />
           </div>
-          <Field label={t('set.school')} hint={t('set.schoolHint')}>
-            <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder={t('set.schoolPh')} autoComplete="organization" />
+          <Field label={byRole('set.school', 'set.work')} hint={byRole('set.schoolHint', 'set.workHint')}>
+            <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder={byRole('set.schoolPh', 'set.workPh')} autoComplete="organization" />
           </Field>
-          <Field label={t('set.address')} hint={t('set.addressHint')}>
+          <Field label={byRole('set.address', 'set.workAddress')} hint={byRole('set.addressHint', 'set.workAddressHint')}>
             <TextInput value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('set.addressPh')} autoComplete="off" />
           </Field>
           <Field label={t('set.home')} hint={t('set.homeHint')}>
@@ -213,9 +233,22 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
 
       <div ref={commuteSection} className="scroll-mt-4">
         <FormGroup
-          title={t('set.commute')}
-          footer={t('set.commuteFooter')}
+          title={byRole('set.commute', 'set.commuteWork')}
+          footer={byRole('set.commuteFooter', 'set.commuteFooterWork')}
         >
+          {!student && (
+            <div className="flex flex-col gap-1.5">
+              <span className="px-1 text-subhead font-medium text-muted">{t('set.routine')}</span>
+              <ScheduleEditor
+                meetings={profile.routine ?? []}
+                onMeetings={(routine) => setProfile({ routine: routine.length ? routine : undefined })}
+                startLabel={t('se.workStarts')}
+                endLabel={t('se.workEnds')}
+                blank={newWorkTimes}
+                addLabel={t('routine.add')}
+              />
+            </div>
+          )}
           <Segmented
             label={t('set.how')}
             options={modes}
@@ -285,7 +318,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               <Select value={profile.pass.renewDay} onChange={(e) => setProfile({ pass: { renewDay: +e.target.value } })}>
                 {passDays.map((d) => (
                   <option key={d} value={d}>
-                    {dayLabel(d)} of each month
+                    {dayLabel(d)}
                   </option>
                 ))}
               </Select>
@@ -306,7 +339,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
         {reminders.permission === 'granted' && (
           <div className="flex flex-col gap-1">
             <Toggle
-              label={t('set.remLeave')}
+              label={byRole('set.remLeave', 'set.remLeaveWork')}
               checked={profile.reminders?.leave !== false}
               onChange={(v) => setProfile({ reminders: { ...profile.reminders, leave: v } })}
             />
@@ -345,7 +378,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
           <p className="px-1 text-subhead text-muted">{t('set.notifOff')}</p>
         )}
         <p className="px-1 text-subhead text-muted">
-          {profile.pass?.renewDay ? t('set.remWhenPass') : t('set.remWhen')}
+          {profile.pass?.renewDay ? byRole('set.remWhenPass', 'set.remWhenPassWork') : byRole('set.remWhen', 'set.remWhenWork')}
         </p>
       </FormGroup>
       )}

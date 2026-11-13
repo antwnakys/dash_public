@@ -1,5 +1,6 @@
 import type { AgendaItem, AgendaKind, EditorTarget } from '@/types'
 import { t } from '@/i18n'
+import { byRole } from './role'
 
 export const kindLabel: Record<AgendaKind, string> = {
   assignment: t('kind.assignment'),
@@ -7,7 +8,8 @@ export const kindLabel: Record<AgendaKind, string> = {
   quiz: t('kind.quiz'),
   event: t('kind.event'),
   reminder: t('kind.reminder'),
-  class: t('kind.class'),
+  // Not a student: time at the saved place (work) instead of a course.
+  class: byRole('kind.class', 'kind.work'),
   task: t('kind.task'),
 }
 

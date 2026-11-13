@@ -17,6 +17,7 @@
  */
 import { addDays, startOfDay, weekOf } from './date'
 import { lang, locale, t } from '@/i18n'
+import { student } from './role'
 import type { Task, TaskCategory, TaskPriority, TaskRepeat } from '@/types'
 
 export type QuickPartKind = 'due' | 'priority' | 'category' | 'repeat' | 'tags'
@@ -128,7 +129,8 @@ const RULES: Rule[] = [
     kind: 'category',
     apply: (m, o) => {
       const w = m[1].toLowerCase()
-      o.category = w === 'personal' || w === 'me' ? 'personal' : w.startsWith('project') || w === 'work' ? 'projects' : 'college'
+      // Not a student, "college" is the Work category, so #work goes there.
+      o.category = w === 'personal' || w === 'me' ? 'personal' : w.startsWith('project') || (w === 'work' && student) ? 'projects' : 'college'
       return true
     },
   },

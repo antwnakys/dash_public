@@ -222,6 +222,10 @@ export interface Profile {
   pass?: { renewDay?: number }
   /** First-open setup finished or skipped. */
   onboarded?: boolean
+  /** Who uses unidash: missing means a student. `other` hides courses and exams and talks about work, not school. */
+  role?: 'student' | 'other'
+  /** Not a student: the usual days and hours at the saved place (`school`), so Today can say when to leave. */
+  routine?: CourseMeeting[]
   /** Weather location; when unset, home is used. */
   place?: Place
   /** Follow this device's location for the weather, refreshed each time unidash opens. Missing means off. */

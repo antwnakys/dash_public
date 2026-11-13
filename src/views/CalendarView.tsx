@@ -14,6 +14,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { addDays, fmt, isSameDay, startOfDay, weekOf } from '@/lib/date'
 import { locale, t } from '@/i18n'
+import { student } from '@/lib/role'
 
 type Mode = 'month' | 'week' | 'day' | 'term'
 
@@ -21,7 +22,8 @@ const modes = [
   { value: 'day' as const, label: t('cal.day') },
   { value: 'week' as const, label: t('cal.week') },
   { value: 'month' as const, label: t('cal.month') },
-  { value: 'term' as const, label: t('sem.label') },
+  // The semester view (exams and deadlines by week) is for students.
+  ...(student ? [{ value: 'term' as const, label: t('sem.label') }] : []),
 ]
 
 // Remembered per device: a phone and a laptop often want different views.
@@ -29,7 +31,7 @@ const MODE_KEY = 'unidash.calendarMode.v1'
 const savedMode = (): Mode => {
   try {
     const m = localStorage.getItem(MODE_KEY)
-    return m === 'day' || m === 'week' || m === 'month' || m === 'term' ? m : 'week'
+    return m === 'day' || m === 'week' || m === 'month' || (m === 'term' && student) ? m : 'week'
   } catch {
     return 'week'
   }
