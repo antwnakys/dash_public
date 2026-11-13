@@ -251,7 +251,9 @@ not listed here works as described in the original's `CLAUDE.md`.
   draggable pin; dragging or tapping the map moves it and fills the address there (Nominatim reverse, `addressAt`).
   The exact position is `profile.school.place`, so it syncs with the profile like everything else. Typing an address by
   hand still works (looked up on save as before). Privacy page lists Photon (`pp.svcPhoton`). Chosen over Google Maps
-  (needs billing + a public key) on Nov 10.
+  (needs billing + a public key) on Nov 10. Tried again on Nov 13 (antwnakys/dash_public#32: Places API + Google map,
+  free allowance, daily caps), then Antonis dropped it the same day after hearing about costs at App Store scale: keep
+  OpenStreetMap; don't propose Google Maps again unless he asks.
   Fixes after the first try (Nov 10): suggestions sit in the page flow under the box (a floating list was painted over by
   the setup's animated fields); with nothing saved, results are biased to the main city of the device's time zone
   (`zoneCentre`, read on the device); a **"Search addresses for …"** row (and Enter with no suggestion) runs one Nominatim
