@@ -2,7 +2,7 @@ import { Logo } from '@/components/brand/Logo'
 import { lang, languages, locale, setLanguage, t, type Key, type LangCode } from '@/i18n'
 
 /** When the policy last changed (shown on the page; bump it with every change to the text). */
-const UPDATED = new Date(2026, 10, 11)
+const UPDATED = new Date(2026, 10, 13)
 
 function Section({ title, children }: { title: Key; children: React.ReactNode }) {
   return (

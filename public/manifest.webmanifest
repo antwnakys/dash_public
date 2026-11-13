@@ -1,7 +1,7 @@
 {
   "name": "unidash",
   "short_name": "unidash",
-  "description": "Your classes, deadlines, exams and calendar at a glance.",
+  "description": "Your tasks, calendar and day at a glance, with classes, deadlines and exams if you study.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

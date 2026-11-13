@@ -55,10 +55,10 @@ export function EntryChip({ entry, compact }: { entry: CalEntry; compact?: boole
  * move it), one day under another on phones.
  */
 export function WeekGrid({ days, now }: { days: Date[]; now: Date }) {
-  const { agenda, courses, setSelectedDate } = useDashboard()
+  const { agenda, schedule, setSelectedDate } = useDashboard()
   const move = useMoveItem()
   const [over, setOver] = useState<number | null>(null)
-  const columns = days.map((d) => dayEntries(d, agenda, courses.items))
+  const columns = days.map((d) => dayEntries(d, agenda, schedule))
 
   const drop = (e: React.DragEvent, day: Date) => {
     e.preventDefault()

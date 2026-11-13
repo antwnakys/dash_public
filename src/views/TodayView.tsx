@@ -17,6 +17,7 @@ import { useDashboard } from '@/context/DashboardContext'
 import { useNow } from '@/hooks/useNow'
 import { countdown, fmt, greeting, isSameDay } from '@/lib/date'
 import { t, tn } from '@/i18n'
+import { student } from '@/lib/role'
 
 /** One calm sentence about the day, built from what's actually scheduled. */
 function useSummary(now: Date) {
@@ -77,8 +78,8 @@ export function TodayView() {
             <PassCard />
             <OnlineCard />
             <LeaveCard />
-            <ExamResultPrompt />
-            <NextExamCard />
+            {student && <ExamResultPrompt />}
+            {student && <NextExamCard />}
           </RevealItem>
           <RevealItem className="order-1">
             <Agenda limit={6} />
@@ -94,9 +95,11 @@ export function TodayView() {
           <RevealItem className="order-5 xl:order-none">
             <MiniCalendar />
           </RevealItem>
-          <RevealItem className="order-4 xl:order-none">
-            <CourseList />
-          </RevealItem>
+          {student && (
+            <RevealItem className="order-4 xl:order-none">
+              <CourseList />
+            </RevealItem>
+          )}
         </div>
       </div>
     </Reveal>

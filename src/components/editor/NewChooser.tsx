@@ -2,14 +2,17 @@ import { CalendarPlus, CheckSquare, ClipboardCheck, FileText, GraduationCap, typ
 import { useDashboard } from '@/context/DashboardContext'
 import type { EditorTarget } from '@/types'
 import { t } from '@/i18n'
+import { student } from '@/lib/role'
 
-const choices: Array<{ label: string; detail: string; icon: LucideIcon; target: EditorTarget }> = [
+const all: Array<{ label: string; detail: string; icon: LucideIcon; target: EditorTarget }> = [
   { label: t('new.task'), detail: t('new.taskDetail'), icon: CheckSquare, target: { type: 'task' } },
   { label: t('new.exam'), detail: t('new.examDetail'), icon: ClipboardCheck, target: { type: 'exam' } },
   { label: t('new.deadline'), detail: t('new.deadlineDetail'), icon: FileText, target: { type: 'deadline' } },
   { label: t('new.event'), detail: t('new.eventDetail'), icon: CalendarPlus, target: { type: 'event' } },
   { label: t('new.course'), detail: t('new.courseDetail'), icon: GraduationCap, target: { type: 'course' } },
 ]
+// Not a student: no exams, deadlines or courses.
+const choices = student ? all : all.filter((c) => c.target.type === 'task' || c.target.type === 'event')
 
 /** What the New button offers: every kind of thing dash can hold. */
 export function NewChooser() {

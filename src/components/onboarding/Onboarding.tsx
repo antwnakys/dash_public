@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bike, Car, ChevronLeft, Footprints, TrainFront } from 'lucide-react'
+import { Bike, Briefcase, Car, ChevronLeft, Footprints, GraduationCap, TrainFront } from 'lucide-react'
 import { Children, useState, type FormEvent, type ReactNode } from 'react'
 import { Logo } from '@/components/brand/Logo'
 import { Field, Select, TextInput } from '@/components/editor/fields'
@@ -8,11 +8,13 @@ import { useDashboard } from '@/context/DashboardContext'
 import { cn } from '@/lib/cn'
 import { blur, ease, ltr, press, spring } from '@/lib/motion'
 import { dayLabel, lookUp, minuteOptions, minutesLabel, passDays } from '@/lib/setup'
-import type { CommuteMode, Place } from '@/types'
+import type { CommuteMode, CourseMeeting, Place } from '@/types'
+import { ScheduleEditor } from '@/components/editor/ScheduleEditor'
+import { byRole, isStudent, newWorkTimes, reloadForRole, student } from '@/lib/role'
 import { SchoolPicker } from '@/components/place/SchoolPicker'
 import { t } from '@/i18n'
 
-type Step = 'welcome' | 'name' | 'school' | 'home' | 'mode' | 'minutes' | 'pass' | 'done'
+type Step = 'welcome' | 'name' | 'role' | 'school' | 'routine' | 'home' | 'mode' | 'minutes' | 'pass' | 'done'
 
 const modeChoices: Array<{ value: CommuteMode; label: string; icon: typeof Car }> = [
   { value: 'transit', label: t('ob.transit'), icon: TrainFront },
@@ -162,9 +164,24 @@ export function Onboarding() {
   const [minutes, setMinutes] = useState(profile.commute?.minutes ?? 30)
   const [hasPass, setHasPass] = useState(Boolean(profile.pass?.renewDay))
   const [passDay, setPassDay] = useState(profile.pass?.renewDay ?? 1)
+  const [routine, setRoutine] = useState<CourseMeeting[]>(profile.routine?.length ? profile.routine : [newWorkTimes()])
+  // The answer given here (the rest of the app follows it after a reload, see `finish`).
+  const forStudent = isStudent(profile)
+  const word = (forStudents: Parameters<typeof byRole>[0], forOthers: Parameters<typeof byRole>[1]) => byRole(forStudents, forOthers, forStudent)
 
   const mode = profile.commute?.mode
-  const order: Step[] = ['welcome', 'name', 'school', 'home', 'mode', 'minutes', ...(mode === 'transit' || !mode ? (['pass'] as const) : []), 'done']
+  const order: Step[] = [
+    'welcome',
+    'name',
+    'role',
+    'school',
+    ...(forStudent ? [] : (['routine'] as const)),
+    'home',
+    'mode',
+    'minutes',
+    ...(mode === 'transit' || !mode ? (['pass'] as const) : []),
+    'done',
+  ]
   const index = order.indexOf(step)
   const go = (to: Step, backwards = false) => {
     setError('')
@@ -173,7 +190,11 @@ export function Onboarding() {
   }
   const next = () => go(order[Math.min(index + 1, order.length - 1)])
   const prev = () => index > 0 && go(order[index - 1], true)
-  const finish = () => setProfile({ onboarded: true })
+  const finish = () => {
+    setProfile({ onboarded: true })
+    // Sections and labels are set at page load; a different answer than this load's needs a reload.
+    if (forStudent !== student) reloadForRole()
+  }
   const submit = (fn: () => void | Promise<void>) => async (e: FormEvent) => {
     e.preventDefault()
     await fn()
@@ -276,11 +297,47 @@ export function Onboarding() {
         </form>
       )
       break
+    case 'role':
+      body = (
+        <Screen title={t('ob.role')} lead={t('ob.roleLead')}>
+          <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
+            {[
+              { value: 'student' as const, label: t('ob.roleStudent'), icon: GraduationCap },
+              { value: 'other' as const, label: t('ob.roleOther'), icon: Briefcase },
+            ].map(({ value, label, icon: Icon }) => (
+              <Choice
+                key={value}
+                selected={profile.role === value}
+                onClick={() => {
+                  setProfile({ role: value })
+                  window.setTimeout(() => go('school'), 180)
+                }}
+                className="flex flex-col items-start gap-3 px-4 py-4"
+              >
+                <Icon aria-hidden className="relative size-6 text-accent" strokeWidth={2} />
+                <span className="relative text-headline text-ink">{label}</span>
+              </Choice>
+            ))}
+          </motion.div>
+        </Screen>
+      )
+      break
+    case 'routine':
+      body = (
+        <form onSubmit={submit(() => (setProfile({ routine: routine.filter((m) => m.days.length) }), next()))}>
+          <Screen title={t('ob.routine')} lead={t('ob.routineLead')}>
+            <ScheduleEditor meetings={routine} onMeetings={setRoutine} startLabel={t('se.workStarts')} endLabel={t('se.workEnds')} blank={newWorkTimes} addLabel={t('routine.add')} />
+            <Actions onSkip={next} />
+          </Screen>
+        </form>
+      )
+      break
     case 'school':
       body = (
         <form onSubmit={submit(saveSchool)}>
-          <Screen title={t('ob.school')} lead={t('ob.schoolLead')}>
+          <Screen title={word('ob.school', 'ob.work')} lead={word('ob.schoolLead', 'ob.workLead')}>
             <SchoolPicker
+              forStudent={forStudent}
               autoFocus
               place={schoolPlace}
               near={schoolPlace ?? profile.home ?? profile.place}
@@ -297,8 +354,8 @@ export function Onboarding() {
                 }
               }}
             />
-            <Field label={t('ob.schoolName')}>
-              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder={t('ob.schoolPh')} />
+            <Field label={word('ob.schoolName', 'ob.workName')}>
+              <TextInput value={schoolName} onChange={(e) => setSchoolName(e.target.value)} autoComplete="organization" placeholder={word('ob.schoolPh', 'ob.workPh')} />
             </Field>
             <Field label={t('ob.address')} hint={t('ob.addressHint')}>
               <TextInput value={address} onChange={(e) => setAddress(e.target.value)} autoComplete="off" placeholder={t('set.addressPh')} />
@@ -311,7 +368,7 @@ export function Onboarding() {
     case 'home':
       body = (
         <form onSubmit={submit(saveHome)}>
-          <Screen title={t('ob.home')} lead={t('ob.homeLead')}>
+          <Screen title={t('ob.home')} lead={word('ob.homeLead', 'ob.homeLeadWork')}>
             <Field label={t('ob.homeField')}>
               <TextInput value={home} onChange={(e) => setHome(e.target.value)} autoComplete="off" placeholder={t('ob.homePh')} autoFocus />
             </Field>
@@ -333,7 +390,7 @@ export function Onboarding() {
       break
     case 'mode':
       body = (
-        <Screen title={t('ob.mode')}>
+        <Screen title={word('ob.mode', 'ob.modeWork')}>
           <motion.div variants={stagger(0)} className="grid grid-cols-2 gap-3">
             {modeChoices.map(({ value, label, icon: Icon }) => (
               <Choice
@@ -402,7 +459,7 @@ export function Onboarding() {
                     <Select value={passDay} onChange={(e) => setPassDay(+e.target.value)}>
                       {passDays.map((d) => (
                         <option key={d} value={d}>
-                          {dayLabel(d)} of each month
+                          {dayLabel(d)}
                         </option>
                       ))}
                     </Select>
@@ -421,7 +478,7 @@ export function Onboarding() {
           <Celebration />
           <Rise className="flex flex-col gap-2">
             <h1 className="text-large-title text-ink">{profile.name ? t('ob.doneName', { name: profile.name }) : t('ob.done')}</h1>
-            <p className="text-body text-muted">{t('ob.doneLead')}</p>
+            <p className="text-body text-muted">{word('ob.doneLead', 'ob.doneLeadWork')}</p>
           </Rise>
           <Rise className="w-full">
             <Button variant="primary" className="h-12 w-full text-headline" onClick={finish}>

@@ -10,6 +10,7 @@ import { useExams } from '@/hooks/useExams'
 import { cn } from '@/lib/cn'
 import { addDays, countdown, fmt, isSameDay, weekOf } from '@/lib/date'
 import type { AgendaItem } from '@/types'
+import { student } from '@/lib/role'
 
 const DUE_KINDS = new Set<AgendaItem['kind']>(['assignment', 'exam', 'quiz', 'task'])
 
@@ -67,11 +68,19 @@ export function WeekCard({ now }: { now: Date }) {
             <dt className="text-caption text-muted">{t('focus.focus')}</dt>
             <dd className="truncate text-title tabular-nums text-ink">{minutesShort(focusWeek)}</dd>
           </button>
-          <button onClick={() => setView('exams')} className="min-w-0 text-start">
-            <dt className="text-caption text-muted">{t('week.nextExam')}</dt>
-            <dd className="truncate text-headline text-ink">{next ? next.subject : '—'}</dd>
-            {next && <dd className="text-caption text-accent">{countdown(next.date, now)}</dd>}
-          </button>
+          {student ? (
+            <button onClick={() => setView('exams')} className="min-w-0 text-start">
+              <dt className="text-caption text-muted">{t('week.nextExam')}</dt>
+              <dd className="truncate text-headline text-ink">{next ? next.subject : '—'}</dd>
+              {next && <dd className="text-caption text-accent">{countdown(next.date, now)}</dd>}
+            </button>
+          ) : (
+            // Not a student: open tasks instead of the next exam.
+            <button onClick={() => setView('tasks')} className="min-w-0 text-start">
+              <dt className="text-caption text-muted">{t('week.open')}</dt>
+              <dd className="text-title tabular-nums text-ink">{tasks.tasks.filter((x) => !x.done).length.toLocaleString(locale)}</dd>
+            </button>
+          )}
         </dl>
         <div className="mt-4 grid grid-cols-7 gap-1.5" role="list" aria-label={t('week.perDay')}>
           {days.map((d, i) => {

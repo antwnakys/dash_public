@@ -32,14 +32,14 @@ const SHOW_ONLINE_FROM = 3 * 3_600_000 // an online lesson's card appears 3 hour
 
 /** "Statistics online at 17:00 · Join": today's next online lesson, until it ends. */
 export function OnlineCard() {
-  const { agenda, courses } = useDashboard()
+  const { agenda, schedule } = useDashboard()
   const now = useNow(30_000)
   const lesson = useMemo(
     () =>
-      classesOn(now, agenda, courses.items).find(
+      classesOn(now, agenda, schedule).find(
         (c) => c.online && (c.end ?? new Date(c.start.getTime() + 3_600_000)) > now && c.start.getTime() - now.getTime() < SHOW_ONLINE_FROM,
       ),
-    [agenda, courses.items, now],
+    [agenda, schedule, now],
   )
   if (!lesson) return null
   const started = lesson.start <= now
@@ -63,20 +63,20 @@ const modeIcon = { transit: TrainFront, car: Car, walk: Footprints, bike: Bike }
 
 /** "Leave by 08:10 for Databases": when to set off for the first class of the day. */
 export function LeaveCard() {
-  const { agenda, courses, profile, openEditor } = useDashboard()
+  const { agenda, schedule, profile, openEditor } = useDashboard()
   const now = useNow(30_000)
   const commute = profile.commute
   const minutes = commute?.minutes
-  const trip = useMemo(() => nextDeparture(agenda, courses.items, now, commute), [agenda, courses.items, now, commute])
+  const trip = useMemo(() => nextDeparture(agenda, schedule, now, commute), [agenda, schedule, now, commute])
   const forecast = useTripForecast(Boolean(trip?.leaveAt), profile.home, profile.school?.place)
   const hint = useMemo(() => {
     if (!trip?.leaveAt || !forecast || !minutes) return undefined
     // At school until the last class of that day ends, then the trip home.
-    const atSchool = classesOn(startOfDay(trip.classAt), agenda, courses.items).filter((c) => !c.online)
+    const atSchool = classesOn(startOfDay(trip.classAt), agenda, schedule).filter((c) => !c.online)
     const doneAt = new Date(Math.max(...atSchool.map((c) => (c.end ?? new Date(c.start.getTime() + 90 * 60_000)).getTime()), trip.classAt.getTime()))
     const backAt = new Date(doneAt.getTime() + minutes * 60_000)
     return tripHint(forecast.home, forecast.school, { leaveAt: trip.leaveAt, arriveAt: trip.classAt, doneAt, backAt })
-  }, [trip, forecast, agenda, courses.items, minutes])
+  }, [trip, forecast, agenda, schedule, minutes])
   if (!trip) return null
 
   const Icon = modeIcon[commute?.mode ?? 'transit']

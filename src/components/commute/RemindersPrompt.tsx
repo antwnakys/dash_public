@@ -2,6 +2,7 @@ import { BellRing, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useDashboard } from '@/context/DashboardContext'
+import { byRole } from '@/lib/role'
 import { t } from '@/i18n'
 
 const DISMISSED = 'unidash.reminders.prompt.dismissed'
@@ -36,7 +37,7 @@ export function RemindersPrompt() {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-headline text-ink">{t('rem.prompt')}</span>
-        <span className="block text-subhead text-muted">{t('rem.promptDetail')}</span>
+        <span className="block text-subhead text-muted">{byRole('rem.promptDetail', 'rem.promptDetailWork')}</span>
         <Button size="sm" variant="primary" className="mt-2.5" onClick={reminders.enable}>
           {t('rem.turnOn')}
         </Button>

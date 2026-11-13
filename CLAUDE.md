@@ -192,6 +192,18 @@ not listed here works as described in the original's `CLAUDE.md`.
   (`lib/classFiles.ts`, `hooks/useClassFileUploads.ts`). Photos shrink to 2000 px JPEG; 8 MB cap. ⌘K searches note text
   and file names. Delete all data also removes every `unidash-file-*` in Drive and the IndexedDB (`deleteAllFiles`).
   Privacy page: `pp.files` (updated Nov 11). Keys `notes.*` in all 16 languages.
+- **For everyone, not only students** (Nov 13, Antonis's idea; `lib/role.ts`): `profile.role` (missing = student,
+  `'other'` = not a student) and `profile.routine` (usual days + hours, `CourseMeeting[]`). Setup asks "Are you a
+  student?" after the name; not a student → "Where do you go most days?" (same `school` field, work wording) → "When
+  are you usually there?" (`ScheduleEditor` without term dates, default Mon–Fri 9–17). Not a student hides Courses and
+  Exams (`views` filtered by `showsView`; `setView` sends hidden sections to Calendar), exam/deadline/course in New and
+  ⌘K, the Today exam cards and Courses list, the Semester calendar mode; This week shows Open tasks instead of the next
+  exam. Labels: the `college` category reads **Work**, class items **Work**, `schoolLabel` falls back to "work";
+  `byRole(studentKey, otherKey)` picks texts. Sections and labels are fixed per page load (`student`, read from the saved
+  profile); Settings → You → "Are you a student?" saves and reloads, and setup reloads on finish when the answer
+  differs. `scheduleOf(role, routine, courses)` (context `schedule`) = courses for students, one "Work" pseudo-course
+  from the routine otherwise; the Leave card, calendar Day/Week, widget and reminders read `schedule`. Quick add `#work`
+  goes to the Work category when not a student. Manifest description and privacy texts now say students and everyone.
 - Removed: app-expiry (free Apple ID), metro card, suburban trains, Athens route text, Mac build files.
   The JS for the iPhone/Mac apps (`liveUpdate`, `macApp`, `googleMac`, reminders) is kept for later; it does nothing on the web.
 - `.github/workflows/check.yml` builds and lints every pull request; `deploy.yml` deploys `main` to Pages.
@@ -336,6 +348,8 @@ not listed here works as described in the original's `CLAUDE.md`.
 - **Nov 12, 2026**: bug sweep (setup, tasks, courses, notes, exams, focus, calendar drag, Arabic/Greek layouts): a class
   note's default day used the UTC date (wrong just after midnight); "next friday" now means next week's Friday (Monday-
   first weeks) and "tonight at 9" means 21:00; the Today clock kept the space before AM/PM (`RollingTime`).
+- **Nov 13, 2026**: unidash for everyone: "Are you a student?" in setup and Settings; not a student = no Courses/Exams,
+  work wording, usual days and hours for the Leave card. Also fixed "Day 3 of each month of each month" (pass picker).
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
   weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,

@@ -5,6 +5,7 @@ import { addressAt, searchAddresses, searchPlaces, zoneCentre, type PlaceHit } f
 import { t } from '@/i18n'
 import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
+import { byRole, student } from '@/lib/role'
 import type { Place } from '@/types'
 
 const PinMap = lazy(() => import('./PinMap'))
@@ -20,6 +21,7 @@ export function SchoolPicker({
   onPick,
   onMove,
   autoFocus,
+  forStudent = student,
 }: {
   /** The school's saved position, if any (shows the map). */
   place?: Place
@@ -30,6 +32,8 @@ export function SchoolPicker({
   /** The pin was moved; `hit` has the address there when it could be found. */
   onMove: (latitude: number, longitude: number, hit: PlaceHit | null) => void
   autoFocus?: boolean
+  /** School wording, or work wording when not a student (the setup passes the answer it just got). */
+  forStudent?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<PlaceHit[]>([])
@@ -120,8 +124,8 @@ export function SchoolPicker({
                 pick(hits[active])
               } else if (e.key === 'Escape') setOpen(false)
             }}
-            placeholder={t('place.searchPh')}
-            aria-label={t('place.search')}
+            placeholder={byRole('place.searchPh', 'place.searchPhWork', forStudent)}
+            aria-label={byRole('place.search', 'place.searchWork', forStudent)}
             role="combobox"
             aria-expanded={open && hits.length > 0}
             aria-controls="school-results"
@@ -184,7 +188,7 @@ export function SchoolPicker({
             <PinMap
               latitude={place.latitude}
               longitude={place.longitude}
-              label={t('place.mapLabel')}
+              label={byRole('place.mapLabel', 'place.mapLabelWork', forStudent)}
               onMove={async (lat, lon) => onMove(lat, lon, await addressAt(lat, lon).catch(() => null))}
             />
           </Suspense>
