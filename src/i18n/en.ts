@@ -948,6 +948,7 @@ export const en = {
   "se.workStarts": "Start time",
   "se.workEnds": "End time",
   "routine.add": "Add days and hours",
+  "pp.svcGoogleMaps": "Google Maps Platform, for suggestions and the map while you search for your school or work: the text you type and roughly where you are, so nearby places come first. If Google Maps isn’t available, the OpenStreetMap services below are used instead.",
 } as const
 
 export type Key = keyof typeof en

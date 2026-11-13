@@ -12,6 +12,7 @@ import type { CommuteMode, CourseMeeting, Place } from '@/types'
 import { ScheduleEditor } from '@/components/editor/ScheduleEditor'
 import { byRole, isStudent, newWorkTimes, reloadForRole, student } from '@/lib/role'
 import { SchoolPicker } from '@/components/place/SchoolPicker'
+import { placeOf } from '@/data/places'
 import { t } from '@/i18n'
 
 type Step = 'welcome' | 'name' | 'role' | 'school' | 'routine' | 'home' | 'mode' | 'minutes' | 'pass' | 'done'
@@ -344,7 +345,7 @@ export function Onboarding() {
               onPick={(hit) => {
                 if (hit.name) setSchoolName(hit.name)
                 setAddress(hit.address)
-                setSchoolPlace({ name: hit.area, latitude: hit.latitude, longitude: hit.longitude })
+                setSchoolPlace(placeOf(hit))
               }}
               onMove={(latitude, longitude, hit) => {
                 setSchoolPlace((p) => ({ name: hit?.area || p?.name || '', latitude, longitude }))

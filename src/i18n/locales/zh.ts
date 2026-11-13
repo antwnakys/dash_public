@@ -933,6 +933,7 @@ const dict: Dict = {
   "se.workStarts": "开始时间",
   "se.workEnds": "结束时间",
   "routine.add": "添加日子和时间",
+  "pp.svcGoogleMaps": "Google Maps Platform，用于搜索学校或工作地点时的建议和地图：你输入的文字以及你的大致位置，以便先显示附近的地方。如果 Google Maps 不可用，则改用下面的 OpenStreetMap 服务。",
 }
 
 export default dict

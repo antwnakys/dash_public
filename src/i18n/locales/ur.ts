@@ -947,6 +947,7 @@ const dict: Dict = {
   "se.workStarts": "شروع ہونے کا وقت",
   "se.workEnds": "ختم ہونے کا وقت",
   "routine.add": "دن اور اوقات شامل کریں",
+  "pp.svcGoogleMaps": "Google Maps Platform، اپنا کالج یا کام کی جگہ تلاش کرتے وقت تجاویز اور نقشے کے لیے: آپ کا لکھا متن اور آپ تقریباً کہاں ہیں، تاکہ قریبی جگہیں پہلے دکھیں۔ اگر Google Maps دستیاب نہ ہو تو نیچے دی گئی OpenStreetMap سروسز استعمال ہوتی ہیں۔",
 }
 
 export default dict

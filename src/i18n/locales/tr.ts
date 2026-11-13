@@ -947,6 +947,7 @@ const dict: Dict = {
   "se.workStarts": "Başlangıç saati",
   "se.workEnds": "Bitiş saati",
   "routine.add": "Gün ve saat ekle",
+  "pp.svcGoogleMaps": "Google Maps Platform, okulunu ya da işini ararken öneriler ve harita için: yazdığın metin ve yakın yerler önce çıksın diye kabaca nerede olduğun. Google Maps kullanılamazsa aşağıdaki OpenStreetMap hizmetleri kullanılır.",
 }
 
 export default dict

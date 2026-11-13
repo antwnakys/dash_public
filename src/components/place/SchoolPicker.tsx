@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { MapPin, Search } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { addressAt, searchAddresses, searchPlaces, zoneCentre, type PlaceHit } from '@/data/places'
+import { googleOn, googlePlace, newSession, suggestGoogle } from '@/data/googlePlaces'
 import { t } from '@/i18n'
 import { cn } from '@/lib/cn'
 import { spring } from '@/lib/motion'
@@ -9,9 +10,20 @@ import { byRole, student } from '@/lib/role'
 import type { Place } from '@/types'
 
 const PinMap = lazy(() => import('./PinMap'))
+const GoogleMap = lazy(() => import('./GoogleMap'))
+
+/** One line in the suggestions: an OpenStreetMap result (position known) or a Google one (fetched when picked). */
+interface Row {
+  key: string
+  title: string
+  detail?: string
+  get: () => Promise<PlaceHit>
+}
+
+const osmRow = (h: PlaceHit, i: number): Row => ({ key: `${h.latitude},${h.longitude},${i}`, title: h.name ?? h.address, detail: h.name ? h.address : undefined, get: async () => h })
 
 /**
- * "Where do you study?": search OpenStreetMap as you type, pick your school, then check the pin on a small map and drag
+ * "Where do you study?": search Google Maps (or OpenStreetMap without a Google key, or once Google stops answering) as you type, pick your school, then check the pin on a small map and drag
  * it onto the exact building. Fills the school's name and address (both still editable) and its exact position.
  * Used by the first-open setup and Settings; saving stays with them.
  */
@@ -36,7 +48,10 @@ export function SchoolPicker({
   forStudent?: boolean
 }) {
   const [query, setQuery] = useState('')
-  const [hits, setHits] = useState<PlaceHit[]>([])
+  const [hits, setHits] = useState<Row[]>([])
+  const [google, setGoogle] = useState(googleOn)
+  // One Google session per search, ended by picking a result (Google bills the pair as one free session).
+  const session = useRef(newSession())
   const [state, setState] = useState<'idle' | 'searching' | 'none' | 'failed'>('idle')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -58,7 +73,18 @@ export function SchoolPicker({
       abort.current = ctrl
       setState('searching')
       try {
-        const found = await searchPlaces(query, where, ctrl.signal)
+        let found: Row[]
+        if (googleOn()) {
+          try {
+            const s = session.current
+            found = (await suggestGoogle(query, s, where, ctrl.signal)).map((g) => ({ key: g.placeId, title: g.title, detail: g.detail, get: () => googlePlace(g, s) }))
+          } catch (e) {
+            if (e instanceof DOMException && e.name === 'AbortError') throw e
+            // Google stopped answering (daily cap, billing, offline): the free search from now on.
+            setGoogle(false)
+            found = (await searchPlaces(query, where, ctrl.signal)).map(osmRow)
+          }
+        } else found = (await searchPlaces(query, where, ctrl.signal)).map(osmRow)
         if (ctrl.signal.aborted) return
         setHits(found)
         setActive(0)
@@ -80,7 +106,7 @@ export function SchoolPicker({
     abort.current?.abort()
     setState('searching')
     try {
-      const found = await searchAddresses(q, where)
+      const found = (await searchAddresses(q, where)).map(osmRow)
       setHits(found)
       setActive(0)
       setState(found.length ? 'idle' : 'none')
@@ -90,11 +116,20 @@ export function SchoolPicker({
     }
   }
 
-  const pick = (hit: PlaceHit) => {
-    onPick(hit)
-    setQuery('')
-    setHits([])
-    setOpen(false)
+  const pick = async (row: Row) => {
+    setState('searching')
+    try {
+      onPick(await row.get())
+      setState('idle')
+      setQuery('')
+      setHits([])
+      setOpen(false)
+    } catch {
+      setGoogle(googleOn())
+      setState('failed')
+    } finally {
+      session.current = newSession()
+    }
   }
 
   return (
@@ -109,7 +144,7 @@ export function SchoolPicker({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (!open || !hits.length)) {
                 e.preventDefault()
-                void searchMore()
+                if (!google) void searchMore()
                 return
               }
               if (!open || !hits.length) return
@@ -121,7 +156,7 @@ export function SchoolPicker({
                 setActive((i) => Math.max(0, i - 1))
               } else if (e.key === 'Enter') {
                 e.preventDefault()
-                pick(hits[active])
+                void pick(hits[active])
               } else if (e.key === 'Escape') setOpen(false)
             }}
             placeholder={byRole('place.searchPh', 'place.searchPhWork', forStudent)}
@@ -148,36 +183,45 @@ export function SchoolPicker({
               className="surface mt-1.5 max-h-80 overflow-y-auto p-1"
             >
               {hits.map((h, i) => (
-                <li key={`${h.latitude},${h.longitude},${i}`} role="option" aria-selected={i === active}>
+                <li key={h.key} role="option" aria-selected={i === active}>
                   <button
                     type="button"
                     onMouseEnter={() => setActive(i)}
-                    onClick={() => pick(h)}
+                    onClick={() => void pick(h)}
                     className={cn('flex w-full items-start gap-3 rounded-[var(--radius-control)] px-3 py-2 text-left', i === active && 'bg-fill')}
                   >
                     <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted" />
                     <span className="min-w-0">
-                      <span className="line-clamp-2 block text-body text-ink">{h.name ?? h.address}</span>
-                      {h.name && <span className="block truncate text-caption text-muted">{h.address}</span>}
+                      <span className="line-clamp-2 block text-body text-ink">{h.title}</span>
+                      {h.detail && <span className="block truncate text-caption text-muted">{h.detail}</span>}
                     </span>
                   </button>
                 </li>
               ))}
+              {google ? (
+                // Google's suggestions, shown before its map, carry its name.
+                <li className="px-3 pt-1 pb-1.5 text-end text-caption text-faint" translate="no">
+                  Google Maps
+                </li>
+              ) : (
               <li>
                 <button type="button" onClick={searchMore} className="flex w-full items-center gap-3 rounded-[var(--radius-control)] px-3 py-2 text-left text-subhead font-medium text-accent hover:bg-fill">
                   <Search aria-hidden className="size-4 shrink-0" />
                   <span className="truncate">{t('place.searchMore', { q: query.trim() })}</span>
                 </button>
               </li>
+              )}
             </motion.ul>
           )}
         </AnimatePresence>
         {state === 'none' && (
           <p className="mt-1.5 px-1 text-caption text-muted">
             {t('place.none')}{' '}
-            <button type="button" onClick={searchMore} className="font-medium text-accent hover:underline">
-              {t('place.searchMore', { q: query.trim() })}
-            </button>
+            {!google && (
+              <button type="button" onClick={searchMore} className="font-medium text-accent hover:underline">
+                {t('place.searchMore', { q: query.trim() })}
+              </button>
+            )}
           </p>
         )}
         {state === 'failed' && <p className="mt-1.5 px-1 text-caption text-danger">{t('place.offline')}</p>}
@@ -185,12 +229,17 @@ export function SchoolPicker({
       {place && (
         <div className="flex flex-col gap-1.5">
           <Suspense fallback={<div className="h-56 w-full animate-pulse rounded-[var(--radius-control)] bg-fill" />}>
-            <PinMap
-              latitude={place.latitude}
-              longitude={place.longitude}
-              label={byRole('place.mapLabel', 'place.mapLabelWork', forStudent)}
-              onMove={async (lat, lon) => onMove(lat, lon, await addressAt(lat, lon).catch(() => null))}
-            />
+            {(() => {
+              const Map = google ? GoogleMap : PinMap
+              return (
+                <Map
+                  latitude={place.latitude}
+                  longitude={place.longitude}
+                  label={byRole('place.mapLabel', 'place.mapLabelWork', forStudent)}
+                  onMove={async (lat, lon) => onMove(lat, lon, await addressAt(lat, lon).catch(() => null))}
+                />
+              )
+            })()}
           </Suspense>
           <p className="px-1 text-caption text-faint">{t('place.dragHint')}</p>
         </div>

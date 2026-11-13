@@ -188,6 +188,11 @@ export interface Place {
   name: string
   latitude: number
   longitude: number
+  /** Picked from Google Maps search: Google's id for the place. Google allows keeping its coordinates for 30 days, so
+   * they are fetched again after that (`refreshPlace`). Moving the pin by hand drops it (the position is then yours). */
+  placeId?: string
+  /** When the coordinates were fetched from Google (ms). */
+  fetchedAt?: number
 }
 
 /** Where you study. `address` is matched against calendar event locations to tell classes apart. */

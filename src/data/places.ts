@@ -5,6 +5,7 @@
  * Only the typed text, or the pin's coordinates, leave the device.
  */
 import { locale } from '@/i18n'
+import type { Place } from '@/types'
 
 export interface PlaceHit {
   /** The building or place name, when it has one ("Athens University of Economics and Business"). */
@@ -15,7 +16,17 @@ export interface PlaceHit {
   area: string
   latitude: number
   longitude: number
+  /** From Google Maps search (`googlePlaces.ts`). */
+  placeId?: string
 }
+
+/** The position to save for a picked result (Google's id kept, so its coordinates can be refreshed). */
+export const placeOf = (hit: PlaceHit): Place => ({
+  name: hit.area,
+  latitude: hit.latitude,
+  longitude: hit.longitude,
+  ...(hit.placeId ? { placeId: hit.placeId, fetchedAt: Date.now() } : {}),
+})
 
 interface PhotonFeature {
   geometry: { coordinates: [number, number] }

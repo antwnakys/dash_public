@@ -67,7 +67,7 @@ export function PrivacyPage() {
       </Section>
       <Section title="pp.servicesTitle">
         <P k="pp.services" />
-        <List items={['pp.svcWeather', 'pp.svcMap', 'pp.svcPhoton', 'pp.svcPlace', 'pp.svcGoogle', 'pp.svcHost']} />
+        <List items={['pp.svcWeather', 'pp.svcGoogleMaps', 'pp.svcMap', 'pp.svcPhoton', 'pp.svcPlace', 'pp.svcGoogle', 'pp.svcHost']} />
       </Section>
       <Section title="pp.locationTitle">
         <P k="pp.location" />

@@ -13,3 +13,10 @@ export const FEEDBACK_REPO = 'antwnakys/dash_public'
 
 export const GOOGLE_WEB_CLIENT_ID = '230135727140-eg1fakk6qq2iioge9kvsg7jh89nl5ivi.apps.googleusercontent.com'
 export const GOOGLE_IOS_CLIENT_ID = '230135727140-6pbttokq0rnme7kncs5dba3ucrab6t8g.apps.googleusercontent.com'
+
+/**
+ * Google Maps Platform browser key (Cloud project "unidash") for the school/work search (Places API (New)) and its map
+ * (Maps JavaScript API). Not a secret: map keys are always visible in the page. It is limited to those two APIs, with
+ * daily caps set in the Cloud console so it stays inside the free allowance. Empty: the free OpenStreetMap search.
+ */
+export const GOOGLE_MAPS_KEY = ''

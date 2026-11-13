@@ -20,6 +20,7 @@ import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { takeSnapshot } from '@/sync/backup'
 import { BackupSection } from './BackupSection'
 import { Field, FormGroup, Select, TextArea, TextInput, Toggle } from './fields'
+import { placeOf } from '@/data/places'
 import { lang, langIsChosen, languages, locale, setLanguage, t, tn, type LangCode } from '@/i18n'
 
 const isCalendarUrl = (u: string) => /^(https?|webcal):\/\/\S+/i.test(u.trim())
@@ -186,7 +187,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
               onPick={(hit) => {
                 if (hit.name) setSchoolName(hit.name)
                 setAddress(hit.address)
-                setSchoolPlace({ name: hit.area, latitude: hit.latitude, longitude: hit.longitude })
+                setSchoolPlace(placeOf(hit))
               }}
               onMove={(latitude, longitude, hit) => {
                 setSchoolPlace((p) => ({ name: hit?.area || p?.name || '', latitude, longitude }))

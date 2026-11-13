@@ -257,6 +257,19 @@ not listed here works as described in the original's `CLAUDE.md`.
   (`zoneCentre`, read on the device); a **"Search addresses for …"** row (and Enter with no suggestion) runs one Nominatim
   search on request (`searchAddresses`, viewbox ~100 km) for schools OSM doesn't know by name: find the street and
   number, then drag the pin. Nominatim forbids search-as-you-type, so it never runs on each keystroke.
+- **Google Maps search** (Nov 13, Antonis's choice after OSM missed his workplace; card added to the Cloud project
+  "unidash"): `data/googlePlaces.ts` = Places API (New) from the browser with `GOOGLE_MAPS_KEY` (`src/config.ts`):
+  Autocomplete while typing + Place Details (Essentials fields only: `shortFormattedAddress,formattedAddress,location,
+  addressComponents`; no displayName, it's a pricier SKU; the name comes from the suggestion) under one session token
+  (billed as one free session), biased 50 km around home/city. Picked → `placeOf(hit)` keeps `place.placeId` +
+  `fetchedAt`; Google allows keeping coordinates 30 days, so `refreshPlace` (DashboardContext effect) refetches by id
+  after that; dragging the pin drops the id (the position is then the user's). Google's places must be shown on a
+  Google map: `components/place/GoogleMap.tsx` (Maps JavaScript API loaded on demand, classic draggable `Marker`,
+  tap to move; drag address still from Nominatim). Suggestions list ends with a "Google Maps" credit; the Nominatim
+  "Search addresses" row only shows without Google. Any Google failure (no key, daily cap, billing, offline) sets
+  `down` and the picker falls back to Photon + the Leaflet map for that page load (`gm_authFailure` too). Key limited
+  to Places API (New) + Maps JavaScript API with daily caps (~300) in the Cloud console; no website restriction, because
+  the iPhone app's requests have no web referrer. Privacy: `pp.svcGoogleMaps`.
 - **Backups and safety** (Nov 10, ported from dash): Settings → Data → `components/editor/BackupSection.tsx` +
   `sync/backup.ts`: Export backup (`lib/saveFile.ts`: share sheet / download / clipboard), Restore from file or copied
   text, copies on this device (`unidash.snapshots.v1`, one a day, last 7, plus before sample data); restore only adds.

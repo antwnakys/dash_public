@@ -17,6 +17,7 @@ import { courseCalendarPatches, courseOf } from '@/lib/courseLink'
 import { looksOnline } from '@/lib/meeting'
 import { startOfDay } from '@/lib/date'
 import { scheduleOf, showsView } from '@/lib/role'
+import { refreshPlace } from '@/data/googlePlaces'
 import { startLiveUpdates } from '@/lib/liveUpdate'
 import { dailySnapshot } from '@/sync/backup'
 import type { ViewId } from '@/views'
@@ -208,6 +209,16 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     (patch: Partial<Profile>) => setStoredProfile((p) => ({ name: '', ...p, ...patch, updatedAt: Date.now() })),
     [setStoredProfile],
   )
+
+  // A school/work position from Google Maps is fetched again after 30 days (Google's rule for keeping coordinates).
+  const schoolPlace = profile.school?.place
+  useEffect(() => {
+    if (!schoolPlace?.placeId) return
+    refreshPlace(schoolPlace).then(
+      (place) => place && setStoredProfile((p) => (p?.school ? { ...p, school: { ...p.school, place }, updatedAt: Date.now() } : p)),
+      () => undefined,
+    )
+  }, [schoolPlace, setStoredProfile])
 
   // Courses follow their calendar classes' names (lib/courseLink.ts); only changes are written, so this settles.
   useEffect(() => {
