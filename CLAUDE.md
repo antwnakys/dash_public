@@ -265,7 +265,8 @@ not listed here works as described in the original's `CLAUDE.md`.
   `fetchedAt`; Google allows keeping coordinates 30 days, so `refreshPlace` (DashboardContext effect) refetches by id
   after that; dragging the pin drops the id (the position is then the user's). Google's places must be shown on a
   Google map: `components/place/GoogleMap.tsx` (Maps JavaScript API loaded on demand, classic draggable `Marker`,
-  tap to move; drag address still from Nominatim). Suggestions list ends with a "Google Maps" credit; the Nominatim
+  tap to move; drag address still from Nominatim), loaded only after a pick or "Check the pin on the map" (each load
+  counts against the free allowance). Suggestions list ends with a "Google Maps" credit; the Nominatim
   "Search addresses" row only shows without Google. Any Google failure (no key, daily cap, billing, offline) sets
   `down` and the picker falls back to Photon + the Leaflet map for that page load (`gm_authFailure` too). Key limited
   to Places API (New) + Maps JavaScript API with daily caps (~300) in the Cloud console; no website restriction, because

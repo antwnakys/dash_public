@@ -948,6 +948,7 @@ const dict: Dict = {
   "se.workEnds": "खत्म होने का समय",
   "routine.add": "दिन और समय जोड़ें",
   "pp.svcGoogleMaps": "Google Maps Platform, अपना कॉलेज या काम की जगह खोजते समय सुझावों और नक्शे के लिए: आपका लिखा टेक्स्ट और आप लगभग कहां हैं, ताकि पास की जगहें पहले दिखें। अगर Google Maps उपलब्ध नहीं है, तो नीचे दी गई OpenStreetMap सेवाएं इस्तेमाल होती हैं।",
+  "place.adjust": "नक्शे पर पिन जांचें",
 }
 
 export default dict

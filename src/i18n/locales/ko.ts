@@ -934,6 +934,7 @@ const dict: Dict = {
   "se.workEnds": "종료 시간",
   "routine.add": "요일과 시간 추가",
   "pp.svcGoogleMaps": "Google Maps Platform, 학교나 직장을 검색할 때 추천과 지도용: 입력한 글자와 가까운 곳을 먼저 보여 주기 위한 대략적인 위치. Google Maps를 쓸 수 없으면 아래 OpenStreetMap 서비스를 대신 써요.",
+  "place.adjust": "지도에서 핀 확인",
 }
 
 export default dict

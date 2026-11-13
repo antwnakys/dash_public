@@ -948,6 +948,7 @@ const dict: Dict = {
   "se.workEnds": "Hora de fin",
   "routine.add": "Añadir días y horas",
   "pp.svcGoogleMaps": "Google Maps Platform, para sugerencias y el mapa al buscar tu centro de estudios o trabajo: el texto que escribes y más o menos dónde estás, para que los lugares cercanos salgan primero. Si Google Maps no está disponible, se usan los servicios de OpenStreetMap de abajo.",
+  "place.adjust": "Revisar el pin en el mapa",
 }
 
 export default dict

@@ -50,6 +50,8 @@ export function SchoolPicker({
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<Row[]>([])
   const [google, setGoogle] = useState(googleOn)
+  // The map loads only after a pick or when asked (each Google map load counts against the free allowance).
+  const [showMap, setShowMap] = useState(false)
   // One Google session per search, ended by picking a result (Google bills the pair as one free session).
   const session = useRef(newSession())
   const [state, setState] = useState<'idle' | 'searching' | 'none' | 'failed'>('idle')
@@ -120,6 +122,7 @@ export function SchoolPicker({
     setState('searching')
     try {
       onPick(await row.get())
+      setShowMap(true)
       setState('idle')
       setQuery('')
       setHits([])
@@ -226,7 +229,13 @@ export function SchoolPicker({
         )}
         {state === 'failed' && <p className="mt-1.5 px-1 text-caption text-danger">{t('place.offline')}</p>}
       </div>
-      {place && (
+      {place && !showMap && (
+        <button type="button" onClick={() => setShowMap(true)} className="inline-flex h-9 w-fit items-center gap-1.5 rounded-full px-2 text-subhead font-medium text-accent transition-colors hover:bg-fill">
+          <MapPin aria-hidden className="size-4" strokeWidth={2.2} />
+          {t('place.adjust')}
+        </button>
+      )}
+      {place && showMap && (
         <div className="flex flex-col gap-1.5">
           <Suspense fallback={<div className="h-56 w-full animate-pulse rounded-[var(--radius-control)] bg-fill" />}>
             {(() => {

@@ -934,6 +934,7 @@ const dict: Dict = {
   "se.workEnds": "Jam selesai",
   "routine.add": "Tambah hari dan jam",
   "pp.svcGoogleMaps": "Google Maps Platform, untuk saran dan peta saat kamu mencari kampus atau tempat kerja: teks yang kamu ketik dan kira-kira di mana kamu berada, agar tempat terdekat muncul lebih dulu. Jika Google Maps tidak tersedia, layanan OpenStreetMap di bawah yang dipakai.",
+  "place.adjust": "Periksa pin di peta",
 }
 
 export default dict

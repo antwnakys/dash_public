@@ -982,6 +982,7 @@ const dict: Dict = {
   "se.workEnds": "Конец",
   "routine.add": "Добавить дни и часы",
   "pp.svcGoogleMaps": "Google Maps Platform — для подсказок и карты при поиске учебного заведения или работы: вводимый текст и примерно где вы находитесь, чтобы сначала показывать места рядом. Если Google Maps недоступен, используются сервисы OpenStreetMap ниже.",
+  "place.adjust": "Проверить метку на карте",
 }
 
 export default dict

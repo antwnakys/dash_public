@@ -948,6 +948,7 @@ const dict: Dict = {
   "se.workEnds": "Hora de término",
   "routine.add": "Adicionar dias e horários",
   "pp.svcGoogleMaps": "Google Maps Platform, para sugestões e o mapa ao procurar sua instituição ou trabalho: o texto que você digita e mais ou menos onde você está, para que lugares próximos apareçam primeiro. Se o Google Maps não estiver disponível, são usados os serviços do OpenStreetMap abaixo.",
+  "place.adjust": "Conferir o alfinete no mapa",
 }
 
 export default dict
