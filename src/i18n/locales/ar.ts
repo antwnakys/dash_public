@@ -947,6 +947,15 @@ const dict: Dict = {
   "se.workStarts": "وقت البدء",
   "se.workEnds": "وقت الانتهاء",
   "routine.add": "أضف الأيام والساعات",
+  "device.offer": "اعرض تقويم iPhone",
+  "device.offerDetail": "أحداث من تقويم Apple والحسابات على هذا iPhone. للقراءة فقط، وتبقى على هاتفك.",
+  "device.title": "تقويم iPhone",
+  "device.toggle": "اعرض تقويمات هذا iPhone",
+  "device.hint": "تقويم Apple والحسابات المضافة في إعدادات iPhone. يقرؤها unidash فقط، وتبقى على هذا الهاتف.",
+  "device.denied": "الوصول إلى التقويم مُطفأ لـ unidash. شغّل التقويمات ← وصول كامل في إعدادات iPhone.",
+  "device.openSettings": "افتح الإعدادات",
+  "device.on": "تم ربط تقويم iPhone",
+  "pp.deviceCal": "على iPhone، إن سمحت بذلك، يقرأ unidash التقويمات على هاتفك (تقويم Apple والحسابات المضافة في إعدادات iPhone) ليعرض أحداثك ويحسب متى تغادر. تُقرأ على الهاتف فقط: لا يغيّرها unidash أبدًا، ولا يرفعها أبدًا، ولا يضعها في نسختك على Google Drive.",
 }
 
 export default dict

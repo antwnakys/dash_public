@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { spring } from '@/lib/motion'
-import { ChevronRight, RefreshCw } from 'lucide-react'
+import { CalendarDays, ChevronRight, RefreshCw } from 'lucide-react'
 import { useMemo } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Countdown } from '@/components/ui/Countdown'
@@ -106,6 +106,14 @@ export function Agenda({ title = t('agenda.title'), limit }: { title?: string; l
   // Only offer Google when sign-in is set up for this site.
   const offerGoogle = (calendar.status === 'off' && calendar.google.available) || calendar.status === 'reconnect'
 
+  // On iPhone, the phone's own calendar comes first: one tap, no account needed.
+  const offerDevice = (calendar.device.access === 'prompt' || calendar.device.access === 'granted') && !calendar.device.on
+  const connectDevice = async () => {
+    const result = await calendar.device.enable()
+    if (result === 'granted') notify(t('device.on'))
+    else if (result === 'denied') notify(t('device.denied'), 'error', { label: t('device.openSettings'), run: calendar.device.openSettings })
+  }
+
   const connectGoogle = async () => {
     if (!calendar.google.available) return openEditor({ type: 'settings', section: 'calendar' })
     try {
@@ -139,6 +147,18 @@ export function Agenda({ title = t('agenda.title'), limit }: { title?: string; l
       }
     >
       <Card>
+        {offerDevice && (
+          <button onClick={connectDevice} className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-start transition-colors hover:bg-fill last:border-b-0">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">
+              <CalendarDays aria-hidden className="size-4" strokeWidth={2} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-body font-medium text-ink">{t('device.offer')}</span>
+              <span className="block text-subhead text-muted">{t('device.offerDetail')}</span>
+            </span>
+            <ChevronRight aria-hidden className="size-4 shrink-0 text-faint" />
+          </button>
+        )}
         {offerGoogle && (
           <button
             onClick={connectGoogle}

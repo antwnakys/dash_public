@@ -948,6 +948,15 @@ export const en = {
   "se.workStarts": "Start time",
   "se.workEnds": "End time",
   "routine.add": "Add days and hours",
+  "device.offer": "Show your iPhone calendar",
+  "device.offerDetail": "Events from Apple Calendar and the accounts on this iPhone. Read only, and they stay on your phone.",
+  "device.title": "iPhone calendar",
+  "device.toggle": "Show this iPhone’s calendars",
+  "device.hint": "Apple Calendar and the accounts added in iPhone Settings. unidash only reads them, and they stay on this phone.",
+  "device.denied": "Calendar access is off for unidash. Turn on Calendars → Full Access in iPhone Settings.",
+  "device.openSettings": "Open Settings",
+  "device.on": "iPhone calendar connected",
+  "pp.deviceCal": "On iPhone, if you allow it, unidash reads the calendars on your phone (Apple Calendar and the accounts added in iPhone Settings) to show your events and work out when to leave. They are read on the phone only: unidash never changes them, never uploads them and doesn’t put them in your Google Drive copy.",
 } as const
 
 export type Key = keyof typeof en

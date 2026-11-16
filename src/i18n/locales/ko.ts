@@ -933,6 +933,15 @@ const dict: Dict = {
   "se.workStarts": "시작 시간",
   "se.workEnds": "종료 시간",
   "routine.add": "요일과 시간 추가",
+  "device.offer": "iPhone 캘린더 보기",
+  "device.offerDetail": "Apple 캘린더와 이 iPhone의 계정에 있는 일정. 읽기만 하고, 휴대폰 안에만 있어요.",
+  "device.title": "iPhone 캘린더",
+  "device.toggle": "이 iPhone의 캘린더 보기",
+  "device.hint": "Apple 캘린더와 iPhone 설정에서 추가한 계정. unidash는 읽기만 하고, 이 휴대폰 안에만 있어요.",
+  "device.denied": "unidash의 캘린더 접근이 꺼져 있어요. iPhone 설정에서 캘린더 → 전체 접근을 켜 주세요.",
+  "device.openSettings": "설정 열기",
+  "device.on": "iPhone 캘린더를 연결했어요",
+  "pp.deviceCal": "iPhone에서 허용하면 unidash는 휴대폰의 캘린더(Apple 캘린더와 iPhone 설정에서 추가한 계정)를 읽어 일정을 보여 주고 언제 출발할지 계산해요. 휴대폰 안에서만 읽으며, unidash는 절대 바꾸거나 업로드하지 않고 Google 드라이브 사본에도 넣지 않아요.",
 }
 
 export default dict

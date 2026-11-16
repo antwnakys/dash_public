@@ -259,6 +259,17 @@ not listed here works as described in the original's `CLAUDE.md`.
   (`zoneCentre`, read on the device); a **"Search addresses for …"** row (and Enter with no suggestion) runs one Nominatim
   search on request (`searchAddresses`, viewbox ~100 km) for schools OSM doesn't know by name: find the street and
   number, then drag the pin. Nominatim forbids search-as-you-type, so it never runs on each keystroke.
+- **iPhone calendar** (Nov 16, Antonis's pick for the App Store push): native `DeviceCalendar` plugin in
+  `SceneDelegate.swift` (EventKit; `status`/`request`/`events`/`openSettings`, `change` events on `EKEventStoreChanged`;
+  iOS 17 full access, iOS 16 `requestAccess`; birthdays left out; Info.plist `NSCalendarsFullAccessUsageDescription` +
+  `NSCalendarsUsageDescription`). `data/deviceCalendar.ts` maps events like Google's (`ios-` ids/series, meeting and
+  other links from notes). `useCalendarSync` → `calendar.device` {access, on, enable, disable, openSettings}: wanted per
+  device (`unidash.deviceCalendar.v1`), read with the other sources (31 days back, 180 ahead) into the device-only copy
+  (never uploaded); an event with the same title + start as a Google/iCal one is kept once (from Google); a failed online
+  read keeps the last copy. Up next offers "Show your iPhone calendar" first (Google's card hides once a calendar is on);
+  Settings → iPhone calendar has the switch and, when denied, Open Settings. Older builds without the plugin answer
+  `unavailable`, so nothing shows on the web or old installs. Privacy: `pp.deviceCal`. Tested with a simulated iOS
+  bridge (`window.Capacitor.nativePromise` + `PluginHeaders` stub in Playwright).
 - **Backups and safety** (Nov 10, ported from dash): Settings → Data → `components/editor/BackupSection.tsx` +
   `sync/backup.ts`: Export backup (`lib/saveFile.ts`: share sheet / download / clipboard), Restore from file or copied
   text, copies on this device (`unidash.snapshots.v1`, one a day, last 7, plus before sample data); restore only adds.
@@ -352,6 +363,8 @@ not listed here works as described in the original's `CLAUDE.md`.
   first weeks) and "tonight at 9" means 21:00; the Today clock kept the space before AM/PM (`RollingTime`).
 - **Nov 13, 2026**: unidash for everyone: "Are you a student?" in setup and Settings; not a student = no Courses/Exams,
   work wording, usual days and hours for the Leave card. Also fixed "Day 3 of each month of each month" (pass picker).
+- **Nov 16, 2026**: iPhone calendar (Apple Calendar and iOS accounts) in Up next, Leave by, the calendar and the
+  widget; also "Syncing…" was untranslated in three places.
 - **Nov 10, 2026**: porting dash's upgrades: (1) backups, restore, daily copies, Undo, press-twice delete; (2) stronger
   tasks (quick add in every language, priority, steps, repeats, tags, views, search) and the ⌘K palette. (3) focus timer,
   weekly review, This week card with the next exam's countdown. (4) calendar Day/Week/Month + drag to move,

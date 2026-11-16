@@ -37,7 +37,7 @@ export function SyncBadge() {
 
   const label =
     cloud.status === 'syncing'
-      ? 'Syncing…'
+      ? t('set.syncing')
       : cloud.status === 'error'
         ? t('sync.failed', { error: cloud.error ?? '' })
         : t('sync.synced', { when: cloud.lastSyncedAt ? since(new Date(cloud.lastSyncedAt)) : '' })

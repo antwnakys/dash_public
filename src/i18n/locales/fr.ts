@@ -947,6 +947,15 @@ const dict: Dict = {
   "se.workStarts": "Heure de début",
   "se.workEnds": "Heure de fin",
   "routine.add": "Ajouter jours et horaires",
+  "device.offer": "Afficher le calendrier de l’iPhone",
+  "device.offerDetail": "Les événements de Calendrier d’Apple et des comptes de cet iPhone. En lecture seule, et ils restent sur ton téléphone.",
+  "device.title": "Calendrier de l’iPhone",
+  "device.toggle": "Afficher les calendriers de cet iPhone",
+  "device.hint": "Calendrier d’Apple et les comptes ajoutés dans les Réglages de l’iPhone. unidash ne fait que les lire, et ils restent sur ce téléphone.",
+  "device.denied": "L’accès au calendrier est désactivé pour unidash. Active Calendriers → Accès complet dans les Réglages de l’iPhone.",
+  "device.openSettings": "Ouvrir les Réglages",
+  "device.on": "Calendrier de l’iPhone connecté",
+  "pp.deviceCal": "Sur iPhone, si tu l’autorises, unidash lit les calendriers de ton téléphone (Calendrier d’Apple et les comptes ajoutés dans les Réglages de l’iPhone) pour afficher tes événements et calculer quand partir. Ils sont lus sur le téléphone uniquement : unidash ne les modifie jamais, ne les envoie jamais et ne les met pas dans ta copie Google Drive.",
 }
 
 export default dict

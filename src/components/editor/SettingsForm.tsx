@@ -383,7 +383,28 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
       </FormGroup>
       )}
 
-      <div ref={calendarSection} className="scroll-mt-4">
+      <div ref={calendarSection} className="flex scroll-mt-4 flex-col gap-8">
+        {calendar.device.access !== 'unavailable' && (
+          <FormGroup title={t('device.title')} footer={t('device.hint')}>
+            <Toggle
+              label={t('device.toggle')}
+              checked={calendar.device.on}
+              onChange={async (v) => {
+                if (!v) return calendar.device.disable()
+                const result = await calendar.device.enable()
+                if (result === 'granted') notify(t('device.on'))
+              }}
+            />
+            {calendar.device.access === 'denied' && (
+              <div className="flex flex-col gap-2 px-1">
+                <p className="text-subhead text-muted">{t('device.denied')}</p>
+                <Button size="sm" className="self-start" onClick={calendar.device.openSettings}>
+                  {t('device.openSettings')}
+                </Button>
+              </div>
+            )}
+          </FormGroup>
+        )}
         <FormGroup
           title={t('set.google')}
           footer={t('set.googleFooter')}
@@ -433,7 +454,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
                 <span className="block text-body font-medium text-ink">{t('set.syncDevices')}</span>
                 <span className={`block text-subhead ${cloud.status === 'error' || cloud.status === 'paused' ? 'text-danger' : 'text-muted'}`}>
                   {cloud.status === 'syncing'
-                    ? 'Syncing…'
+                    ? t('set.syncing')
                     : cloud.status === 'paused' || cloud.status === 'error'
                       ? cloud.error
                       : cloud.lastSyncedAt
@@ -461,7 +482,7 @@ export function SettingsForm({ onDone, section }: { onDone: () => void; section?
             <div className="flex items-center justify-between gap-2 px-1">
               <p className="min-w-0 text-subhead text-muted">
                 {calendar.status === 'syncing'
-                  ? 'Syncing…'
+                  ? t('set.syncing')
                   : calendar.syncedAt
                     ? tn('set.upcoming', calendar.events.length, { when: since(new Date(calendar.syncedAt)) })
                     : t('set.notSynced')}

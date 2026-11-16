@@ -8,6 +8,7 @@ import {
   initGoogle,
   type GoogleAccount,
 } from '@/data/google'
+import { askDeviceAccess, deviceAccess, fetchDeviceEvents, onDeviceCalendarChange, openCalendarSettings, type DeviceAccess } from '@/data/deviceCalendar'
 import { parseIcs } from '@/lib/ics'
 import { isNative } from '@/lib/native'
 import type { CalendarEvent } from '@/types'
@@ -30,6 +31,15 @@ export interface CalendarSync {
     connecting: boolean
     connect: () => Promise<void>
     disconnect: () => Promise<void>
+  }
+  /** This iPhone's own calendars (apps only; `unavailable` on the web and in builds without the plugin). */
+  device: {
+    access: DeviceAccess
+    on: boolean
+    /** Asks iOS once, then reads; `denied` means it has to be turned on in iPhone Settings. */
+    enable: () => Promise<DeviceAccess>
+    disable: () => void
+    openSettings: () => void
   }
 }
 
@@ -57,8 +67,9 @@ const feedError = (e: unknown) =>
       : String(e)
 
 /**
- * Keeps a read-only copy of the user's calendars (Google account and/or iCal links),
- * refreshed on launch, every 15 minutes and on return to the app.
+ * Keeps a read-only copy of the user's calendars (Google account, iCal links and/or this iPhone's calendars),
+ * refreshed on launch, every 15 minutes and on return to the app. The same event in Google and in the iPhone's
+ * calendars (a Google account added in iOS Settings) is kept once, from Google.
  */
 export function useCalendarSync(urls: string[] = []): CalendarSync {
   const [snapshot, setSnapshot] = useLocalStorage<Snapshot>('unidash.calendar.v1')
@@ -66,9 +77,13 @@ export function useCalendarSync(urls: string[] = []): CalendarSync {
   const [status, setStatus] = useState<CalendarSync['status']>('ok')
   const [error, setError] = useState<string>()
   const [connecting, setConnecting] = useState(false)
+  // Per device: a phone's calendars belong to that phone.
+  const [deviceWanted, setDeviceWanted] = useLocalStorage<boolean>('unidash.deviceCalendar.v1')
+  const [access, setAccess] = useState<DeviceAccess>('unavailable')
   const key = urls.join('\n')
   const googleOn = googleConfigured && Boolean(account)
-  const active = Boolean(key) || googleOn
+  const deviceOn = Boolean(deviceWanted) && access === 'granted'
+  const active = Boolean(key) || googleOn || deviceOn
   const running = useRef(false)
   const latestSync = useRef<() => void>(() => {})
 
@@ -77,21 +92,36 @@ export function useCalendarSync(urls: string[] = []): CalendarSync {
     initGoogle().catch(() => {})
   }, [])
 
+  // Calendar access can change in iPhone Settings while unidash is in the background.
+  useEffect(() => {
+    if (!isNative) return
+    const check = () => void deviceAccess().then(setAccess)
+    check()
+    const onVisible = () => document.visibilityState === 'visible' && check()
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
+
   const sync = useCallback(async () => {
     const list = key.split('\n').filter(Boolean)
-    if ((!list.length && !googleOn) || running.current) return
+    if ((!list.length && !googleOn && !deviceOn) || running.current) return
     running.current = true
     setStatus('syncing')
     const jobs = [...list.map(fetchFeed), ...(googleOn ? [fetchGoogleEvents()] : [])]
-    const results = await Promise.allSettled(jobs)
+    const [results, phone] = await Promise.all([Promise.allSettled(jobs), deviceOn ? fetchDeviceEvents().catch(() => null) : Promise.resolve([])])
     running.current = false
 
     const ok = results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
     const failures = results.flatMap((r) => (r.status === 'rejected' ? [r.reason] : []))
 
-    if (ok.length) {
+    // A failed Google/iCal read keeps the last copy rather than replacing it with the phone's events alone.
+    if (ok.length || (!failures.length && phone)) {
       const seen = new Set<string>()
-      const events = ok.flat().filter((e) => !seen.has(e.id) && seen.add(e.id))
+      const online = ok.flat().filter((e) => !seen.has(e.id) && seen.add(e.id))
+      // The phone often has the same Google calendars: same title and start = the same event.
+      const same = (e: CalendarEvent) => `${e.title.trim().toLowerCase()}|${e.start}`
+      const known = new Set(online.map(same))
+      const events = [...online, ...(phone ?? []).filter((e) => !known.has(same(e)))]
       setSnapshot({ events, syncedAt: new Date().toISOString() })
     }
     if (failures.some((f) => f instanceof GoogleReconnectError)) {
@@ -104,11 +134,19 @@ export function useCalendarSync(urls: string[] = []): CalendarSync {
       setStatus('ok')
       setError(undefined)
     }
-  }, [key, googleOn, setSnapshot])
+  }, [key, googleOn, deviceOn, setSnapshot])
 
   useEffect(() => {
     latestSync.current = sync
   }, [sync])
+
+  // Edits in Apple Calendar while unidash is open.
+  useEffect(() => {
+    if (!deviceOn) return
+    let handle: { remove: () => Promise<void> } | undefined
+    void onDeviceCalendarChange(() => latestSync.current()).then((h) => (handle = h))
+    return () => void handle?.remove()
+  }, [deviceOn])
 
   useEffect(() => {
     if (!active) return
@@ -136,11 +174,29 @@ export function useCalendarSync(urls: string[] = []): CalendarSync {
   const disconnect = useCallback(async () => {
     await disconnectGoogle()
     setAccount(null)
-    if (!key) setSnapshot({ events: [], syncedAt: new Date().toISOString() })
-  }, [key, setAccount, setSnapshot])
+    if (!key && !deviceOn) setSnapshot({ events: [], syncedAt: new Date().toISOString() })
+    else setTimeout(() => latestSync.current(), 0)
+  }, [key, deviceOn, setAccount, setSnapshot])
+
+  const enable = useCallback(async () => {
+    const result = access === 'prompt' ? await askDeviceAccess() : access
+    setAccess(result)
+    if (result === 'granted') {
+      setDeviceWanted(true)
+      setTimeout(() => latestSync.current(), 0)
+    }
+    return result
+  }, [access, setDeviceWanted])
+
+  const disable = useCallback(() => {
+    setDeviceWanted(false)
+    if (!key && !googleOn) setSnapshot({ events: [], syncedAt: new Date().toISOString() })
+    else setTimeout(() => latestSync.current(), 0)
+  }, [key, googleOn, setDeviceWanted, setSnapshot])
 
   const google = { available: googleConfigured, account: account ?? undefined, connecting, connect, disconnect }
+  const device = { access, on: deviceOn, enable, disable, openSettings: () => void openCalendarSettings() }
 
-  if (!active) return { events: [], status: 'off', sync, google }
-  return { events: snapshot?.events ?? [], status, syncedAt: snapshot?.syncedAt, error, sync, google }
+  if (!active) return { events: [], status: 'off', sync, google, device }
+  return { events: snapshot?.events ?? [], status, syncedAt: snapshot?.syncedAt, error, sync, google, device }
 }
