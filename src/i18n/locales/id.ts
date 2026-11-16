@@ -933,6 +933,15 @@ const dict: Dict = {
   "se.workStarts": "Jam mulai",
   "se.workEnds": "Jam selesai",
   "routine.add": "Tambah hari dan jam",
+  "device.offer": "Tampilkan kalender iPhone",
+  "device.offerDetail": "Acara dari Kalender Apple dan akun di iPhone ini. Hanya dibaca, dan tetap di ponselmu.",
+  "device.title": "Kalender iPhone",
+  "device.toggle": "Tampilkan kalender iPhone ini",
+  "device.hint": "Kalender Apple dan akun yang ditambahkan di Pengaturan iPhone. unidash hanya membacanya, dan semuanya tetap di ponsel ini.",
+  "device.denied": "Akses kalender untuk unidash mati. Nyalakan Kalender → Akses Penuh di Pengaturan iPhone.",
+  "device.openSettings": "Buka Pengaturan",
+  "device.on": "Kalender iPhone tersambung",
+  "pp.deviceCal": "Di iPhone, jika kamu mengizinkan, unidash membaca kalender di ponselmu (Kalender Apple dan akun yang ditambahkan di Pengaturan iPhone) untuk menampilkan acaramu dan menghitung kapan berangkat. Semuanya hanya dibaca di ponsel: unidash tidak pernah mengubahnya, tidak pernah mengunggahnya, dan tidak menaruhnya di salinan Google Drive-mu.",
 }
 
 export default dict

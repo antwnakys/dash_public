@@ -933,6 +933,15 @@ const dict: Dict = {
   "se.workStarts": "開始時刻",
   "se.workEnds": "終了時刻",
   "routine.add": "曜日と時間を追加",
+  "device.offer": "iPhone のカレンダーを表示",
+  "device.offerDetail": "Apple のカレンダーとこの iPhone のアカウントの予定。読み取りのみで、電話の中にとどまります。",
+  "device.title": "iPhone のカレンダー",
+  "device.toggle": "この iPhone のカレンダーを表示",
+  "device.hint": "Apple のカレンダーと、iPhone の設定で追加したアカウント。unidash は読み取るだけで、この電話の中にとどまります。",
+  "device.denied": "unidash のカレンダーへのアクセスがオフです。iPhone の設定で カレンダー → フルアクセス をオンにしてください。",
+  "device.openSettings": "設定を開く",
+  "device.on": "iPhone のカレンダーを接続しました",
+  "pp.deviceCal": "iPhone では、許可すると unidash は電話のカレンダー（Apple のカレンダーと iPhone の設定で追加したアカウント）を読み取り、予定の表示と出発時刻の計算に使います。読み取りは電話の中だけで行われ、unidash が変更したり、アップロードしたり、Google ドライブのコピーに入れたりすることはありません。",
 }
 
 export default dict

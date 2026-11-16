@@ -933,6 +933,15 @@ const dict: Dict = {
   "se.workStarts": "开始时间",
   "se.workEnds": "结束时间",
   "routine.add": "添加日子和时间",
+  "device.offer": "显示 iPhone 日历",
+  "device.offerDetail": "来自 Apple 日历和此 iPhone 上各账户的日程。只读，并且只留在你的手机上。",
+  "device.title": "iPhone 日历",
+  "device.toggle": "显示此 iPhone 的日历",
+  "device.hint": "Apple 日历以及在 iPhone 设置中添加的账户。unidash 只读取它们，它们会留在这部手机上。",
+  "device.denied": "unidash 的日历访问已关闭。请在 iPhone 设置中打开日历 → 完全访问。",
+  "device.openSettings": "打开设置",
+  "device.on": "已连接 iPhone 日历",
+  "pp.deviceCal": "在 iPhone 上，如果你允许，unidash 会读取手机上的日历（Apple 日历以及在 iPhone 设置中添加的账户），用来显示你的日程并计算何时出发。它们只在手机上读取：unidash 从不修改、从不上传，也不会放进你的 Google 云端硬盘副本。",
 }
 
 export default dict

@@ -947,6 +947,15 @@ const dict: Dict = {
   "se.workStarts": "Başlangıç saati",
   "se.workEnds": "Bitiş saati",
   "routine.add": "Gün ve saat ekle",
+  "device.offer": "iPhone takvimini göster",
+  "device.offerDetail": "Apple Takvim’den ve bu iPhone’daki hesaplardan etkinlikler. Yalnızca okunur ve telefonunda kalır.",
+  "device.title": "iPhone takvimi",
+  "device.toggle": "Bu iPhone’un takvimlerini göster",
+  "device.hint": "Apple Takvim ve iPhone Ayarlar’ında eklenen hesaplar. unidash bunları yalnızca okur ve bu telefonda kalırlar.",
+  "device.denied": "unidash için takvim erişimi kapalı. iPhone Ayarlar’ında Takvimler → Tam Erişim’i aç.",
+  "device.openSettings": "Ayarlar’ı aç",
+  "device.on": "iPhone takvimi bağlandı",
+  "pp.deviceCal": "iPhone’da, izin verirsen unidash etkinliklerini göstermek ve ne zaman çıkman gerektiğini hesaplamak için telefonundaki takvimleri (Apple Takvim ve iPhone Ayarlar’ında eklenen hesaplar) okur. Yalnızca telefonda okunurlar: unidash onları asla değiştirmez, asla yüklemez ve Google Drive kopyana koymaz.",
 }
 
 export default dict

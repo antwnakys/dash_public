@@ -947,6 +947,15 @@ const dict: Dict = {
   "se.workStarts": "शुरू होने का समय",
   "se.workEnds": "खत्म होने का समय",
   "routine.add": "दिन और समय जोड़ें",
+  "device.offer": "iPhone कैलेंडर दिखाएं",
+  "device.offerDetail": "Apple कैलेंडर और इस iPhone के खातों के इवेंट। सिर्फ़ पढ़ने के लिए, और वे आपके फ़ोन पर ही रहते हैं।",
+  "device.title": "iPhone कैलेंडर",
+  "device.toggle": "इस iPhone के कैलेंडर दिखाएं",
+  "device.hint": "Apple कैलेंडर और iPhone सेटिंग्स में जोड़े गए खाते। unidash उन्हें सिर्फ़ पढ़ता है, और वे इसी फ़ोन पर रहते हैं।",
+  "device.denied": "unidash के लिए कैलेंडर की अनुमति बंद है। iPhone सेटिंग्स में कैलेंडर → पूरी अनुमति चालू करें।",
+  "device.openSettings": "सेटिंग्स खोलें",
+  "device.on": "iPhone कैलेंडर जुड़ गया",
+  "pp.deviceCal": "iPhone पर, अगर आप अनुमति दें, तो unidash आपके इवेंट दिखाने और निकलने का समय निकालने के लिए फ़ोन के कैलेंडर (Apple कैलेंडर और iPhone सेटिंग्स में जोड़े गए खाते) पढ़ता है। वे सिर्फ़ फ़ोन पर पढ़े जाते हैं: unidash उन्हें कभी नहीं बदलता, कभी अपलोड नहीं करता और आपकी Google Drive कॉपी में नहीं रखता।",
 }
 
 export default dict

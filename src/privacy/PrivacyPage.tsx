@@ -2,7 +2,7 @@ import { Logo } from '@/components/brand/Logo'
 import { lang, languages, locale, setLanguage, t, type Key, type LangCode } from '@/i18n'
 
 /** When the policy last changed (shown on the page; bump it with every change to the text). */
-const UPDATED = new Date(2026, 10, 13)
+const UPDATED = new Date(2026, 10, 16)
 
 function Section({ title, children }: { title: Key; children: React.ReactNode }) {
   return (
@@ -58,6 +58,7 @@ export function PrivacyPage() {
       <Section title="pp.storeTitle">
         <P k="pp.store" />
         <P k="pp.files" />
+        <P k="pp.deviceCal" />
       </Section>
       <Section title="pp.googleTitle">
         <P k="pp.google1" />
